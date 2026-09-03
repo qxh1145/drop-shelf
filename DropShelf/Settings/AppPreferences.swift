@@ -49,29 +49,86 @@ private struct LoginItemServiceWorker: Sendable {
     }
 }
 
+enum AppBehaviorPreferenceChange {
+    case shakeGesture
+    case activationShortcut
+    case dockVisibility
+}
+
 @MainActor
 final class AppPreferences: ObservableObject {
     static let shared = AppPreferences()
 
     private enum Keys {
         static let shakeSensitivity = "DropShelf.shakeSensitivity"
+        static let closeShelfWhenEmpty = "DropShelf.closeShelfWhenEmpty"
+        static let automaticallyHideAfterTenSeconds = "DropShelf.automaticallyHideAfterTenSeconds"
+        static let shakeGestureEnabled = "DropShelf.shakeGestureEnabled"
+        static let activationShortcut = "DropShelf.activationShortcut"
+        static let showInDock = "DropShelf.showInDock"
     }
 
     @Published private(set) var shakeSensitivity: Double
+    @Published private(set) var shakeGestureEnabled: Bool
+    @Published private(set) var activationShortcut: ShelfActivationShortcut
+    @Published private(set) var activationShortcutError: String?
+    @Published private(set) var showInDock: Bool
+    @Published private(set) var closeShelfWhenEmpty: Bool
+    @Published private(set) var automaticallyHideAfterTenSeconds: Bool
     @Published private(set) var loginItemStatus: SMAppService.Status
     @Published private(set) var loginItemError: String?
+
+    var shelfBehaviorDidChange: (() -> Void)?
+    var appBehaviorDidChange: ((AppBehaviorPreferenceChange) -> Void)?
 
     private let defaults: UserDefaults
     private lazy var loginItemWorker = LoginItemServiceWorker()
     private var loginItemRequestID: UInt = 0
 
-    private init(defaults: UserDefaults = .standard) {
+    init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
 
         if defaults.object(forKey: Keys.shakeSensitivity) == nil {
             shakeSensitivity = 0.5
         } else {
             shakeSensitivity = defaults.double(forKey: Keys.shakeSensitivity)
+        }
+
+        if defaults.object(forKey: Keys.shakeGestureEnabled) == nil {
+            shakeGestureEnabled = true
+        } else {
+            shakeGestureEnabled = defaults.bool(forKey: Keys.shakeGestureEnabled)
+        }
+
+        if let shortcutData = defaults.data(forKey: Keys.activationShortcut),
+           let storedShortcut = try? JSONDecoder().decode(
+               ShelfActivationShortcut.self,
+               from: shortcutData
+           ) {
+            activationShortcut = storedShortcut
+        } else {
+            activationShortcut = .defaultShortcut
+        }
+        activationShortcutError = nil
+
+        if defaults.object(forKey: Keys.showInDock) == nil {
+            showInDock = false
+        } else {
+            showInDock = defaults.bool(forKey: Keys.showInDock)
+        }
+
+        if defaults.object(forKey: Keys.closeShelfWhenEmpty) == nil {
+            closeShelfWhenEmpty = true
+        } else {
+            closeShelfWhenEmpty = defaults.bool(forKey: Keys.closeShelfWhenEmpty)
+        }
+
+        if defaults.object(forKey: Keys.automaticallyHideAfterTenSeconds) == nil {
+            automaticallyHideAfterTenSeconds = false
+        } else {
+            automaticallyHideAfterTenSeconds = defaults.bool(
+                forKey: Keys.automaticallyHideAfterTenSeconds
+            )
         }
 
         loginItemStatus = .notRegistered
@@ -118,6 +175,55 @@ final class AppPreferences: ObservableObject {
         shakeSensitivity = clampedValue
         defaults.set(clampedValue, forKey: Keys.shakeSensitivity)
         ShakeDetector.shared.updateSensitivity(clampedValue)
+    }
+
+    func setShakeGestureEnabled(_ enabled: Bool) {
+        guard enabled != shakeGestureEnabled else { return }
+
+        shakeGestureEnabled = enabled
+        defaults.set(enabled, forKey: Keys.shakeGestureEnabled)
+        appBehaviorDidChange?(.shakeGesture)
+    }
+
+    func setActivationShortcut(_ shortcut: ShelfActivationShortcut) {
+        guard shortcut != activationShortcut else { return }
+
+        activationShortcut = shortcut
+        activationShortcutError = nil
+        if let data = try? JSONEncoder().encode(shortcut) {
+            defaults.set(data, forKey: Keys.activationShortcut)
+        }
+        appBehaviorDidChange?(.activationShortcut)
+    }
+
+    func setActivationShortcutRegistrationSucceeded(_ succeeded: Bool) {
+        activationShortcutError = succeeded
+            ? nil
+            : "This shortcut is already used by macOS or another app. Choose a different one."
+    }
+
+    func setShowInDock(_ enabled: Bool) {
+        guard enabled != showInDock else { return }
+
+        showInDock = enabled
+        defaults.set(enabled, forKey: Keys.showInDock)
+        appBehaviorDidChange?(.dockVisibility)
+    }
+
+    func setCloseShelfWhenEmpty(_ enabled: Bool) {
+        guard enabled != closeShelfWhenEmpty else { return }
+
+        closeShelfWhenEmpty = enabled
+        defaults.set(enabled, forKey: Keys.closeShelfWhenEmpty)
+        shelfBehaviorDidChange?()
+    }
+
+    func setAutomaticallyHideAfterTenSeconds(_ enabled: Bool) {
+        guard enabled != automaticallyHideAfterTenSeconds else { return }
+
+        automaticallyHideAfterTenSeconds = enabled
+        defaults.set(enabled, forKey: Keys.automaticallyHideAfterTenSeconds)
+        shelfBehaviorDidChange?()
     }
 
     func setLaunchAtLogin(_ enabled: Bool) {

@@ -2,8 +2,10 @@ import AppKit
 
 final class ShelfPanel: NSPanel {
     private static let panelSize = NSSize(width: 390, height: 188)
+    private weak var shelfManager: ShelfManager?
 
     init(manager: ShelfManager) {
+        shelfManager = manager
         super.init(
             contentRect: NSRect(origin: .zero, size: Self.panelSize),
             styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
@@ -24,6 +26,26 @@ final class ShelfPanel: NSPanel {
 
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
+
+    override func sendEvent(_ event: NSEvent) {
+        switch event.type {
+        case .leftMouseDown,
+             .leftMouseUp,
+             .leftMouseDragged,
+             .rightMouseDown,
+             .rightMouseUp,
+             .rightMouseDragged,
+             .otherMouseDown,
+             .otherMouseUp,
+             .otherMouseDragged,
+             .scrollWheel:
+            shelfManager?.shelfDidReceiveUserActivity()
+        default:
+            break
+        }
+
+        super.sendEvent(event)
+    }
 
     func position(near cursor: CGPoint) {
         let screen = NSScreen.screens.first { $0.frame.contains(cursor) } ?? NSScreen.main

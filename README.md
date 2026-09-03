@@ -65,6 +65,8 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 
 - Temporary floating Shelf for files and folders
 - Mouse gesture to quickly create a Shelf
+- Optional shake trigger and a customizable global keyboard shortcut
+- Optional Dock icon
 - Drop multiple files and folders into one place
 - Drag items from the Shelf into Finder or compatible apps
 - Remove individual items
@@ -72,6 +74,12 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 - Drag handle for repositioning the Shelf
 - **AirDrop All**
 - **Zip All…**
+- **Recent Shelves** history retained for 72 hours
+- Global **Command-Shift-H** shortcut for recent shelves
+- Custom Shelf names and pinned history that does not expire
+- Fast access to pinned shelves from the menu bar
+- Optional close-when-empty and 10-second inactivity auto-hide behaviors
+- Per-item native image and video conversion with content-based format detection
 - Native macOS menu integration
 - Menu bar integration
 - Translucent material-style interface
@@ -179,12 +187,37 @@ Available actions currently include:
 |---|---|
 | AirDrop All | Opens the AirDrop flow for items on the Shelf |
 | Zip All… | Creates a ZIP archive from Shelf items |
+| Recent Shelves… | Shows Shelf sessions closed during the last 72 hours |
+
+Each file item also has its own **•••** menu. For supported single-frame images,
+choose **Convert to** and then an available target format. DropShelf asks for a
+destination folder, creates a new collision-free output file, and leaves the
+source untouched. Current native conversions are HEIC/HEIF/HEICS → JPEG/PNG,
+JPEG → PNG/HEIC, PNG → JPEG, and MOV ↔ MP4 when the existing codecs are
+compatible with the target container. PDF → PNG/JPEG renders every page at
+144 DPI, while JPEG/PNG/HEIC → PDF creates a one-page PDF. Unsupported or risky
+targets are not shown.
+
+For a multi-page PDF, DropShelf creates one image per page using names such as
+`Document - Page 1.png`, then reveals all generated files in Finder.
+
+CSV/XLSX conversion is intentionally not exposed: CSV cannot preserve workbook
+sheets, formulas, styles, charts, or reliable cell types, while XLSX → CSV needs
+an explicit sheet and data-loss policy.
 
 ## 8. Close the Shelf
 
 Click the close button in the upper-right corner.
 
-The current Shelf contents are cleared when the Shelf is closed.
+The current Shelf contents are cleared when the Shelf is closed. DropShelf keeps
+only their file references in **Recent Shelves** for 72 hours; it never copies or
+moves the original files. Open **••• → Recent Shelves…** or press **Command-Shift-H**
+to restore a recent Shelf. Missing or deleted files are removed from history
+automatically. Use **••• → Name Shelf…** before closing to add a memorable name,
+then click the pin button beside **•••** to keep that Shelf beyond 72 hours. You
+can also pin or unpin an entry inside Recent Shelves. The menu bar's **Pinned
+Shelves** submenu shows each Shelf's name, date, item count, and file summary;
+restoring one preserves its memorable name.
 
 ---
 
@@ -322,6 +355,10 @@ DropShelf
 │
 ├── Mouse
 │   └── Mouse gesture / monitoring logic
+│
+├── Conversion
+│   ├── FileFormat
+│   └── ConversionService
 │
 ├── Shelf
 │   ├── ShelfItem

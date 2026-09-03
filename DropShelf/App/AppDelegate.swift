@@ -6,10 +6,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBarController: MenuBarController?
     private var settingsWindowController: SettingsWindowController?
     private var previousInstanceTerminator: PreviousInstanceTerminator?
+    private var historyHotKeyController: GlobalHotKeyController?
+    private var activationHotKeyController: GlobalHotKeyController?
     private var didStartApplicationServices = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.setActivationPolicy(.accessory)
+        applyDockVisibility()
 
         if let icon = Bundle.main.image(forResource: "AppIcon") ?? NSImage(named: "AppIconImage") ?? (Bundle.main.bundlePath.isEmpty ? nil : NSWorkspace.shared.icon(forFile: Bundle.main.bundlePath)) {
             NSApp.applicationIconImage = icon
@@ -26,7 +28,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         previousInstanceTerminator?.cancel()
         previousInstanceTerminator = nil
 
+        ShelfManager.shared.prepareForTermination()
         ShakeDetector.shared.stop()
+
+        historyHotKeyController?.invalidate()
+        historyHotKeyController = nil
+        activationHotKeyController?.invalidate()
+        activationHotKeyController = nil
+
+        AppPreferences.shared.appBehaviorDidChange = nil
 
         settingsWindowController?.close()
         settingsWindowController = nil
@@ -77,15 +87,69 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard !didStartApplicationServices else { return }
         didStartApplicationServices = true
 
-        menuBarController = MenuBarController { [weak self] in
+        menuBarController = MenuBarController(
+            shelfManager: .shared
+        ) { [weak self] in
             self?.showSettings()
         }
 
-        ShakeDetector.shared.updateSensitivity(AppPreferences.shared.shakeSensitivity)
+        AppPreferences.shared.appBehaviorDidChange = { [weak self] change in
+            self?.apply(change)
+        }
 
-        ShakeDetector.shared.start {
+        configureShakeGesture()
+
+        let historyHotKeyController = GlobalHotKeyController()
+        historyHotKeyController.registerCommandShiftH {
+            ShelfManager.shared.showHistory(near: NSEvent.mouseLocation)
+        }
+        self.historyHotKeyController = historyHotKeyController
+
+        registerActivationShortcut()
+    }
+
+    private func apply(_ change: AppBehaviorPreferenceChange) {
+        switch change {
+        case .shakeGesture:
+            configureShakeGesture()
+        case .activationShortcut:
+            registerActivationShortcut()
+        case .dockVisibility:
+            applyDockVisibility()
+        }
+    }
+
+    private func configureShakeGesture() {
+        let preferences = AppPreferences.shared
+        let detector = ShakeDetector.shared
+        detector.updateSensitivity(preferences.shakeSensitivity)
+
+        guard preferences.shakeGestureEnabled else {
+            detector.stop()
+            return
+        }
+
+        detector.start {
             ShelfManager.shared.showShelf(near: NSEvent.mouseLocation)
         }
+    }
+
+    private func registerActivationShortcut() {
+        let controller = activationHotKeyController ?? GlobalHotKeyController()
+        let succeeded = controller.register(
+            shortcut: AppPreferences.shared.activationShortcut,
+            identifier: 2
+        ) {
+            ShelfManager.shared.showShelf(near: NSEvent.mouseLocation)
+        }
+        activationHotKeyController = controller
+        AppPreferences.shared.setActivationShortcutRegistrationSucceeded(succeeded)
+    }
+
+    private func applyDockVisibility() {
+        NSApp.setActivationPolicy(
+            AppPreferences.shared.showInDock ? .regular : .accessory
+        )
     }
 
     private func showSettings() {

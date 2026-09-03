@@ -329,3 +329,357 @@ final class SettingsViewTests: XCTestCase {
         _ = view.body
     }
 }
+
+final class ShelfHistoryStoreTests: XCTestCase {
+    func testHistoryIsRetainedFor72HoursAndThenExpires() throws {
+        let suiteName = "DropShelfHistoryTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let testDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DropShelfHistoryTests-\(UUID().uuidString)")
+        let fileURL = testDirectory.appendingPathComponent("report.pdf")
+        defer { try? FileManager.default.removeItem(at: testDirectory) }
+
+        try FileManager.default.createDirectory(
+            at: testDirectory,
+            withIntermediateDirectories: true
+        )
+        try Data("report".utf8).write(to: fileURL)
+
+        let store = ShelfHistoryStore(defaults: defaults)
+        let createdAt = Date(timeIntervalSince1970: 1_000_000)
+        let entries = store.addingSnapshot(
+            urls: [fileURL],
+            to: [],
+            now: createdAt
+        )
+
+        XCTAssertEqual(entries.count, 1)
+        XCTAssertEqual(
+            store.load(now: createdAt.addingTimeInterval((71 * 60 * 60) + 59)).count,
+            1
+        )
+        XCTAssertTrue(
+            store.load(now: createdAt.addingTimeInterval((72 * 60 * 60) + 1)).isEmpty
+        )
+    }
+
+    func testMissingFilesAndDuplicateURLsAreRemoved() throws {
+        let suiteName = "DropShelfHistoryTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let testDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DropShelfHistoryTests-\(UUID().uuidString)")
+        let availableURL = testDirectory.appendingPathComponent("available.txt")
+        let missingURL = testDirectory.appendingPathComponent("missing.txt")
+        defer { try? FileManager.default.removeItem(at: testDirectory) }
+
+        try FileManager.default.createDirectory(
+            at: testDirectory,
+            withIntermediateDirectories: true
+        )
+        try Data("available".utf8).write(to: availableURL)
+
+        let store = ShelfHistoryStore(defaults: defaults)
+        let entries = store.addingSnapshot(
+            urls: [availableURL, missingURL, availableURL],
+            to: []
+        )
+
+        XCTAssertEqual(entries.count, 1)
+        XCTAssertEqual(entries[0].urls, [availableURL.standardizedFileURL])
+    }
+
+    func testPinnedNamedShelfDoesNotExpireAfter72Hours() throws {
+        let suiteName = "DropShelfHistoryTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let testDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DropShelfHistoryTests-\(UUID().uuidString)")
+        let fileURL = testDirectory.appendingPathComponent("design.fig")
+        defer { try? FileManager.default.removeItem(at: testDirectory) }
+
+        try FileManager.default.createDirectory(
+            at: testDirectory,
+            withIntermediateDirectories: true
+        )
+        try Data("design".utf8).write(to: fileURL)
+
+        let store = ShelfHistoryStore(defaults: defaults)
+        let createdAt = Date(timeIntervalSince1970: 2_000_000)
+        var entries = store.addingSnapshot(
+            urls: [fileURL],
+            name: "Design review",
+            to: [],
+            now: createdAt
+        )
+        let entryID = try XCTUnwrap(entries.first?.id)
+        entries = store.settingPinned(
+            true,
+            entryID: entryID,
+            in: entries,
+            now: createdAt
+        )
+
+        let retainedEntries = store.load(
+            now: createdAt.addingTimeInterval(10 * 24 * 60 * 60)
+        )
+        XCTAssertEqual(retainedEntries.count, 1)
+        XCTAssertEqual(retainedEntries[0].name, "Design review")
+        XCTAssertTrue(retainedEntries[0].isPinned)
+    }
+
+    func testPinnedShelfPresentationIncludesNameTimeCountAndFiles() {
+        let now = Date(timeIntervalSince1970: 3_000_000)
+        let entry = ShelfHistoryEntry(
+            createdAt: now.addingTimeInterval(-600),
+            name: "Design reviews",
+            isPinned: true,
+            urls: [
+                URL(fileURLWithPath: "/tmp/screenshot.png"),
+                URL(fileURLWithPath: "/tmp/report.pdf")
+            ]
+        )
+
+        XCTAssertEqual(
+            ShelfHistoryPresentation.displayName(for: entry),
+            "Design reviews"
+        )
+        XCTAssertTrue(
+            ShelfHistoryPresentation.detailLine(for: entry, relativeTo: now)
+                .contains("2 items")
+        )
+        XCTAssertEqual(
+            ShelfHistoryPresentation.fileSummary(for: entry),
+            "screenshot.png, report.pdf"
+        )
+    }
+
+    @MainActor
+    func testCurrentShelfPinTracksNameAndAvoidsDuplicateHistoryEntry() throws {
+        let suiteName = "DropShelfHistoryTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let testDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DropShelfHistoryTests-\(UUID().uuidString)")
+        let fileURL = testDirectory.appendingPathComponent("concept.fig")
+        defer { try? FileManager.default.removeItem(at: testDirectory) }
+
+        try FileManager.default.createDirectory(
+            at: testDirectory,
+            withIntermediateDirectories: true
+        )
+        try Data("design".utf8).write(to: fileURL)
+
+        let manager = ShelfManager(
+            historyStore: ShelfHistoryStore(defaults: defaults),
+            preferences: AppPreferences(defaults: defaults)
+        )
+        manager.add(urls: [fileURL])
+        manager.setCurrentShelfName("Design reviews")
+        manager.toggleCurrentShelfPin()
+
+        XCTAssertTrue(manager.isCurrentShelfPinned)
+        XCTAssertEqual(manager.pinnedHistoryEntries.count, 1)
+        XCTAssertEqual(manager.pinnedHistoryEntries.first?.name, "Design reviews")
+
+        manager.setCurrentShelfName("Final designs")
+        manager.clearAndCloseShelf()
+
+        XCTAssertEqual(manager.historyEntries.count, 1)
+        XCTAssertEqual(manager.historyEntries.first?.name, "Final designs")
+        XCTAssertTrue(manager.historyEntries.first?.isPinned == true)
+    }
+
+    @MainActor
+    func testRestoringPinnedShelfPreservesItsNameWhenShelfAlreadyHasItems() throws {
+        let suiteName = "DropShelfHistoryTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let testDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DropShelfHistoryTests-\(UUID().uuidString)")
+        let pinnedURL = testDirectory.appendingPathComponent("launch-assets.zip")
+        let currentURL = testDirectory.appendingPathComponent("notes.txt")
+        defer { try? FileManager.default.removeItem(at: testDirectory) }
+
+        try FileManager.default.createDirectory(
+            at: testDirectory,
+            withIntermediateDirectories: true
+        )
+        try Data("assets".utf8).write(to: pinnedURL)
+        try Data("notes".utf8).write(to: currentURL)
+
+        let store = ShelfHistoryStore(defaults: defaults)
+        let storedEntries = store.addingSnapshot(
+            urls: [pinnedURL],
+            name: "Launch assets",
+            isPinned: true,
+            to: []
+        )
+        let entryID = try XCTUnwrap(storedEntries.first?.id)
+        let manager = ShelfManager(
+            historyStore: store,
+            preferences: AppPreferences(defaults: defaults)
+        )
+        manager.add(urls: [currentURL])
+        manager.restoreHistoryEntry(id: entryID)
+
+        XCTAssertEqual(manager.currentShelfName, "Launch assets")
+        XCTAssertEqual(Set(manager.items.map(\.url)), [
+            currentURL.standardizedFileURL,
+            pinnedURL.standardizedFileURL
+        ])
+        manager.clearAndCloseShelf()
+    }
+
+    @MainActor
+    func testClosedShelfCanRestoreFilesEvenAfterSuccessfulOutboundDrag() throws {
+        let suiteName = "DropShelfHistoryTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let testDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DropShelfHistoryTests-\(UUID().uuidString)")
+        let fileURL = testDirectory.appendingPathComponent("recent.png")
+        defer { try? FileManager.default.removeItem(at: testDirectory) }
+
+        try FileManager.default.createDirectory(
+            at: testDirectory,
+            withIntermediateDirectories: true
+        )
+        try Data("image".utf8).write(to: fileURL)
+
+        let manager = ShelfManager(
+            historyStore: ShelfHistoryStore(defaults: defaults),
+            preferences: AppPreferences(defaults: defaults)
+        )
+        manager.add(urls: [fileURL])
+        manager.setCurrentShelfName("  Launch assets  ")
+        let itemID = try XCTUnwrap(manager.items.first?.id)
+        manager.outboundDragDidSucceed(itemIDs: [itemID])
+        XCTAssertTrue(manager.items.isEmpty)
+
+        manager.clearAndCloseShelf()
+        let historyID = try XCTUnwrap(manager.historyEntries.first?.id)
+        XCTAssertEqual(manager.historyEntries.first?.name, "Launch assets")
+        manager.toggleHistoryPin(id: historyID)
+        XCTAssertTrue(manager.historyEntries.first?.isPinned == true)
+        manager.restoreHistoryEntry(id: historyID)
+
+        XCTAssertEqual(manager.items.map(\.url), [fileURL.standardizedFileURL])
+        XCTAssertEqual(manager.currentShelfName, "Launch assets")
+        XCTAssertFalse(manager.isShowingHistory)
+    }
+}
+
+final class ShelfBehaviorPreferencesTests: XCTestCase {
+    @MainActor
+    func testShelfBehaviorDefaultsAndPersistence() throws {
+        let suiteName = "DropShelfBehaviorTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let preferences = AppPreferences(defaults: defaults)
+        XCTAssertTrue(preferences.shakeGestureEnabled)
+        XCTAssertEqual(preferences.activationShortcut, .defaultShortcut)
+        XCTAssertFalse(preferences.showInDock)
+        XCTAssertTrue(preferences.closeShelfWhenEmpty)
+        XCTAssertFalse(preferences.automaticallyHideAfterTenSeconds)
+
+        let customShortcut = ShelfActivationShortcut(
+            keyCode: 2,
+            keyLabel: "D",
+            modifierFlags: [.command, .option]
+        )
+        preferences.setShakeGestureEnabled(false)
+        preferences.setActivationShortcut(customShortcut)
+        preferences.setShowInDock(true)
+        preferences.setCloseShelfWhenEmpty(false)
+        preferences.setAutomaticallyHideAfterTenSeconds(true)
+
+        let reloadedPreferences = AppPreferences(defaults: defaults)
+        XCTAssertFalse(reloadedPreferences.shakeGestureEnabled)
+        XCTAssertEqual(reloadedPreferences.activationShortcut, customShortcut)
+        XCTAssertTrue(reloadedPreferences.showInDock)
+        XCTAssertFalse(reloadedPreferences.closeShelfWhenEmpty)
+        XCTAssertTrue(reloadedPreferences.automaticallyHideAfterTenSeconds)
+    }
+
+    func testShortcutDisplayNameAndCoding() throws {
+        let shortcut = ShelfActivationShortcut(
+            keyCode: 49,
+            keyLabel: "Space",
+            modifierFlags: [.control, .option, .shift, .command]
+        )
+
+        XCTAssertEqual(shortcut.displayName, "⌃⌥⇧⌘Space")
+        let data = try JSONEncoder().encode(shortcut)
+        XCTAssertEqual(
+            try JSONDecoder().decode(ShelfActivationShortcut.self, from: data),
+            shortcut
+        )
+    }
+
+    @MainActor
+    func testCloseWhenEmptyCanBeEnabledAndDisabled() throws {
+        let suiteName = "DropShelfBehaviorTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let preferences = AppPreferences(defaults: defaults)
+        let manager = ShelfManager(
+            historyStore: ShelfHistoryStore(defaults: defaults),
+            preferences: preferences
+        )
+
+        manager.showShelf(near: CGPoint(x: 200, y: 200))
+        manager.add(urls: [URL(fileURLWithPath: "/tmp/close-when-empty.txt")])
+        manager.removeItem(id: try XCTUnwrap(manager.items.first?.id))
+        XCTAssertFalse(manager.isShelfVisible)
+
+        preferences.setCloseShelfWhenEmpty(false)
+        manager.showShelf(near: CGPoint(x: 220, y: 220))
+        manager.add(urls: [URL(fileURLWithPath: "/tmp/stay-open-when-empty.txt")])
+        manager.removeItem(id: try XCTUnwrap(manager.items.first?.id))
+        XCTAssertTrue(manager.isShelfVisible)
+
+        manager.clearAndCloseShelf()
+    }
+
+    @MainActor
+    func testAutoHideKeepsItemsAndCanBeCancelledFromSettings() throws {
+        let suiteName = "DropShelfBehaviorTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let preferences = AppPreferences(defaults: defaults)
+        preferences.setCloseShelfWhenEmpty(false)
+        preferences.setAutomaticallyHideAfterTenSeconds(true)
+
+        let manager = ShelfManager(
+            historyStore: ShelfHistoryStore(defaults: defaults),
+            preferences: preferences,
+            autoHideDelay: 0.05
+        )
+        let fileURL = URL(fileURLWithPath: "/tmp/auto-hide-keeps-this.txt")
+        manager.add(urls: [fileURL])
+        manager.showShelf(near: CGPoint(x: 240, y: 240))
+
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.15))
+        XCTAssertFalse(manager.isShelfVisible)
+        XCTAssertEqual(manager.items.map(\.url), [fileURL.standardizedFileURL])
+
+        manager.showShelf(near: CGPoint(x: 260, y: 260))
+        preferences.setAutomaticallyHideAfterTenSeconds(false)
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.15))
+        XCTAssertTrue(manager.isShelfVisible)
+        XCTAssertEqual(manager.items.map(\.url), [fileURL.standardizedFileURL])
+
+        manager.clearAndCloseShelf()
+    }
+}

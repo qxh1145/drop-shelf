@@ -205,7 +205,7 @@ private struct ShelfItemDragOverlay: NSViewRepresentable {
 }
 
 final class DraggableShelfItemView: NSView, NSDraggingSource {
-    private static let removeButtonHitArea = NSSize(width: 30, height: 30)
+    private static let actionButtonHitArea = NSSize(width: 30, height: 30)
 
     private var item: ShelfItem
     private weak var manager: ShelfManager?
@@ -232,14 +232,22 @@ final class DraggableShelfItemView: NSView, NSDraggingSource {
     }
 
     override func hitTest(_ point: NSPoint) -> NSView? {
-        let removeButtonRect = NSRect(
-            x: max(bounds.maxX - Self.removeButtonHitArea.width, bounds.minX),
+        let leftActionRect = NSRect(
+            x: bounds.minX,
             y: bounds.minY,
-            width: min(Self.removeButtonHitArea.width, bounds.width),
-            height: min(Self.removeButtonHitArea.height, bounds.height)
+            width: min(Self.actionButtonHitArea.width, bounds.width),
+            height: min(Self.actionButtonHitArea.height, bounds.height)
+        )
+        let rightActionRect = NSRect(
+            x: max(bounds.maxX - Self.actionButtonHitArea.width, bounds.minX),
+            y: bounds.minY,
+            width: min(Self.actionButtonHitArea.width, bounds.width),
+            height: min(Self.actionButtonHitArea.height, bounds.height)
         )
 
-        return removeButtonRect.contains(point) ? nil : super.hitTest(point)
+        return leftActionRect.contains(point) || rightActionRect.contains(point)
+            ? nil
+            : super.hitTest(point)
     }
 
     func update(item: ShelfItem, manager: ShelfManager) {
