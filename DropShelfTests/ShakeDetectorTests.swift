@@ -223,6 +223,43 @@ final class ShelfManagerTests: XCTestCase {
 
         XCTAssertFalse(delegate.applicationShouldTerminateAfterLastWindowClosed(NSApp))
     }
+
+    func testSingleInstancePolicyOnlyTerminatesOlderProcesses() {
+        let currentLaunchDate = Date(timeIntervalSince1970: 200)
+
+        XCTAssertTrue(
+            SingleInstancePolicy.shouldTerminate(
+                otherPID: 100,
+                otherLaunchDate: Date(timeIntervalSince1970: 100),
+                currentPID: 200,
+                currentLaunchDate: currentLaunchDate
+            )
+        )
+        XCTAssertFalse(
+            SingleInstancePolicy.shouldTerminate(
+                otherPID: 300,
+                otherLaunchDate: Date(timeIntervalSince1970: 300),
+                currentPID: 200,
+                currentLaunchDate: currentLaunchDate
+            )
+        )
+        XCTAssertFalse(
+            SingleInstancePolicy.shouldTerminate(
+                otherPID: 200,
+                otherLaunchDate: currentLaunchDate,
+                currentPID: 200,
+                currentLaunchDate: currentLaunchDate
+            )
+        )
+        XCTAssertTrue(
+            SingleInstancePolicy.shouldTerminate(
+                otherPID: 199,
+                otherLaunchDate: currentLaunchDate,
+                currentPID: 200,
+                currentLaunchDate: currentLaunchDate
+            )
+        )
+    }
 }
 
 final class ZipArchiverTests: XCTestCase {
