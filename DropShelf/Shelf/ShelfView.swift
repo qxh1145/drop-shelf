@@ -3,11 +3,18 @@ import SwiftUI
 
 struct ShelfView: View {
     @ObservedObject var manager: ShelfManager
+    @ObservedObject private var preferences = AppPreferences.shared
+    @State private var hasAppeared = false
     
     var body: some View {
-        VStack(spacing: 7) {
+        VStack(spacing: 9) {
             dragHandle
             header
+
+            if !manager.isShowingHistory, manager.selectedItemIDs.count > 1 {
+                selectionBar
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
             
             if manager.isShowingHistory {
                 ShelfHistoryView(manager: manager)
@@ -17,50 +24,41 @@ struct ShelfView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: 10) {
                         ForEach(manager.items) { item in
-                            ZStack(alignment: .top) {
-                                ShelfItemView(
-                                    item: item,
-                                    isSelected: manager.selectedItemIDs.contains(item.id),
-                                    manager: manager
+                            ShelfItemCard(item: item, manager: manager)
+                                .transition(
+                                    .scale(scale: 0.92).combined(with: .opacity)
                                 )
-
-                                HStack(spacing: 0) {
-                                    ShelfItemActionsMenu(item: item, manager: manager)
-
-                                    Spacer(minLength: 0)
-
-                                    Button {
-                                        manager.removeItem(id: item.id)
-                                    } label: {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .font(.system(size: 16, weight: .semibold))
-                                            .symbolRenderingMode(.palette)
-                                            .foregroundStyle(.white, Color.black.opacity(0.62))
-                                            .shadow(color: .black.opacity(0.18), radius: 2, y: 1)
-                                    }
-                                    .buttonStyle(.borderless)
-                                    .contentShape(Circle())
-                                    .pointingHandCursor()
-                                    .help("Remove \(item.url.lastPathComponent) from Shelf")
-                                }
-                                .padding(4)
-                                .frame(maxWidth: .infinity, alignment: .top)
-                                .zIndex(1)
-                            }
-                            .frame(width: 86, height: 108)
                         }
                     }
-                    .padding(.horizontal, 2)
+                    .padding(.horizontal, 3)
+                    .padding(.vertical, 4)
                 }
             }
         }
-        .padding(12)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .padding(14)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
+            ZStack {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.18), lineWidth: 1)
+
+                if manager.isReceivingDrop {
+                    dropTargetOverlay
+                        .transition(.opacity)
+                }
+            }
         }
         .padding(1)
+        .scaleEffect(hasAppeared ? 1 : 0.98)
+        .opacity(hasAppeared ? 1 : 0)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.16)) {
+                hasAppeared = true
+            }
+        }
+        .animation(.easeOut(duration: 0.18), value: manager.items.map(\.id))
+        .animation(.easeOut(duration: 0.16), value: manager.selectedItemIDs.count)
+        .animation(.easeOut(duration: 0.14), value: manager.isReceivingDrop)
     }
     
     private var dragHandle: some View {
@@ -82,44 +80,36 @@ struct ShelfView: View {
     private var header: some View {
         HStack(spacing: 8) {
             if manager.isShowingHistory {
-                Button {
-                    manager.hideHistory()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 12, weight: .semibold))
-                }
-                .buttonStyle(.plain)
-                .pointingHandCursor()
-                .help("Back to Shelf")
+                ShelfToolbarButton(
+                    symbol: "chevron.left",
+                    help: "Back to Shelf",
+                    action: manager.hideHistory
+                )
             }
 
             Image(systemName: "shippingbox.fill")
-                .foregroundStyle(.secondary)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(Color.accentColor.opacity(0.85))
             
             Text(
                 manager.isShowingHistory
                     ? "Recent Shelves"
                     : (manager.currentShelfName ?? "DropShelf")
             )
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: 14, weight: .semibold))
                 .lineLimit(1)
+                .help(manager.currentShelfName ?? "DropShelf")
             
             Spacer()
 
             if !manager.isShowingHistory {
-                Button {
-                    manager.toggleCurrentShelfPin()
-                } label: {
-                    Image(systemName: manager.isCurrentShelfPinned ? "pin.fill" : "pin")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(
-                            manager.isCurrentShelfPinned ? Color.accentColor : Color.secondary
-                        )
-                }
-                .buttonStyle(.plain)
-                .disabled(!manager.canPinCurrentShelf)
-                .pointingHandCursor()
-                .help(manager.isCurrentShelfPinned ? "Unpin this Shelf" : "Pin this Shelf")
+                ShelfToolbarButton(
+                    symbol: manager.isCurrentShelfPinned ? "pin.fill" : "pin",
+                    help: manager.isCurrentShelfPinned ? "Unpin this Shelf" : "Pin this Shelf",
+                    tint: manager.isCurrentShelfPinned ? .accentColor : .secondary,
+                    isDisabled: !manager.canPinCurrentShelf,
+                    action: manager.toggleCurrentShelfPin
+                )
             }
             
             Menu {
@@ -148,7 +138,11 @@ struct ShelfView: View {
                     manager.airDropAllItems()
                 } label: {
                     Label {
-                        Text("AirDrop All")
+                        Text(
+                            manager.usesSelectionForBulkActions
+                                ? "AirDrop \(manager.bulkActionItemCount) Selected"
+                                : "AirDrop All"
+                        )
                     } icon: {
                         Image(nsImage: Self.airDropMenuImage)
                     }
@@ -158,13 +152,16 @@ struct ShelfView: View {
                 Button {
                     manager.zipAllItems()
                 } label: {
-                    Label("Zip All…", systemImage: "doc.zipper")
+                    Label(
+                        manager.usesSelectionForBulkActions
+                            ? "Zip \(manager.bulkActionItemCount) Selected…"
+                            : "Zip All…",
+                        systemImage: "doc.zipper"
+                    )
                 }
                 .disabled(manager.items.isEmpty || manager.isCreatingArchive)
             } label: {
-                Image(systemName: "ellipsis.circle")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.secondary)
+                ShelfToolbarIconLabel(symbol: "ellipsis")
             }
             .labelStyle(.titleAndIcon)
             .menuStyle(.borderlessButton)
@@ -172,30 +169,83 @@ struct ShelfView: View {
             .fixedSize()
             .pointingHandCursor()
             .help(manager.isCreatingArchive ? "Creating ZIP…" : "Shelf actions")
+            .accessibilityLabel("Shelf actions")
             
-            Button {
-                manager.clearAndCloseShelf()
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.secondary)
+            ShelfToolbarButton(
+                symbol: "xmark",
+                help: "Close and clear Shelf",
+                action: manager.clearAndCloseShelf
+            )
+        }
+        .frame(height: 28)
+    }
+
+    private var selectionBar: some View {
+        HStack(spacing: 7) {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(Color.accentColor)
+            Text("\(manager.selectedItemIDs.count) items selected")
+                .font(.system(size: 11, weight: .medium))
+            Spacer()
+            Button("Clear") {
+                manager.clearSelection()
             }
             .buttonStyle(.plain)
+            .foregroundStyle(Color.accentColor)
             .pointingHandCursor()
-            .help("Close and clear Shelf")
         }
-        .frame(height: 18)
+        .padding(.horizontal, 10)
+        .frame(height: 28)
+        .background(
+            Color.accentColor.opacity(0.1),
+            in: RoundedRectangle(cornerRadius: 9, style: .continuous)
+        )
     }
     
     private var emptyState: some View {
-        VStack(spacing: 7) {
-            Image(systemName: "arrow.down.doc")
-                .font(.system(size: 24, weight: .light))
+        VStack(spacing: 8) {
+            Image(systemName: "tray.and.arrow.down")
+                .font(.system(size: 26, weight: .light))
+                .symbolRenderingMode(.hierarchical)
             Text("Drop files or folders here")
-                .font(.system(size: 12, weight: .medium))
+                .font(.system(size: 12, weight: .semibold))
+            Text(emptyStateHint)
+                .font(.system(size: 10))
+                .foregroundStyle(.tertiary)
         }
         .foregroundStyle(.secondary)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var emptyStateHint: String {
+        if preferences.shakeGestureEnabled {
+            return "Shake the pointer or press \(preferences.activationShortcut.displayName)"
+        }
+        return "Press \(preferences.activationShortcut.displayName) to open"
+    }
+
+    private var dropTargetOverlay: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.accentColor.opacity(0.1))
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(Color.accentColor, style: StrokeStyle(lineWidth: 2, dash: [7, 5]))
+
+            Label(dropTargetMessage, systemImage: "plus.circle.fill")
+                .font(.system(size: 13, weight: .semibold))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background(.regularMaterial, in: Capsule())
+                .shadow(color: .black.opacity(0.12), radius: 8, y: 3)
+        }
+        .allowsHitTesting(false)
+    }
+
+    private var dropTargetMessage: String {
+        let count = manager.pendingDropItemCount
+        return count > 0
+            ? "Drop to add \(count) item\(count == 1 ? "" : "s")"
+            : "Drop to add items"
     }
 
     private static let airDropMenuImage: NSImage = {
@@ -218,6 +268,115 @@ struct ShelfView: View {
     }()
 }
 
+private struct ShelfItemCard: View {
+    let item: ShelfItem
+    @ObservedObject var manager: ShelfManager
+    @State private var isHovered = false
+
+    private var isSelected: Bool {
+        manager.selectedItemIDs.contains(item.id)
+    }
+
+    private var showsControls: Bool {
+        isHovered || isSelected || manager.conversionState(for: item.id) == .converting
+    }
+
+    var body: some View {
+        ZStack(alignment: .top) {
+            ShelfItemView(
+                item: item,
+                isSelected: isSelected,
+                isHovered: isHovered,
+                manager: manager
+            )
+
+            HStack(spacing: 0) {
+                ShelfItemActionsMenu(item: item, manager: manager)
+
+                Spacer(minLength: 0)
+
+                Button {
+                    manager.removeItem(id: item.id)
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.primary)
+                        .frame(width: 20, height: 20)
+                        .background(.regularMaterial, in: Circle())
+                        .shadow(color: .black.opacity(0.12), radius: 2, y: 1)
+                }
+                .buttonStyle(.borderless)
+                .contentShape(Circle())
+                .pointingHandCursor()
+                .help("Remove \(item.url.lastPathComponent) from Shelf")
+            }
+            .padding(5)
+            .frame(maxWidth: .infinity, alignment: .top)
+            .opacity(showsControls ? 1 : 0)
+            .allowsHitTesting(showsControls)
+            .animation(.easeOut(duration: 0.12), value: showsControls)
+            .zIndex(1)
+        }
+        .frame(width: 98, height: 120)
+        .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .onHover { hovering in
+            isHovered = hovering
+        }
+    }
+}
+
+private struct ShelfToolbarButton: View {
+    let symbol: String
+    let help: String
+    var tint: Color = .secondary
+    var isDisabled = false
+    let action: () -> Void
+
+    @State private var isHovered = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(tint)
+                .frame(width: 27, height: 27)
+                .background(
+                    Color.primary.opacity(isHovered ? 0.1 : 0.035),
+                    in: Circle()
+                )
+        }
+        .buttonStyle(.plain)
+        .disabled(isDisabled)
+        .opacity(isDisabled ? 0.35 : 1)
+        .onHover { hovering in
+            isHovered = hovering
+            (hovering ? NSCursor.pointingHand : NSCursor.arrow).set()
+        }
+        .help(help)
+        .accessibilityLabel(help)
+    }
+}
+
+private struct ShelfToolbarIconLabel: View {
+    let symbol: String
+    @State private var isHovered = false
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: 12, weight: .semibold))
+            .foregroundStyle(.secondary)
+            .frame(width: 27, height: 27)
+            .background(
+                Color.primary.opacity(isHovered ? 0.1 : 0.035),
+                in: Circle()
+            )
+            .onHover { hovering in
+                isHovered = hovering
+            }
+            .accessibilityLabel("Shelf actions")
+    }
+}
+
 private struct ShelfHistoryView: View {
     @ObservedObject var manager: ShelfManager
 
@@ -236,17 +395,26 @@ private struct ShelfHistoryView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView(.vertical, showsIndicators: true) {
-                    LazyVStack(spacing: 6) {
-                        ForEach(manager.historyEntries) { entry in
-                            ShelfHistoryEntryRow(
-                                entry: entry,
-                                restore: {
-                                    manager.restoreHistoryEntry(id: entry.id)
-                                },
-                                togglePin: {
-                                    manager.toggleHistoryPin(id: entry.id)
+                    LazyVStack(alignment: .leading, spacing: 10) {
+                        ForEach(historyGroups) { group in
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(group.title.uppercased())
+                                    .font(.system(size: 9, weight: .semibold))
+                                    .foregroundStyle(.tertiary)
+                                    .padding(.leading, 5)
+
+                                ForEach(group.entries) { entry in
+                                    ShelfHistoryEntryRow(
+                                        entry: entry,
+                                        restore: {
+                                            manager.restoreHistoryEntry(id: entry.id)
+                                        },
+                                        togglePin: {
+                                            manager.toggleHistoryPin(id: entry.id)
+                                        }
+                                    )
                                 }
-                            )
+                            }
                         }
                     }
                     .padding(.horizontal, 1)
@@ -254,12 +422,51 @@ private struct ShelfHistoryView: View {
             }
         }
     }
+
+    private var historyGroups: [ShelfHistoryGroup] {
+        let pinned = manager.historyEntries.filter(\.isPinned)
+        let unpinned = manager.historyEntries.filter { !$0.isPinned }
+        let calendar = Calendar.current
+        var groups: [ShelfHistoryGroup] = []
+
+        if !pinned.isEmpty {
+            groups.append(ShelfHistoryGroup(title: "Pinned", entries: pinned))
+        }
+
+        let today = unpinned.filter { calendar.isDateInToday($0.createdAt) }
+        if !today.isEmpty {
+            groups.append(ShelfHistoryGroup(title: "Today", entries: today))
+        }
+
+        let yesterday = unpinned.filter { calendar.isDateInYesterday($0.createdAt) }
+        if !yesterday.isEmpty {
+            groups.append(ShelfHistoryGroup(title: "Yesterday", entries: yesterday))
+        }
+
+        let earlier = unpinned.filter {
+            !calendar.isDateInToday($0.createdAt)
+                && !calendar.isDateInYesterday($0.createdAt)
+        }
+        if !earlier.isEmpty {
+            groups.append(ShelfHistoryGroup(title: "Earlier", entries: earlier))
+        }
+
+        return groups
+    }
+}
+
+private struct ShelfHistoryGroup: Identifiable {
+    let title: String
+    let entries: [ShelfHistoryEntry]
+
+    var id: String { title }
 }
 
 private struct ShelfHistoryEntryRow: View {
     let entry: ShelfHistoryEntry
     let restore: () -> Void
     let togglePin: () -> Void
+    @State private var isHovered = false
 
     var body: some View {
         HStack(spacing: 5) {
@@ -301,6 +508,7 @@ private struct ShelfHistoryEntryRow: View {
             .buttonStyle(.plain)
             .pointingHandCursor()
             .help("Restore this Shelf")
+            .accessibilityLabel("Restore \(ShelfHistoryPresentation.displayName(for: entry))")
 
             Button(action: togglePin) {
                 Image(systemName: entry.isPinned ? "pin.fill" : "pin")
@@ -311,13 +519,18 @@ private struct ShelfHistoryEntryRow: View {
             .buttonStyle(.plain)
             .pointingHandCursor()
             .help(entry.isPinned ? "Unpin Shelf" : "Pin Shelf")
+            .accessibilityLabel(entry.isPinned ? "Unpin Shelf" : "Pin Shelf")
         }
         .padding(.horizontal, 9)
         .padding(.vertical, 7)
         .background(
-            Color.primary.opacity(0.055),
+            Color.primary.opacity(isHovered ? 0.1 : 0.055),
             in: RoundedRectangle(cornerRadius: 9, style: .continuous)
         )
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        .animation(.easeOut(duration: 0.12), value: isHovered)
     }
 
 }
@@ -334,7 +547,7 @@ private struct ShelfItemActionsMenu: View {
             if manager.conversionState(for: item.id) == .converting {
                 ProgressView()
                     .controlSize(.small)
-                    .frame(width: 18, height: 18)
+                    .frame(width: 20, height: 20)
                     .help("Converting \(item.url.lastPathComponent)…")
             } else {
                 Menu {
@@ -363,11 +576,12 @@ private struct ShelfItemActionsMenu: View {
                         }
                     }
                 } label: {
-                    Image(systemName: "ellipsis.circle.fill")
-                        .font(.system(size: 16, weight: .semibold))
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(.white, Color.black.opacity(0.62))
-                        .shadow(color: .black.opacity(0.18), radius: 2, y: 1)
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.primary)
+                        .frame(width: 20, height: 20)
+                        .background(.regularMaterial, in: Circle())
+                        .shadow(color: .black.opacity(0.12), radius: 2, y: 1)
                 }
                 .menuStyle(.borderlessButton)
                 .menuIndicator(.hidden)
@@ -376,7 +590,7 @@ private struct ShelfItemActionsMenu: View {
                 .help("Actions for \(item.url.lastPathComponent)")
             }
         }
-        .frame(width: 18, height: 18)
+        .frame(width: 20, height: 20)
         .task(id: item.url) {
             isAnalyzing = true
             let detectedOptions = await ConversionService.shared
@@ -462,7 +676,7 @@ private struct PointingHandCursorModifier: ViewModifier {
     }
 }
 
-private extension View {
+extension View {
     func pointingHandCursor() -> some View {
         modifier(PointingHandCursorModifier())
     }

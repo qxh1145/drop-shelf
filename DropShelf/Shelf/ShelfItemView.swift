@@ -134,20 +134,32 @@ final class ShelfIconCache {
 struct ShelfItemView: View {
     let item: ShelfItem
     let isSelected: Bool
+    let isHovered: Bool
     let manager: ShelfManager
 
     private let icon: NSImage
 
-    init(item: ShelfItem, isSelected: Bool, manager: ShelfManager) {
+    init(
+        item: ShelfItem,
+        isSelected: Bool,
+        isHovered: Bool = false,
+        manager: ShelfManager
+    ) {
         self.item = item
         self.isSelected = isSelected
+        self.isHovered = isHovered
         self.manager = manager
         self.icon = ShelfIconCache.shared.image(for: item.url)
     }
 
     var body: some View {
         ZStack {
-            ShelfItemLabel(item: item, icon: icon, isSelected: isSelected)
+            ShelfItemLabel(
+                item: item,
+                icon: icon,
+                isSelected: isSelected,
+                isHovered: isHovered
+            )
                 .allowsHitTesting(false)
 
             ShelfItemDragOverlay(item: item, manager: manager)
@@ -160,34 +172,54 @@ private struct ShelfItemLabel: View {
     let item: ShelfItem
     let icon: NSImage
     let isSelected: Bool
+    let isHovered: Bool
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 8) {
             Image(nsImage: icon)
                 .resizable()
                 .interpolation(.high)
                 .scaledToFit()
-                .frame(width: 50, height: 50)
+                .frame(width: 52, height: 52)
 
             Text(item.url.lastPathComponent)
-                .font(.system(size: 10))
+                .font(.system(size: 11, weight: .medium))
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
+                .help(item.url.lastPathComponent)
         }
-        .padding(7)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 9)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
-            isSelected ? Color.accentColor.opacity(0.22) : Color.primary.opacity(0.055),
-            in: RoundedRectangle(cornerRadius: 10, style: .continuous)
+            cardBackground,
+            in: RoundedRectangle(cornerRadius: 12, style: .continuous)
         )
         .overlay {
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .strokeBorder(
-                    isSelected ? Color.accentColor.opacity(0.75) : Color.clear,
+                    isSelected
+                        ? Color.accentColor.opacity(0.9)
+                        : Color.white.opacity(isHovered ? 0.16 : 0.06),
                     lineWidth: 1.5
                 )
         }
+        .shadow(
+            color: .black.opacity(isHovered ? 0.12 : 0.04),
+            radius: isHovered ? 7 : 2,
+            y: isHovered ? 3 : 1
+        )
+        .scaleEffect(isHovered ? 1.015 : 1)
+        .animation(.easeOut(duration: 0.16), value: isHovered)
+        .animation(.easeOut(duration: 0.16), value: isSelected)
+    }
+
+    private var cardBackground: Color {
+        if isSelected {
+            return Color.accentColor.opacity(0.2)
+        }
+        return Color.primary.opacity(isHovered ? 0.09 : 0.055)
     }
 }
 

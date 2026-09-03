@@ -14,6 +14,8 @@ final class ShelfManager: ObservableObject {
     @Published private(set) var historyEntries: [ShelfHistoryEntry]
     @Published private(set) var isShowingHistory = false
     @Published private(set) var currentShelfName: String?
+    @Published private(set) var isReceivingDrop = false
+    @Published private(set) var pendingDropItemCount = 0
 
     private var panel: ShelfPanel?
     private var currentHistoryEntryID: UUID?
@@ -69,6 +71,14 @@ final class ShelfManager: ObservableObject {
         historyEntries.filter(\.isPinned)
     }
 
+    var bulkActionItemCount: Int {
+        selectedItemIDs.count > 1 ? selectedItemIDs.count : items.count
+    }
+
+    var usesSelectionForBulkActions: Bool {
+        selectedItemIDs.count > 1
+    }
+
     func showShelf(near point: CGPoint) {
         isShowingHistory = false
 
@@ -78,6 +88,12 @@ final class ShelfManager: ObservableObject {
             panel?.contentView = ShelfDropHostingView(manager: self)
         }
 
+        panel?.updateLayout(
+            itemCount: items.count,
+            selectionCount: selectedItemIDs.count,
+            showingHistory: false,
+            animated: false
+        )
         panel?.position(near: point)
         panel?.orderFrontRegardless()
         scheduleAutoHideIfNeeded()
@@ -90,11 +106,13 @@ final class ShelfManager: ObservableObject {
             showShelf(near: point ?? NSEvent.mouseLocation)
         }
         isShowingHistory = true
+        updatePanelLayout(animated: true)
         scheduleAutoHideIfNeeded()
     }
 
     func hideHistory() {
         isShowingHistory = false
+        updatePanelLayout(animated: true)
         scheduleAutoHideIfNeeded()
     }
 
@@ -127,6 +145,7 @@ final class ShelfManager: ObservableObject {
         currentShelfName = entry.name
         add(urls: availableURLs)
         isShowingHistory = false
+        updatePanelLayout(animated: true)
         if wasVisible {
             scheduleAutoHideIfNeeded()
         } else {
@@ -222,6 +241,8 @@ final class ShelfManager: ObservableObject {
         currentHistoryEntryID = nil
         currentShelfName = nil
         isShowingHistory = false
+        isReceivingDrop = false
+        pendingDropItemCount = 0
         ShelfIconCache.shared.removeAll()
 
         // Keep the lightweight NSPanel alive and reusable. Releasing a window
@@ -245,6 +266,7 @@ final class ShelfManager: ObservableObject {
         if closeShelfIfNeeded() {
             return
         }
+        updatePanelLayout(animated: true)
         scheduleAutoHideIfNeeded()
     }
 
@@ -268,6 +290,7 @@ final class ShelfManager: ObservableObject {
         guard !additions.isEmpty else { return }
         items.append(contentsOf: additions)
         synchronizeCurrentHistoryEntryIfNeeded()
+        updatePanelLayout(animated: true)
         scheduleAutoHideIfNeeded()
     }
 
@@ -292,6 +315,24 @@ final class ShelfManager: ObservableObject {
 
         guard newSelection != selectedItemIDs else { return }
         selectedItemIDs = newSelection
+        updatePanelLayout(animated: true)
+        scheduleAutoHideIfNeeded()
+    }
+
+    func clearSelection() {
+        guard !selectedItemIDs.isEmpty else { return }
+        selectedItemIDs.removeAll(keepingCapacity: true)
+        updatePanelLayout(animated: true)
+        scheduleAutoHideIfNeeded()
+    }
+
+    func setDropTargetActive(_ isActive: Bool, itemCount: Int = 0) {
+        let normalizedCount = isActive ? max(0, itemCount) : 0
+        guard isReceivingDrop != isActive || pendingDropItemCount != normalizedCount else {
+            return
+        }
+        isReceivingDrop = isActive
+        pendingDropItemCount = normalizedCount
         scheduleAutoHideIfNeeded()
     }
 
@@ -326,6 +367,7 @@ final class ShelfManager: ObservableObject {
         if closeShelfIfNeeded() {
             return
         }
+        updatePanelLayout(animated: true)
         scheduleAutoHideIfNeeded()
     }
 
@@ -411,7 +453,7 @@ final class ShelfManager: ObservableObject {
 
     func airDropAllItems() {
         scheduleAutoHideIfNeeded()
-        let urls = items.map(\.url)
+        let urls = bulkActionItems.map(\.url)
         guard !urls.isEmpty else { return }
 
         guard let service = NSSharingService(named: .sendViaAirDrop),
@@ -428,13 +470,15 @@ final class ShelfManager: ObservableObject {
     }
 
     func zipAllItems() {
-        guard !items.isEmpty, !isCreatingArchive else { return }
+        guard !bulkActionItems.isEmpty, !isCreatingArchive else { return }
 
         scheduleAutoHideIfNeeded()
 
-        let sourceURLs = items.map(\.url)
+        let sourceURLs = bulkActionItems.map(\.url)
         let savePanel = NSSavePanel()
-        savePanel.title = "Zip All Shelf Items"
+        savePanel.title = usesSelectionForBulkActions
+            ? "Zip Selected Shelf Items"
+            : "Zip All Shelf Items"
         savePanel.prompt = "Create ZIP"
         savePanel.nameFieldStringValue = "DropShelf.zip"
         savePanel.allowedContentTypes = [.zip]
@@ -507,6 +551,20 @@ final class ShelfManager: ObservableObject {
         }
 
         return false
+    }
+
+    private var bulkActionItems: [ShelfItem] {
+        guard usesSelectionForBulkActions else { return items }
+        return items.filter { selectedItemIDs.contains($0.id) }
+    }
+
+    private func updatePanelLayout(animated: Bool) {
+        panel?.updateLayout(
+            itemCount: items.count,
+            selectionCount: selectedItemIDs.count,
+            showingHistory: isShowingHistory,
+            animated: animated
+        )
     }
 
     private func finishConversion(
@@ -584,9 +642,17 @@ final class ShelfManager: ObservableObject {
             return
         }
 
-        let timer: any DispatchSourceTimer
+        let leewayMilliseconds = min(
+            250,
+            max(1, Int(autoHideDelay * 100))
+        )
+        let deadline = DispatchTime.now() + autoHideDelay
+
         if let autoHideTimer {
-            timer = autoHideTimer
+            autoHideTimer.schedule(
+                deadline: deadline,
+                leeway: .milliseconds(leewayMilliseconds)
+            )
         } else {
             let newTimer = DispatchSource.makeTimerSource(queue: .main)
             newTimer.setEventHandler { [weak self] in
@@ -594,14 +660,13 @@ final class ShelfManager: ObservableObject {
                     self?.autoHideTimerDidFire()
                 }
             }
-            newTimer.resume()
+            newTimer.schedule(
+                deadline: deadline,
+                leeway: .milliseconds(leewayMilliseconds)
+            )
             autoHideTimer = newTimer
-            timer = newTimer
+            newTimer.resume()
         }
-        timer.schedule(
-            deadline: .now() + autoHideDelay,
-            leeway: .milliseconds(250)
-        )
     }
 
     private func cancelAutoHide() {

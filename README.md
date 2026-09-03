@@ -219,6 +219,12 @@ can also pin or unpin an entry inside Recent Shelves. The menu bar's **Pinned
 Shelves** submenu shows each Shelf's name, date, item count, and file summary;
 restoring one preserves its memorable name.
 
+DropShelf uses an adaptive Shelf layout: file actions appear on hover, multiple
+selection gets a compact status bar, and valid Finder drags receive an accent
+drop target. Recent Shelves are grouped into Pinned, Today, Yesterday, and
+Earlier sections. Settings use a compact sidebar for General, Activation, Shelf,
+History, and About.
+
 ---
 
 # Contributing

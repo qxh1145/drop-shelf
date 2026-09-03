@@ -200,6 +200,72 @@ final class ShelfManagerTests: XCTestCase {
         XCTAssertEqual(Set(extendedDrag.map(\.id)), [firstID, secondID, thirdID])
     }
 
+    func testBulkActionsUseMultipleSelectionAndCanClearIt() {
+        let manager = ShelfManager.shared
+        manager.clearAndCloseShelf()
+        manager.add(urls: [
+            URL(fileURLWithPath: "/tmp/selection-first.txt"),
+            URL(fileURLWithPath: "/tmp/selection-second.txt"),
+            URL(fileURLWithPath: "/tmp/selection-third.txt")
+        ])
+        defer { manager.clearAndCloseShelf() }
+
+        manager.selectItem(manager.items[0].id, extendingSelection: false)
+        XCTAssertFalse(manager.usesSelectionForBulkActions)
+        XCTAssertEqual(manager.bulkActionItemCount, 3)
+
+        manager.selectItem(manager.items[1].id, extendingSelection: true)
+        XCTAssertTrue(manager.usesSelectionForBulkActions)
+        XCTAssertEqual(manager.bulkActionItemCount, 2)
+
+        manager.clearSelection()
+        XCTAssertTrue(manager.selectedItemIDs.isEmpty)
+        XCTAssertFalse(manager.usesSelectionForBulkActions)
+        XCTAssertEqual(manager.bulkActionItemCount, 3)
+    }
+
+    func testDropTargetFeedbackIsEventDriven() {
+        let manager = ShelfManager.shared
+        manager.setDropTargetActive(true, itemCount: 4)
+
+        XCTAssertTrue(manager.isReceivingDrop)
+        XCTAssertEqual(manager.pendingDropItemCount, 4)
+
+        manager.setDropTargetActive(false)
+
+        XCTAssertFalse(manager.isReceivingDrop)
+        XCTAssertEqual(manager.pendingDropItemCount, 0)
+    }
+
+    func testShelfPanelUsesAdaptiveSizes() {
+        let manager = ShelfManager.shared
+        let panel = ShelfPanel(manager: manager)
+
+        panel.updateLayout(
+            itemCount: 1,
+            selectionCount: 0,
+            showingHistory: false,
+            animated: false
+        )
+        XCTAssertEqual(panel.frame.size, NSSize(width: 310, height: 218))
+
+        panel.updateLayout(
+            itemCount: 6,
+            selectionCount: 3,
+            showingHistory: false,
+            animated: false
+        )
+        XCTAssertEqual(panel.frame.size, NSSize(width: 640, height: 252))
+
+        panel.updateLayout(
+            itemCount: 0,
+            selectionCount: 0,
+            showingHistory: true,
+            animated: false
+        )
+        XCTAssertEqual(panel.frame.size, NSSize(width: 470, height: 340))
+    }
+
     func testShelfCanBeClosedAndShownAgainWithoutTerminatingTheApp() {
         let manager = ShelfManager.shared
         manager.clearAndCloseShelf()
@@ -670,7 +736,9 @@ final class ShelfBehaviorPreferencesTests: XCTestCase {
         manager.add(urls: [fileURL])
         manager.showShelf(near: CGPoint(x: 240, y: 240))
 
-        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.15))
+        // Allow the panel's one-time 160 ms entrance transition to finish
+        // before asserting the deliberately tiny test-only auto-hide delay.
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.3))
         XCTAssertFalse(manager.isShelfVisible)
         XCTAssertEqual(manager.items.map(\.url), [fileURL.standardizedFileURL])
 

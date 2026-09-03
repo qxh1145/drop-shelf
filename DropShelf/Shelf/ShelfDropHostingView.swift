@@ -47,6 +47,10 @@ final class ShelfDropHostingView: NSView {
 
         acceptedDragSequenceNumber = sender.draggingSequenceNumber
         acceptedDragOperation = operation
+        manager.setDropTargetActive(
+            !operation.isEmpty,
+            itemCount: operation.isEmpty ? 0 : fileURLs(from: sender).count
+        )
         return operation
     }
 
@@ -96,5 +100,6 @@ final class ShelfDropHostingView: NSView {
     private func resetDragAcceptance() {
         acceptedDragSequenceNumber = nil
         acceptedDragOperation = []
+        manager.setDropTargetActive(false)
     }
 }
