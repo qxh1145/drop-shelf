@@ -8,13 +8,17 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Show Xcode version
         run: xcodebuild -version
+
+      - name: Show available schemes
+        run: xcodebuild -list -project DropShelf.xcodeproj
 
       - name: Build DropShelf
         run: |
