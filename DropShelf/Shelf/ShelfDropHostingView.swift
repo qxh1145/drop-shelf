@@ -147,8 +147,9 @@ final class ShelfDropHostingView: NSView {
         ) as? [NSURL])?.compactMap { $0 as URL } ?? []
     }
 
+    /// Drags within this Shelf are ignored; drags from another Shelf move items.
     private func isInternalDrag(_ sender: NSDraggingInfo) -> Bool {
-        sender.draggingSource is DraggableShelfItemView
+        (sender.draggingSource as? DraggableShelfItemView)?.owner === manager
     }
 
     private func resetDragAcceptance() {

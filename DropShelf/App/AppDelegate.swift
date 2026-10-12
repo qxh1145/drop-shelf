@@ -29,7 +29,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         previousInstanceTerminator?.cancel()
         previousInstanceTerminator = nil
 
-        ShelfManager.shared.prepareForTermination()
+        for shelf in ShelfManager.shelves {
+            shelf.prepareForTermination()
+        }
         ShakeDetector.shared.stop()
 
         historyHotKeyController?.invalidate()
@@ -91,9 +93,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard !didStartApplicationServices else { return }
         didStartApplicationServices = true
 
-        menuBarController = MenuBarController(
-            shelfManager: .shared
-        ) { [weak self] in
+        menuBarController = MenuBarController { [weak self] in
             self?.showSettings()
         } openOnboardingHandler: { [weak self] in
             self?.showOnboarding()
@@ -107,7 +107,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let historyHotKeyController = GlobalHotKeyController()
         historyHotKeyController.registerCommandShiftH {
-            ShelfManager.shared.showHistory(near: NSEvent.mouseLocation)
+            ShelfManager.active.showHistory(near: NSEvent.mouseLocation)
         }
         self.historyHotKeyController = historyHotKeyController
 
@@ -140,7 +140,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         detector.start {
-            ShelfManager.shared.showShelf(near: NSEvent.mouseLocation)
+            ShelfManager.active.showShelf(near: NSEvent.mouseLocation)
         }
     }
 
@@ -150,7 +150,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             shortcut: AppPreferences.shared.activationShortcut,
             identifier: 2
         ) {
-            ShelfManager.shared.showShelf(near: NSEvent.mouseLocation)
+            ShelfManager.active.showShelf(near: NSEvent.mouseLocation)
         }
         activationHotKeyController = controller
         AppPreferences.shared.setActivationShortcutRegistrationSucceeded(succeeded)

@@ -114,6 +114,15 @@ struct ShelfView: View {
             
             Menu {
                 Button {
+                    ShelfManager.openNewShelf()
+                } label: {
+                    Label("New Shelf", systemImage: "plus.rectangle.on.rectangle")
+                }
+                .keyboardShortcut("n", modifiers: .command)
+
+                Divider()
+
+                Button {
                     manager.promptToNameCurrentShelf()
                 } label: {
                     Label(
@@ -549,6 +558,11 @@ private struct ShelfItemActionsMenu: View {
     @State private var options: [ConversionOption] = []
     @State private var isAnalyzing = true
 
+    /// The selection when this item is part of it, otherwise just this item.
+    private var targetURLs: [URL] {
+        manager.actionItems(for: item.id).map(\.url)
+    }
+
     var body: some View {
         Group {
             if manager.conversionState(for: item.id) == .converting {
@@ -592,6 +606,15 @@ private struct ShelfItemActionsMenu: View {
 
                     Divider()
 
+                    Button {
+                        manager.promptToRenameItems(for: item.id)
+                    } label: {
+                        Label(
+                            targetURLs.count > 1 ? "Rename \(targetURLs.count) Items…" : "Rename…",
+                            systemImage: "pencil"
+                        )
+                    }
+
                     if isAnalyzing {
                         Button("Checking formats…") {}
                             .disabled(true)
@@ -602,7 +625,10 @@ private struct ShelfItemActionsMenu: View {
                         Menu {
                             ForEach(options) { option in
                                 Button {
-                                    manager.requestConversion(of: item, using: option)
+                                    manager.requestConversion(
+                                        of: manager.actionItems(for: item.id),
+                                        using: option
+                                    )
                                 } label: {
                                     Label(
                                         option.targetFormat.displayName,
@@ -613,7 +639,12 @@ private struct ShelfItemActionsMenu: View {
                                 }
                             }
                         } label: {
-                            Label("Convert to", systemImage: "arrow.triangle.2.circlepath")
+                            Label(
+                                targetURLs.count > 1
+                                    ? "Convert \(targetURLs.count) Items to"
+                                    : "Convert to",
+                                systemImage: "arrow.triangle.2.circlepath"
+                            )
                         }
                     }
                 } label: {
@@ -632,10 +663,9 @@ private struct ShelfItemActionsMenu: View {
             }
         }
         .frame(width: 20, height: 20)
-        .task(id: item.url) {
+        .task(id: targetURLs) {
             isAnalyzing = true
-            let detectedOptions = await ConversionService.shared
-                .supportedOutputFormats(for: item.url)
+            let detectedOptions = await ConversionOptionsCache.commonOptions(for: targetURLs)
             guard !Task.isCancelled else { return }
             options = detectedOptions
             isAnalyzing = false
@@ -720,5 +750,53 @@ private struct PointingHandCursorModifier: ViewModifier {
 extension View {
     func pointingHandCursor() -> some View {
         modifier(PointingHandCursorModifier())
+    }
+}
+
+/// Remembers each file's conversion options so a multi-item menu doesn't
+/// re-inspect every selected file on every card.
+@MainActor
+enum ConversionOptionsCache {
+    // ponytail: never pruned; entries are tiny and keyed by modification date.
+    private static var cache: [String: [ConversionOption]] = [:]
+
+    /// Targets every URL supports; warnings from all sources are combined.
+    static func commonOptions(for urls: [URL]) async -> [ConversionOption] {
+        var common: [ConversionOption]?
+        var warnings: [FileFormat: [String]] = [:]
+
+        for url in urls {
+            let options = await options(for: url)
+            for option in options {
+                if let warning = option.warning, warnings[option.targetFormat]?.contains(warning) != true {
+                    warnings[option.targetFormat, default: []].append(warning)
+                }
+            }
+            let targets = Set(options.map(\.targetFormat))
+            common = (common ?? options).filter { targets.contains($0.targetFormat) }
+            if common?.isEmpty == true { return [] }
+        }
+
+        return (common ?? []).map { option in
+            ConversionOption(
+                sourceFormat: option.sourceFormat,
+                targetFormat: option.targetFormat,
+                risk: option.risk,
+                warning: warnings[option.targetFormat]?.joined(separator: "\n\n")
+            )
+        }
+    }
+
+    private static func options(for url: URL) async -> [ConversionOption] {
+        let modified = (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?
+            .contentModificationDate?.timeIntervalSince1970 ?? 0
+        let key = "\(url.path)|\(modified)"
+        if let cached = cache[key] { return cached }
+
+        let options = await ConversionService.shared.supportedOutputFormats(for: url)
+        if !Task.isCancelled {
+            cache[key] = options
+        }
+        return options
     }
 }

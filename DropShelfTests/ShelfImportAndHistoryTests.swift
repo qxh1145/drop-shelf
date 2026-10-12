@@ -60,4 +60,93 @@ final class ShelfImportAndHistoryTests: XCTestCase {
         )
         XCTAssertEqual(plist["URL"], "https://example.com/page")
     }
+
+    func testRenamePlannerNumbersAndKeepsExtensions() {
+        let urls = (1...10).map { URL(fileURLWithPath: "/tmp/folder/file\($0).jpg") }
+        let planned = ShelfRenamePlanner.plannedURLs(for: urls, name: "Trip")
+        XCTAssertEqual(planned.first?.lastPathComponent, "Trip 01.jpg")
+        XCTAssertEqual(planned.last?.lastPathComponent, "Trip 10.jpg")
+        XCTAssertEqual(planned.first?.deletingLastPathComponent().path, "/tmp/folder")
+
+        let single = ShelfRenamePlanner.plannedURLs(
+            for: [URL(fileURLWithPath: "/tmp/a.txt")],
+            name: "b.md"
+        )
+        XCTAssertEqual(single.map(\.lastPathComponent), ["b.md"])
+        XCTAssertNotNil(ShelfRenamePlanner.validationError(for: "a/b"))
+        XCTAssertNotNil(ShelfRenamePlanner.validationError(for: "  "))
+        XCTAssertNil(ShelfRenamePlanner.validationError(for: "Report"))
+    }
+
+    @MainActor
+    func testBatchRenameMovesFilesAndUpdatesShelf() throws {
+        let first = directory.appendingPathComponent("a.png")
+        let second = directory.appendingPathComponent("b.txt")
+        try Data("1".utf8).write(to: first)
+        try Data("2".utf8).write(to: second)
+        let manager = makeIsolatedManager()
+        manager.add(urls: [first, second])
+
+        XCTAssertNil(manager.renameItems(manager.items, to: "Doc"))
+
+        XCTAssertEqual(manager.items.map(\.url.lastPathComponent), ["Doc 1.png", "Doc 2.txt"])
+        XCTAssertFalse(FileManager.default.fileExists(atPath: first.path))
+        XCTAssertEqual(try String(contentsOf: manager.items[1].url), "2")
+    }
+
+    @MainActor
+    func testRenameCollisionLeavesEveryFileUntouched() throws {
+        let first = directory.appendingPathComponent("a.txt")
+        let second = directory.appendingPathComponent("b.txt")
+        let taken = directory.appendingPathComponent("Doc 2.txt")
+        for url in [first, second, taken] {
+            try Data().write(to: url)
+        }
+        let manager = makeIsolatedManager()
+        manager.add(urls: [first, second])
+
+        XCTAssertNotNil(manager.renameItems(manager.items, to: "Doc"))
+
+        XCTAssertTrue(FileManager.default.fileExists(atPath: first.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: second.path))
+        XCTAssertEqual(manager.items.map(\.url), [first, second].map(\.standardizedFileURL))
+    }
+
+    @MainActor
+    func testNewShelfOpensBesideActiveShelfAndSharesHistory() throws {
+        let file = directory.appendingPathComponent("shared.txt")
+        try Data().write(to: file)
+        let primary = ShelfManager.shared
+        primary.clearAndCloseShelf()
+        primary.showShelf(near: CGPoint(x: 300, y: 300))
+        primary.add(urls: [file])
+
+        ShelfManager.openNewShelf()
+        let second = ShelfManager.active
+        defer {
+            second.clearAndCloseShelf()
+            primary.clearAndCloseShelf()
+        }
+
+        XCTAssertFalse(second === primary)
+        XCTAssertTrue(second.isShelfVisible)
+        XCTAssertTrue(primary.isShelfVisible)
+        XCTAssertTrue(second.items.isEmpty)
+
+        // Opening again while the new Shelf is still empty reuses it.
+        ShelfManager.openNewShelf()
+        XCTAssertTrue(ShelfManager.active === second)
+
+        primary.toggleCurrentShelfPin()
+        XCTAssertEqual(second.historyEntries, primary.historyEntries)
+        primary.toggleCurrentShelfPin()
+    }
+
+    @MainActor
+    private func makeIsolatedManager() -> ShelfManager {
+        let suiteName = "ShelfImportAndHistoryTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        addTeardownBlock { defaults.removePersistentDomain(forName: suiteName) }
+        return ShelfManager(historyStore: ShelfHistoryStore(defaults: defaults))
+    }
 }

@@ -12,7 +12,9 @@ final class ShelfManager: ObservableObject {
     @Published private(set) var selectedItemIDs: Set<UUID> = []
     @Published private(set) var isCreatingArchive = false
     @Published private(set) var conversionStates: [UUID: ConversionState] = [:]
-    @Published private(set) var historyEntries: [ShelfHistoryEntry]
+    @Published private(set) var historyEntries: [ShelfHistoryEntry] {
+        didSet { Self.shareHistory(historyEntries, from: self) }
+    }
     @Published private(set) var isShowingHistory = false
     @Published private(set) var currentShelfName: String?
     @Published private(set) var isReceivingDrop = false
@@ -23,6 +25,7 @@ final class ShelfManager: ObservableObject {
     private var itemURLs: Set<URL> = []
     private var sessionURLs: [URL] = []
     private var sessionURLSet: Set<URL> = []
+    /// Keyed by batch token; `conversionTokens` maps each item to its batch.
     private var conversionTasks: [UUID: Task<Void, Never>] = [:]
     private var conversionTokens: [UUID: UUID] = [:]
     private var autoHideTimer: (any DispatchSourceTimer)?
@@ -48,6 +51,72 @@ final class ShelfManager: ObservableObject {
 
         preferences.shelfBehaviorDidChange = { [weak self] in
             self?.shelfBehaviorPreferencesDidChange()
+        }
+    }
+
+    // MARK: - Multiple shelves
+
+    /// Every Shelf the app manages. Closed shelves stay here and get reused,
+    /// because releasing an NSPanel mid-animation can crash.
+    private(set) static var shelves: [ShelfManager] = [shared]
+    /// The Shelf that activation, Recent Shelves, and pinned restores target.
+    private(set) static var active: ShelfManager = shared
+    private static var isSharingHistory = false
+
+    /// Shows an empty Shelf next to the active one, reusing a closed Shelf.
+    static func openNewShelf(near point: CGPoint? = nil) {
+        let current = active
+        if current.items.isEmpty, current.isShelfVisible, !current.isShowingHistory {
+            return
+        }
+
+        let shelf = shelves.first {
+            $0 !== current && $0.items.isEmpty && !$0.isShelfVisible
+        } ?? makeShelf()
+        if shelf.canNameCurrentShelf {
+            // An auto-hidden Shelf whose items were all dragged out still
+            // owns a session; file it in history before reusing the Shelf.
+            shelf.clearAndCloseShelf()
+        }
+
+        let location = point
+            ?? current.panel.flatMap { panel in
+                panel.isVisible
+                    ? CGPoint(x: panel.frame.maxX + 170, y: panel.frame.midY)
+                    : nil
+            }
+            ?? NSEvent.mouseLocation
+        shelf.showShelf(near: location)
+    }
+
+    private static func makeShelf() -> ShelfManager {
+        let shelf = ShelfManager()
+        shelves.append(shelf)
+        // Each init claims the single preferences callback; fan it out again.
+        shelf.preferences.shelfBehaviorDidChange = {
+            for shelf in ShelfManager.shelves {
+                shelf.shelfBehaviorPreferencesDidChange()
+            }
+        }
+        return shelf
+    }
+
+    private static func shareHistory(_ entries: [ShelfHistoryEntry], from source: ShelfManager) {
+        guard !isSharingHistory, source.isRegistered else { return }
+        isSharingHistory = true
+        defer { isSharingHistory = false }
+        for shelf in shelves where shelf !== source {
+            shelf.historyEntries = entries
+        }
+    }
+
+    private var isRegistered: Bool {
+        Self.shelves.contains { $0 === self }
+    }
+
+    private func markActive() {
+        if isRegistered {
+            Self.active = self
         }
     }
 
@@ -97,6 +166,7 @@ final class ShelfManager: ObservableObject {
         )
         panel?.position(near: point)
         panel?.orderFrontRegardless()
+        markActive()
         scheduleAutoHideIfNeeded()
     }
 
@@ -136,7 +206,10 @@ final class ShelfManager: ObservableObject {
 
         let wasVisible = isShelfVisible
         let wasEmpty = items.isEmpty
-        if wasEmpty || currentHistoryEntryID == entry.id {
+        let isOpenInAnotherShelf = Self.shelves.contains {
+            $0 !== self && $0.currentHistoryEntryID == entry.id
+        }
+        if (wasEmpty && !isOpenInAnotherShelf) || currentHistoryEntryID == entry.id {
             currentHistoryEntryID = entry.id
         } else {
             // Restoring into a non-empty Shelf creates a merged session. It
@@ -234,6 +307,7 @@ final class ShelfManager: ObservableObject {
         cancelAutoHide()
         saveCurrentSessionToHistory()
         cancelAllConversions()
+        ShelfIconCache.shared.remove(urls: Array(itemURLs))
         items.removeAll(keepingCapacity: false)
         selectedItemIDs.removeAll(keepingCapacity: false)
         itemURLs.removeAll(keepingCapacity: false)
@@ -244,7 +318,9 @@ final class ShelfManager: ObservableObject {
         isShowingHistory = false
         isReceivingDrop = false
         pendingDropItemCount = 0
-        ShelfIconCache.shared.removeAll()
+        if Self.active === self {
+            Self.active = Self.shelves.last { $0 !== self && $0.isShelfVisible } ?? self
+        }
 
         // Keep the lightweight NSPanel alive and reusable. Releasing a window
         // while AppKit is finishing a transform animation can crash. Its much
@@ -289,6 +365,7 @@ final class ShelfManager: ObservableObject {
         }
 
         guard !additions.isEmpty else { return }
+        markActive()
         items.append(contentsOf: additions)
         synchronizeCurrentHistoryEntryIfNeeded()
         updatePanelLayout(animated: true)
@@ -481,7 +558,88 @@ final class ShelfManager: ObservableObject {
         }
     }
 
+    // MARK: - Rename
+
+    func promptToRenameItems(for id: UUID? = nil) {
+        let targets = actionItems(for: id)
+        guard let first = targets.first else { return }
+        cancelAutoHide()
+
+        let alert = NSAlert()
+        alert.addButton(withTitle: "Rename")
+        alert.addButton(withTitle: "Cancel")
+        let nameField = NSTextField(frame: NSRect(x: 0, y: 0, width: 280, height: 24))
+        if targets.count == 1 {
+            alert.messageText = "Rename “\(first.url.lastPathComponent)”"
+            alert.informativeText = "The file is renamed in place on disk."
+            nameField.stringValue = first.url.lastPathComponent
+        } else {
+            alert.messageText = "Rename \(targets.count) Items"
+            alert.informativeText = "Files are renamed in place, numbered in Shelf order: "
+                + "“Name 1”, “Name 2”, … Extensions are kept."
+            nameField.stringValue = first.url.deletingPathExtension().lastPathComponent
+        }
+        alert.accessoryView = nameField
+
+        NSApp.activate(ignoringOtherApps: true)
+        alert.window.initialFirstResponder = nameField
+        if alert.runModal() == .alertFirstButtonReturn,
+           let message = renameItems(targets, to: nameField.stringValue) {
+            showAlert(title: "Couldn’t rename", message: message)
+        }
+        scheduleAutoHideIfNeeded()
+    }
+
+    /// Renames the files on disk and updates the Shelf. Returns an error
+    /// message, leaving every file untouched, when any rename can't happen.
+    @discardableResult
+    func renameItems(_ requestedItems: [ShelfItem], to name: String) -> String? {
+        let targets = items.filter { item in requestedItems.contains { $0.id == item.id } }
+        guard !targets.isEmpty else { return nil }
+        if let error = ShelfRenamePlanner.validationError(for: name) {
+            return error
+        }
+
+        let fileManager = FileManager.default
+        let plannedURLs = ShelfRenamePlanner.plannedURLs(
+            for: targets.map(\.url),
+            name: name.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+        for (item, newURL) in zip(targets, plannedURLs)
+            where newURL != item.url
+                && fileManager.fileExists(atPath: newURL.path)
+                && !ShelfRenamePlanner.isSameFile(item.url, newURL) {
+            return "“\(newURL.lastPathComponent)” already exists in that folder."
+        }
+
+        var completed: [(from: URL, to: URL)] = []
+        for (item, newURL) in zip(targets, plannedURLs) where newURL != item.url {
+            do {
+                try fileManager.moveItem(at: item.url, to: newURL)
+                completed.append((item.url, newURL))
+            } catch {
+                for move in completed.reversed() {
+                    try? fileManager.moveItem(at: move.to, to: move.from)
+                }
+                return error.localizedDescription
+            }
+        }
+
+        let renamedURLs = Dictionary(uniqueKeysWithValues: completed.map { ($0.from, $0.to) })
+        guard !renamedURLs.isEmpty else { return nil }
+        items = items.map { item in
+            renamedURLs[item.url].map { ShelfItem(id: item.id, url: $0) } ?? item
+        }
+        itemURLs = Set(items.map(\.url))
+        sessionURLs = sessionURLs.map { renamedURLs[$0] ?? $0 }
+        sessionURLSet = Set(sessionURLs)
+        ShelfIconCache.shared.remove(urls: Array(renamedURLs.keys))
+        synchronizeCurrentHistoryEntryIfNeeded()
+        return nil
+    }
+
     func shelfDidReceiveUserActivity() {
+        markActive()
         scheduleAutoHideIfNeeded()
     }
 
@@ -490,17 +648,26 @@ final class ShelfManager: ObservableObject {
     }
 
     func requestConversion(of item: ShelfItem, using option: ConversionOption) {
-        guard items.contains(where: { $0.id == item.id }),
-              conversionState(for: item.id) != .converting else {
-            return
+        requestConversion(of: [item], using: option)
+    }
+
+    /// Converts every item to `option.targetFormat` into one chosen folder,
+    /// one file at a time, then reveals all outputs together.
+    func requestConversion(of requestedItems: [ShelfItem], using option: ConversionOption) {
+        let targets = requestedItems.filter { item in
+            items.contains(where: { $0.id == item.id })
+                && conversionState(for: item.id) != .converting
         }
+        guard !targets.isEmpty else { return }
 
         scheduleAutoHideIfNeeded()
 
         if let warning = option.warning {
             let alert = NSAlert()
             alert.alertStyle = .warning
-            alert.messageText = "Convert to \(option.targetFormat.displayName)?"
+            alert.messageText = targets.count == 1
+                ? "Convert to \(option.targetFormat.displayName)?"
+                : "Convert \(targets.count) items to \(option.targetFormat.displayName)?"
             alert.informativeText = warning
             alert.addButton(withTitle: "Continue")
             alert.addButton(withTitle: "Cancel")
@@ -529,36 +696,61 @@ final class ShelfManager: ObservableObject {
             return
         }
 
-        let itemID = item.id
         let token = UUID()
-        conversionStates[itemID] = .converting
-        conversionTokens[itemID] = token
+        for item in targets {
+            conversionStates[item.id] = .converting
+            conversionTokens[item.id] = token
+        }
 
-        let task = Task { [weak self] in
-            do {
-                let outputURLs = try await ConversionService.shared.convertAll(
-                    item.url,
-                    to: option.targetFormat,
-                    destinationDirectory: destinationDirectory
-                )
-                try Task.checkCancellation()
-                self?.finishConversion(
-                    for: itemID,
-                    token: token,
-                    result: .success(outputURLs)
-                )
-            } catch is CancellationError {
-                self?.finishCancelledConversion(for: itemID, token: token)
-            } catch {
-                NSLog("DropShelf conversion failed: %@", String(reflecting: error))
-                self?.finishConversion(
-                    for: itemID,
-                    token: token,
-                    result: .failure(error.localizedDescription)
+        let targetFormat = option.targetFormat
+        conversionTasks[token] = Task { [weak self] in
+            var outputURLs: [URL] = []
+            var failures: [String] = []
+
+            for item in targets {
+                guard !Task.isCancelled else { break }
+                guard self?.conversionTokens[item.id] == token else { continue }
+                do {
+                    let urls = try await ConversionService.shared.convertAll(
+                        item.url,
+                        to: targetFormat,
+                        destinationDirectory: destinationDirectory
+                    )
+                    try Task.checkCancellation()
+                    outputURLs += urls
+                    self?.finishConversion(for: item.id, token: token, outputURLs: urls)
+                } catch is CancellationError {
+                    self?.finishConversion(for: item.id, token: token, outputURLs: nil)
+                } catch {
+                    NSLog("DropShelf conversion failed: %@", String(reflecting: error))
+                    failures.append(
+                        targets.count == 1
+                            ? error.localizedDescription
+                            : "\(item.url.lastPathComponent): \(error.localizedDescription)"
+                    )
+                    self?.finishConversion(
+                        for: item.id,
+                        token: token,
+                        failure: error.localizedDescription
+                    )
+                }
+            }
+
+            guard let self, self.conversionTasks.removeValue(forKey: token) != nil else {
+                return
+            }
+            if !outputURLs.isEmpty {
+                NSWorkspace.shared.activateFileViewerSelecting(outputURLs)
+            }
+            if !failures.isEmpty {
+                self.showAlert(
+                    title: failures.count == 1
+                        ? "Couldn’t convert file"
+                        : "Couldn’t convert \(failures.count) files",
+                    message: failures.joined(separator: "\n")
                 )
             }
         }
-        conversionTasks[itemID] = task
     }
 
     func airDropAllItems() {
@@ -677,41 +869,34 @@ final class ShelfManager: ObservableObject {
         )
     }
 
+    /// `outputURLs == nil` with no failure means the item was cancelled.
     private func finishConversion(
         for itemID: UUID,
         token: UUID,
-        result: ConversionResult
+        outputURLs: [URL]? = nil,
+        failure: String? = nil
     ) {
         guard conversionTokens[itemID] == token else { return }
-
-        conversionTasks.removeValue(forKey: itemID)
         conversionTokens.removeValue(forKey: itemID)
 
-        switch result {
-        case let .success(outputURLs):
-            guard let firstOutputURL = outputURLs.first else {
-                conversionStates[itemID] = .failed("The conversion did not produce any files.")
-                return
-            }
+        if let failure {
+            conversionStates[itemID] = .failed(failure)
+        } else if let firstOutputURL = outputURLs?.first {
             conversionStates[itemID] = .success(firstOutputURL)
-            NSWorkspace.shared.activateFileViewerSelecting(outputURLs)
-        case let .failure(message):
-            conversionStates[itemID] = .failed(message)
-            showAlert(title: "Couldn’t convert file", message: message)
+        } else if outputURLs != nil {
+            conversionStates[itemID] = .failed("The conversion did not produce any files.")
+        } else {
+            conversionStates[itemID] = .idle
         }
     }
 
-    private func finishCancelledConversion(for itemID: UUID, token: UUID) {
-        guard conversionTokens[itemID] == token else { return }
-        conversionTasks.removeValue(forKey: itemID)
-        conversionTokens.removeValue(forKey: itemID)
-        conversionStates[itemID] = .idle
-    }
-
     private func cancelConversion(for itemID: UUID) {
-        conversionTasks.removeValue(forKey: itemID)?.cancel()
-        conversionTokens.removeValue(forKey: itemID)
         conversionStates.removeValue(forKey: itemID)
+        guard let token = conversionTokens.removeValue(forKey: itemID) else { return }
+        // A batch keeps running for its other items; it skips this one.
+        if !conversionTokens.values.contains(token) {
+            conversionTasks.removeValue(forKey: token)?.cancel()
+        }
     }
 
     private func cancelAllConversions() {
@@ -884,11 +1069,6 @@ enum ConversionDestinationSelection {
     }
 }
 
-private enum ConversionResult: Sendable {
-    case success([URL])
-    case failure(String)
-}
-
 enum ZipArchiver {
     static func createArchive(from sourceURLs: [URL], at destinationURL: URL) throws {
         let fileManager = FileManager.default
@@ -967,5 +1147,47 @@ private enum ZipArchiveError: LocalizedError {
         case let .creationFailed(message):
             return message
         }
+    }
+}
+
+enum ShelfRenamePlanner {
+    static func validationError(for name: String) -> String? {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty { return "Enter a name." }
+        if trimmed.contains("/") || trimmed.contains(":") {
+            return "Names can’t contain “/” or “:”."
+        }
+        if trimmed.hasPrefix(".") { return "Names can’t start with a period." }
+        if trimmed.count > 200 { return "That name is too long." }
+        return nil
+    }
+
+    /// One URL: renamed to `name` exactly. Several: "name 1.ext", "name 2.ext",
+    /// zero-padded so they sort in order, each staying in its own folder.
+    static func plannedURLs(for urls: [URL], name: String) -> [URL] {
+        guard urls.count > 1 else {
+            return urls.map { $0.deletingLastPathComponent().appendingPathComponent(name) }
+        }
+
+        let width = String(urls.count).count
+        return urls.enumerated().map { index, url in
+            let number = String(index + 1)
+            let padded = String(repeating: "0", count: width - number.count) + number
+            let fileExtension = url.pathExtension
+            let fileName = fileExtension.isEmpty
+                ? "\(name) \(padded)"
+                : "\(name) \(padded).\(fileExtension)"
+            return url.deletingLastPathComponent().appendingPathComponent(fileName)
+        }
+    }
+
+    /// True for a case-only rename on a case-insensitive volume.
+    static func isSameFile(_ lhs: URL, _ rhs: URL) -> Bool {
+        let key: Set<URLResourceKey> = [.fileResourceIdentifierKey]
+        guard let left = try? lhs.resourceValues(forKeys: key).fileResourceIdentifier,
+              let right = try? rhs.resourceValues(forKeys: key).fileResourceIdentifier else {
+            return false
+        }
+        return left.isEqual(right)
     }
 }

@@ -112,6 +112,7 @@ final class ShelfPanel: NSPanel {
             case "v": manager.pasteFromClipboard()
             case "o": manager.openItems()
             case "y": manager.toggleQuickLook()
+            case "n": ShelfManager.openNewShelf()
             case "\u{7F}": manager.removeSelectedItems()
             default: return false
             }

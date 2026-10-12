@@ -5,17 +5,15 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private var statusItem: NSStatusItem?
     private var openSettingsHandler: (() -> Void)?
     private var openOnboardingHandler: (() -> Void)?
-    private let shelfManager: ShelfManager
     private let pinnedShelvesMenu = NSMenu(title: "Pinned Shelves")
+    private let openShelvesMenu = NSMenu(title: "Open Shelves")
 
     init(
-        shelfManager: ShelfManager,
         openSettingsHandler: @escaping () -> Void,
         openOnboardingHandler: @escaping () -> Void
     ) {
         let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         self.statusItem = statusItem
-        self.shelfManager = shelfManager
         self.openSettingsHandler = openSettingsHandler
         self.openOnboardingHandler = openOnboardingHandler
         super.init()
@@ -32,6 +30,26 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
         let menu = NSMenu()
         menu.delegate = self
+
+        let newShelfItem = NSMenuItem(
+            title: "New Shelf",
+            action: #selector(openNewShelf),
+            keyEquivalent: ""
+        )
+        newShelfItem.image = NSImage(
+            systemSymbolName: "plus.rectangle.on.rectangle",
+            accessibilityDescription: "New Shelf"
+        )
+        newShelfItem.target = self
+        menu.addItem(newShelfItem)
+
+        let openShelvesItem = NSMenuItem(title: "Open Shelves", action: nil, keyEquivalent: "")
+        openShelvesItem.image = NSImage(
+            systemSymbolName: "tray.2",
+            accessibilityDescription: "Open Shelves"
+        )
+        openShelvesItem.submenu = openShelvesMenu
+        menu.addItem(openShelvesItem)
 
         let pinnedShelvesItem = NSMenuItem(
             title: "Pinned Shelves",
@@ -79,8 +97,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     func menuWillOpen(_ menu: NSMenu) {
-        shelfManager.refreshHistory()
+        ShelfManager.active.refreshHistory()
         rebuildPinnedShelvesMenu()
+        rebuildOpenShelvesMenu()
     }
 
     func invalidate() {
@@ -102,7 +121,41 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     private func restorePinnedShelf(entryID: UUID) {
-        shelfManager.restoreHistoryEntry(id: entryID)
+        ShelfManager.active.restoreHistoryEntry(id: entryID)
+    }
+
+    @objc private func openNewShelf() {
+        ShelfManager.openNewShelf(near: NSEvent.mouseLocation)
+    }
+
+    @objc private func showOpenShelf(_ sender: NSMenuItem) {
+        guard let shelf = sender.representedObject as? ShelfManager else { return }
+        shelf.showShelf(near: NSEvent.mouseLocation)
+    }
+
+    private func rebuildOpenShelvesMenu() {
+        openShelvesMenu.removeAllItems()
+
+        let shelves = ShelfManager.shelves.filter { !$0.items.isEmpty }
+        guard !shelves.isEmpty else {
+            let emptyItem = NSMenuItem(title: "No open shelves", action: nil, keyEquivalent: "")
+            emptyItem.isEnabled = false
+            openShelvesMenu.addItem(emptyItem)
+            return
+        }
+
+        for (index, shelf) in shelves.enumerated() {
+            let count = shelf.items.count
+            let item = NSMenuItem(
+                title: "\(shelf.currentShelfName ?? "Shelf \(index + 1)") · \(count) item\(count == 1 ? "" : "s")",
+                action: #selector(showOpenShelf(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.representedObject = shelf
+            item.state = shelf.isShelfVisible ? .on : .off
+            openShelvesMenu.addItem(item)
+        }
     }
 
     @objc private func quitApplication() {
@@ -112,7 +165,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private func rebuildPinnedShelvesMenu() {
         pinnedShelvesMenu.removeAllItems()
 
-        let entries = shelfManager.pinnedHistoryEntries
+        let entries = ShelfManager.active.pinnedHistoryEntries
         guard !entries.isEmpty else {
             let emptyItem = NSMenuItem(
                 title: "No pinned shelves",

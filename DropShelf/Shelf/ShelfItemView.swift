@@ -282,6 +282,8 @@ final class DraggableShelfItemView: NSView, NSDraggingSource {
             : super.hitTest(point)
     }
 
+    var owner: ShelfManager? { manager }
+
     func update(item: ShelfItem, manager: ShelfManager) {
         guard self.item != item || self.manager !== manager else { return }
         self.item = item

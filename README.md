@@ -72,6 +72,8 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 - Per-item Quick Look, Open, Show in Finder, Copy, Copy Path, and Share
 - Keyboard control: Space, Delete, Return, arrows, Esc, Command-A/C/V/O
 - Recent Shelves follow files that are renamed or moved
+- Several Shelves at once: **New Shelf** (Command-N), drag items between Shelves
+- Batch convert and batch rename the selected items
 - Drag items from the Shelf into Finder or compatible apps
 - Remove individual items
 - Clear and close the Shelf
@@ -228,11 +230,30 @@ Click the Shelf once to give it keyboard focus.
 | Command-A | Select all |
 | Command-C | Copy the selected files |
 | Command-V | Paste files, text, links, or images |
+| Command-N | Open a new Shelf beside the current one |
 | Esc | Clear selection, then hide the Shelf (items are kept) |
 
 Double-click an item to open it.
 
-## 9. Close the Shelf
+## 9. Multiple Shelves
+
+Choose **••• → New Shelf**, press **Command-N** on a Shelf, or use **New Shelf**
+in the menu bar. The new Shelf opens beside the current one. Drag an item from
+one Shelf to another to move it. Shaking the pointer or pressing the activation
+shortcut brings back the Shelf you used last. Every other Shelf with items is
+listed under **Open Shelves** in the menu bar.
+
+## 10. Batch convert and rename
+
+Select several items (Command-click), then open any selected item's **•••** menu:
+
+- **Convert N Items to** lists only the formats that every selected file supports.
+  Choose a destination folder once. All outputs are revealed together.
+- **Rename N Items…** renames the files on disk to `Name 1.ext`, `Name 2.ext`, …
+  in Shelf order. Extensions are kept. If any target name is already taken,
+  nothing is renamed.
+
+## 11. Close the Shelf
 
 Click the close button in the upper-right corner.
 

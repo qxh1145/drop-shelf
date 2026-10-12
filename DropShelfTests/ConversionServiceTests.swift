@@ -433,6 +433,18 @@ final class ConversionServiceTests: XCTestCase {
         )
     }
 
+    @MainActor
+    func testBatchOptionsOnlyOfferTargetsEveryFileSupports() async throws {
+        let png = testDirectory.appendingPathComponent("batch.png")
+        let jpeg = testDirectory.appendingPathComponent("batch.jpg")
+        try makeImage(at: png, format: .png, size: 16)
+        try makeImage(at: jpeg, format: .jpeg, size: 16)
+
+        let options = await ConversionOptionsCache.commonOptions(for: [png, jpeg])
+
+        XCTAssertEqual(options.map(\.targetFormat), [.pdf])
+    }
+
     private func makeImage(at url: URL, format: FileFormat, size: Int) throws {
         guard format.mediaKind == .image else {
             XCTFail("makeImage only accepts image formats")
