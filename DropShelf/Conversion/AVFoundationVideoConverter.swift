@@ -5,25 +5,48 @@ struct AVFoundationVideoConverter: Sendable {
     func supportedOptions(for inputURL: URL) async -> [ConversionOption] {
         do {
             let inspection = try await inspect(inputURL)
-            try Task.checkCancellation()
+            var options: [ConversionOption] = []
 
-            guard let session = AVAssetExportSession(
-                asset: inspection.asset,
-                presetName: AVAssetExportPresetPassthrough
-            ) else {
-                return []
+            for option in ConversionCapabilityMatrix.nativeVideoOptions
+            where option.sourceFormat == inspection.format {
+                try Task.checkCancellation()
+                guard let fileType = option.targetFormat.avFileType else { continue }
+                switch await Self.exportPreset(for: inspection.asset, outputFileType: fileType) {
+                case AVAssetExportPresetPassthrough?:
+                    options.append(option)
+                case .some:
+                    options.append(ConversionCapabilityMatrix.videoTranscodeOption(
+                        from: option.sourceFormat,
+                        to: option.targetFormat
+                    ))
+                case nil:
+                    continue
+                }
             }
 
-            let destinationFormats = Set(
-                session.supportedFileTypes.compactMap(FileFormat.init(avFileType:))
-            )
-            return ConversionCapabilityMatrix.videoOptions(
-                from: inspection.format,
-                availableDestinationFormats: destinationFormats
-            )
+            return options.sorted { $0.targetFormat.displayName < $1.targetFormat.displayName }
         } catch {
             return []
         }
+    }
+
+    /// Passthrough when the existing codecs fit the target container,
+    /// otherwise a full re-encode. `supportedFileTypes` is not enough here:
+    /// it lists MP4 for ProRes MOV even though passthrough export then fails.
+    private static func exportPreset(
+        for asset: AVAsset,
+        outputFileType: AVFileType
+    ) async -> String? {
+        for preset in [AVAssetExportPresetPassthrough, AVAssetExportPresetHighestQuality] {
+            if await AVAssetExportSession.compatibility(
+                ofExportPreset: preset,
+                with: asset,
+                outputFileType: outputFileType
+            ) {
+                return preset
+            }
+        }
+        return nil
     }
 
     func convert(
@@ -38,21 +61,23 @@ struct AVFoundationVideoConverter: Sendable {
         }
 
         let inspection = try await inspect(inputURL)
-        guard let session = AVAssetExportSession(
-            asset: inspection.asset,
-            presetName: AVAssetExportPresetPassthrough
-        ) else {
-            throw ConversionError.cannotCreateVideoExportSession
-        }
-        guard session.supportedFileTypes.contains(targetFileType),
-              ConversionCapabilityMatrix.videoOptions(
-                from: inspection.format,
-                availableDestinationFormats: [targetFormat]
-              ).isEmpty == false else {
+        guard ConversionCapabilityMatrix.nativeVideoOptions.contains(where: {
+                  $0.sourceFormat == inspection.format && $0.targetFormat == targetFormat
+              }),
+              let preset = await Self.exportPreset(
+                for: inspection.asset,
+                outputFileType: targetFileType
+              ) else {
             throw ConversionError.unsupportedConversion(
                 source: inspection.format,
                 target: targetFormat
             )
+        }
+        guard let session = AVAssetExportSession(
+            asset: inspection.asset,
+            presetName: preset
+        ) else {
+            throw ConversionError.cannotCreateVideoExportSession
         }
 
         let destinationValues = try destinationDirectory.resourceValues(

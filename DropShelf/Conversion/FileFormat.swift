@@ -201,16 +201,18 @@ enum ConversionCapabilityMatrix {
             .sorted { $0.targetFormat.displayName < $1.targetFormat.displayName }
     }
 
-    static func videoOptions(
+    /// Used when the source codecs cannot be copied into the target
+    /// container as-is (e.g. ProRes MOV to MP4).
+    static func videoTranscodeOption(
         from sourceFormat: FileFormat,
-        availableDestinationFormats: Set<FileFormat>
-    ) -> [ConversionOption] {
-        nativeVideoOptions
-            .filter {
-                $0.sourceFormat == sourceFormat
-                    && availableDestinationFormats.contains($0.targetFormat)
-            }
-            .sorted { $0.targetFormat.displayName < $1.targetFormat.displayName }
+        to targetFormat: FileFormat
+    ) -> ConversionOption {
+        ConversionOption(
+            sourceFormat: sourceFormat,
+            targetFormat: targetFormat,
+            risk: .medium,
+            warning: String(localized: "The existing codecs can’t be stored in \(targetFormat.displayName) as-is, so the video will be re-encoded at the highest quality. This takes longer, is lossy, and the file size may change.")
+        )
     }
 
     static func pdfOptions(

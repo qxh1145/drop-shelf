@@ -15,8 +15,8 @@ The MVP exposes only conversions backed by native macOS frameworks and verified 
 | WEBP | JPEG/PNG/HEIC | PARTIALLY_SUPPORTED | Native decode varies; no native ImageIO WEBP encoder | Hidden until a reliable bundled codec is selected |
 | GIF | JPEG/PNG | UNSAFE | ImageIO could decode frames | Hidden because animation would be lost |
 | PSD | JPEG/PNG | UNSAFE | ImageIO can flatten | Hidden because layers, masks, and editing structure would be lost |
-| MOV | MP4 | SUPPORTED_WHEN_COMPATIBLE / Native | AVFoundation passthrough export | Low: container changes; existing codecs are not re-encoded |
-| MP4 | MOV | SUPPORTED_WHEN_COMPATIBLE / Native | AVFoundation passthrough export | Low: container changes; existing codecs are not re-encoded |
+| MOV | MP4 | SUPPORTED / Native | AVFoundation passthrough export; HighestQuality re-encode when codecs (e.g. ProRes) do not fit MP4 | Low for passthrough; Medium when re-encoded (lossy, slower) |
+| MP4 | MOV | SUPPORTED / Native | AVFoundation passthrough export; HighestQuality re-encode as fallback | Low for passthrough; Medium when re-encoded (lossy, slower) |
 | PDF | PNG | SUPPORTED / Native | CoreGraphics + ImageIO, 144 DPI | Medium: one image per page; text, vectors, links, forms, and annotations become raster content |
 | PDF | JPEG | SUPPORTED / Native | CoreGraphics + ImageIO, 144 DPI | High: one lossy image per page; editable/interactive PDF structure is lost |
 | JPEG/PNG/HEIC | PDF | SUPPORTED / Native | CoreGraphics PDF context | Low: creates a one-page PDF containing raster content; transparency uses a white page |
@@ -35,7 +35,6 @@ The MVP exposes only conversions backed by native macOS frameworks and verified 
 | KEY → PDF/PPTX | REQUIRES_EXTERNAL_TOOL | Keynote automation | Proprietary format and UI automation/distribution constraints |
 | SVG → PNG/PDF | REQUIRES_LIBRARY | Resvg/WebKit-based renderer | Font, filter, script, and external-resource behavior needs sandboxing |
 | EPS/AI → raster/PDF | REQUIRES_EXTERNAL_TOOL | Ghostscript/Illustrator-compatible tool | AI is proprietary; layers and color spaces may be lost |
-| Other MOV/MP4 codec combinations | PARTIALLY_SUPPORTED | AVFoundation transcode presets | Hidden when passthrough export says the codecs are incompatible with the target container |
 | MKV/WEBM/AVI → MP4/MOV | REQUIRES_EXTERNAL_TOOL | FFmpeg | Containers/codecs are not reliably covered by AVFoundation |
 | WAV → M4A/AAC | PARTIALLY_SUPPORTED | AVFoundation/AudioToolbox | Safe once channel layout, sample rate, metadata, and progress UX are defined |
 | MP3/AAC/M4A → WAV | PARTIALLY_SUPPORTED | AVFoundation/AudioToolbox | Large output and metadata loss require warning/progress handling |
@@ -51,7 +50,7 @@ The MVP exposes only conversions backed by native macOS frameworks and verified 
 - Image source format is detected from ImageIO content identifiers, not filename extension.
 - HEIC, HEIF, and HEICS containers use the primary image selected by ImageIO. Multi-frame JPEG/PNG remains hidden to avoid silently discarding animation.
 - MOV/MP4 is detected from ISO Base Media File Format `ftyp` brands and then validated for a real video track by AVFoundation.
-- MOV/MP4 options appear only if an AVFoundation passthrough export session reports that the target container is supported for the source codecs.
+- MOV/MP4 options use `AVAssetExportSession.compatibility(ofExportPreset:with:outputFileType:)`: passthrough when the source codecs fit the target container, otherwise a HighestQuality re-encode with a re-encode warning. `supportedFileTypes` is not used because it lists MP4 for ProRes MOV even though passthrough then fails.
 - Every PDF page is rendered sequentially at 144 DPI. Multi-page PDFs produce one collision-safe image per page, and per-page autorelease pools keep peak memory bounded.
 - Image-to-PDF applies the image orientation, uses its valid DPI when available, and creates one raster page without changing the source image.
 - Destination encoder availability is queried from ImageIO at runtime.

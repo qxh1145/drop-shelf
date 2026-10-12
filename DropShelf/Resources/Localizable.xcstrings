@@ -2196,6 +2196,16 @@
         }
       }
     },
+    "The existing codecs can’t be stored in %@ as-is, so the video will be re-encoded at the highest quality. This takes longer, is lossy, and the file size may change.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codec hiện có không thể giữ nguyên trong %@, nên video sẽ được mã hóa lại ở chất lượng cao nhất. Việc này mất thời gian hơn, có suy giảm chất lượng và dung lượng file có thể thay đổi."
+          }
+        }
+      }
+    },
     "This changes the video container without re-encoding. It is available only when the existing video and audio codecs are compatible with MOV.": {
       "localizations": {
         "vi": {

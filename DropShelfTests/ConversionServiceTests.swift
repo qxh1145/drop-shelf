@@ -135,6 +135,30 @@ final class ConversionServiceTests: XCTestCase {
         XCTAssertEqual(try VideoContainerDetector.detect(at: movURL), .mov)
     }
 
+    func testProResMOVIsReencodedToMP4WhenPassthroughCannotWork() async throws {
+        let sourceURL = testDirectory.appendingPathComponent("prores.mov")
+        try await makeVideo(at: sourceURL, fileType: .mov, codec: .proRes422)
+        let sourceData = try Data(contentsOf: sourceURL)
+
+        let options = await ConversionService.shared.supportedOutputFormats(for: sourceURL)
+        let mp4Option = try XCTUnwrap(options.first { $0.targetFormat == .mp4 })
+        XCTAssertEqual(mp4Option.risk, .medium)
+
+        let mp4URL = try await ConversionService.shared.convert(
+            sourceURL,
+            to: .mp4,
+            destinationDirectory: testDirectory
+        )
+        XCTAssertEqual(try VideoContainerDetector.detect(at: mp4URL), .mp4)
+        XCTAssertEqual(try Data(contentsOf: sourceURL), sourceData)
+
+        let tracks = try await AVURLAsset(url: mp4URL).loadTracks(withMediaType: .video)
+        let track = try XCTUnwrap(tracks.first)
+        let formats = try await track.load(.formatDescriptions)
+        let codec = try XCTUnwrap(formats.first).mediaSubType
+        XCTAssertNotEqual(codec, .proRes422)
+    }
+
     func testFakeVideoContainerExposesNoConversionOptions() async throws {
         let fakeVideo = testDirectory.appendingPathComponent("fake.mp4")
         try Data("not a video".utf8).write(to: fakeVideo)
@@ -488,14 +512,18 @@ final class ConversionServiceTests: XCTestCase {
         return image
     }
 
-    private func makeVideo(at url: URL, fileType: AVFileType) async throws {
+    private func makeVideo(
+        at url: URL,
+        fileType: AVFileType,
+        codec: AVVideoCodecType = .h264
+    ) async throws {
         let width = 64
         let height = 64
         let writer = try AVAssetWriter(outputURL: url, fileType: fileType)
         let input = AVAssetWriterInput(
             mediaType: .video,
             outputSettings: [
-                AVVideoCodecKey: AVVideoCodecType.h264,
+                AVVideoCodecKey: codec,
                 AVVideoWidthKey: width,
                 AVVideoHeightKey: height
             ]
