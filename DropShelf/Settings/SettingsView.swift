@@ -222,6 +222,39 @@ struct SettingsView: View {
 
             )
             Divider()
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Open Shelf")
+                        .font(.system(size: 12, weight: .medium))
+                    Text("Where shaking or the shortcut shows the Shelf.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Picker(
+                    "Open Shelf",
+                    selection: Binding(
+                        get: { preferences.shelfPlacement },
+                        set: { preferences.setShelfPlacement($0) }
+                    )
+                ) {
+                    ForEach(ShelfPlacement.allCases) { placement in
+                        Text(placement.title).tag(placement)
+                    }
+                }
+                .labelsHidden()
+                .fixedSize()
+            }
+            Divider()
+            SettingsToggleRow(
+                title: "Snap to screen edges",
+                description: "Dock the Shelf against the nearest edge when you drop it close to one.",
+                isOn: Binding(
+                    get: { preferences.snapToScreenEdges },
+                    set: { preferences.setSnapToScreenEdges($0) }
+                )
+            )
+            Divider()
             SettingsToggleRow(
                 title: "Hide after 10 seconds",
                 description: "Hide inactive Shelves without removing their current files.",
@@ -307,7 +340,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
         switch self {
         case .general: "Choose how DropShelf appears and starts."
         case .activation: "Configure how you summon a Shelf."
-        case .shelf: "Control Shelf closing and visibility behavior."
+        case .shelf: "Control Shelf placement, closing, and visibility."
         case .history: "Understand recent and pinned Shelf retention."
         case .about: "Version and application information."
         }

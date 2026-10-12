@@ -140,7 +140,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         detector.start {
-            ShelfManager.active.showShelf(near: NSEvent.mouseLocation)
+            ShelfManager.active.showShelf(near: ShelfManager.activationPoint)
         }
     }
 
@@ -150,7 +150,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             shortcut: AppPreferences.shared.activationShortcut,
             identifier: 2
         ) {
-            ShelfManager.active.showShelf(near: NSEvent.mouseLocation)
+            ShelfManager.active.showShelf(near: ShelfManager.activationPoint)
         }
         activationHotKeyController = controller
         AppPreferences.shared.setActivationShortcutRegistrationSucceeded(succeeded)

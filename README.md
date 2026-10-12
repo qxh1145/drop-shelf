@@ -74,6 +74,8 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 - Recent Shelves follow files that are renamed or moved
 - Several Shelves at once: **New Shelf** (Command-N), drag items between Shelves
 - Batch convert and batch rename the selected items
+- Image Tools: resize, compress, and remove metadata (location, camera info)
+- Open the Shelf at the pointer or where you last left it, snap to screen edges, Keep on Screen
 - Drag items from the Shelf into Finder or compatible apps
 - Remove individual items
 - Clear and close the Shelf
@@ -253,7 +255,29 @@ Select several items (Command-click), then open any selected item's **•••*
   in Shelf order. Extensions are kept. If any target name is already taken,
   nothing is renamed.
 
-## 11. Close the Shelf
+## 11. Image Tools
+
+For JPEG, PNG, HEIC, and TIFF images, the item **•••** menu has **Image Tools**.
+They act on the whole selection when the item is selected:
+
+- **Resize**: Large (2048 px), Medium (1024 px), or Small (512 px) on the longest side.
+- **Compress**: re-encodes JPEG and HEIC at 60% quality.
+- **Remove Metadata**: strips location, camera, and other metadata. The
+  orientation is kept. JPEG and PNG pixels are copied without recompression.
+
+Results are saved next to the original as `Name (1024px).jpg`,
+`Name (compressed).jpg`, or `Name (no metadata).jpg`, then added to the Shelf.
+Originals are never changed.
+
+## 12. Shelf position
+
+- **Settings → Shelf → Open Shelf** chooses where shaking or the shortcut shows
+  the Shelf: near the pointer, or where you last dragged it.
+- **Snap to screen edges** docks a Shelf dropped close to an edge.
+- **••• → Keep on Screen** keeps that Shelf visible. It is not auto-hidden, Esc does
+  not hide it, and it stays open when empty. Closing the Shelf turns this off.
+
+## 13. Close the Shelf
 
 Click the close button in the upper-right corner.
 

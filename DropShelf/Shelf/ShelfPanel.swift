@@ -132,6 +132,32 @@ final class ShelfPanel: NSPanel {
         return true
     }
 
+    /// Pulls a frame dropped within `threshold` of a screen edge flush
+    /// against it, keeping the usual 8 pt margin.
+    static func snappedFrame(
+        _ frame: NSRect,
+        in visibleFrame: NSRect,
+        threshold: CGFloat = 32,
+        margin: CGFloat = 8
+    ) -> NSRect {
+        var result = frame
+        if frame.minX - visibleFrame.minX < threshold {
+            result.origin.x = visibleFrame.minX + margin
+        } else if visibleFrame.maxX - frame.maxX < threshold {
+            result.origin.x = visibleFrame.maxX - frame.width - margin
+        }
+        if frame.minY - visibleFrame.minY < threshold {
+            result.origin.y = visibleFrame.minY + margin
+        } else if visibleFrame.maxY - frame.maxY < threshold {
+            result.origin.y = visibleFrame.maxY - frame.height - margin
+        }
+        return result
+    }
+
+    func userDidFinishMove() {
+        shelfManager?.shelfPanelDidFinishMove()
+    }
+
     func position(near cursor: CGPoint) {
         let screen = NSScreen.screens.first { $0.frame.contains(cursor) } ?? NSScreen.main
         guard let visibleFrame = screen?.visibleFrame else { return }

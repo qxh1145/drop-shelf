@@ -49,6 +49,20 @@ private struct LoginItemServiceWorker: Sendable {
     }
 }
 
+enum ShelfPlacement: String, CaseIterable, Identifiable {
+    case nearPointer
+    case lastPosition
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .nearPointer: "Near the pointer"
+        case .lastPosition: "Where I last moved it"
+        }
+    }
+}
+
 enum AppBehaviorPreferenceChange {
     case shakeGesture
     case activationShortcut
@@ -66,6 +80,9 @@ final class AppPreferences: ObservableObject {
         static let shakeGestureEnabled = "DropShelf.shakeGestureEnabled"
         static let activationShortcut = "DropShelf.activationShortcut"
         static let showInDock = "DropShelf.showInDock"
+        static let shelfPlacement = "DropShelf.shelfPlacement"
+        static let snapToScreenEdges = "DropShelf.snapToScreenEdges"
+        static let lastShelfCenter = "DropShelf.lastShelfCenter"
     }
 
     @Published private(set) var shakeSensitivity: Double
@@ -75,6 +92,8 @@ final class AppPreferences: ObservableObject {
     @Published private(set) var showInDock: Bool
     @Published private(set) var closeShelfWhenEmpty: Bool
     @Published private(set) var automaticallyHideAfterTenSeconds: Bool
+    @Published private(set) var shelfPlacement: ShelfPlacement
+    @Published private(set) var snapToScreenEdges: Bool
     @Published private(set) var loginItemStatus: SMAppService.Status
     @Published private(set) var loginItemError: String?
 
@@ -131,7 +150,39 @@ final class AppPreferences: ObservableObject {
             )
         }
 
+        shelfPlacement = defaults.string(forKey: Keys.shelfPlacement)
+            .flatMap(ShelfPlacement.init(rawValue:)) ?? .nearPointer
+        snapToScreenEdges = defaults.object(forKey: Keys.snapToScreenEdges) == nil
+            ? true
+            : defaults.bool(forKey: Keys.snapToScreenEdges)
+
         loginItemStatus = .notRegistered
+    }
+
+    /// Center of the Shelf the user last dragged, in screen coordinates.
+    var lastShelfCenter: CGPoint? {
+        get {
+            guard let values = defaults.array(forKey: Keys.lastShelfCenter) as? [Double],
+                  values.count == 2 else {
+                return nil
+            }
+            return CGPoint(x: values[0], y: values[1])
+        }
+        set {
+            defaults.set(newValue.map { [Double($0.x), Double($0.y)] }, forKey: Keys.lastShelfCenter)
+        }
+    }
+
+    func setShelfPlacement(_ placement: ShelfPlacement) {
+        guard placement != shelfPlacement else { return }
+        shelfPlacement = placement
+        defaults.set(placement.rawValue, forKey: Keys.shelfPlacement)
+    }
+
+    func setSnapToScreenEdges(_ enabled: Bool) {
+        guard enabled != snapToScreenEdges else { return }
+        snapToScreenEdges = enabled
+        defaults.set(enabled, forKey: Keys.snapToScreenEdges)
     }
 
     var launchAtLoginEnabled: Bool {

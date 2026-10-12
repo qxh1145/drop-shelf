@@ -28,6 +28,7 @@
 		010000000000000000000013 /* ConversionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000016 /* ConversionServiceTests.swift */; };
 		010000000000000000000014 /* AVFoundationVideoConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000017 /* AVFoundationVideoConverter.swift */; };
 		010000000000000000000015 /* PDFFileConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000018 /* PDFFileConverter.swift */; };
+		01000000000000000000001D /* ImageTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000020 /* ImageTools.swift */; };
 		010000000000000000000016 /* ShelfHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000019 /* ShelfHistory.swift */; };
 		010000000000000000000017 /* GlobalHotKeyController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001A /* GlobalHotKeyController.swift */; };
 		010000000000000000000018 /* OnboardingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001B /* OnboardingManager.swift */; };
@@ -72,6 +73,7 @@
 		020000000000000000000016 /* ConversionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversionServiceTests.swift; sourceTree = "<group>"; };
 		020000000000000000000017 /* AVFoundationVideoConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVFoundationVideoConverter.swift; sourceTree = "<group>"; };
 		020000000000000000000018 /* PDFFileConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFFileConverter.swift; sourceTree = "<group>"; };
+		020000000000000000000020 /* ImageTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTools.swift; sourceTree = "<group>"; };
 		020000000000000000000019 /* ShelfHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShelfHistory.swift; sourceTree = "<group>"; };
 		02000000000000000000001A /* GlobalHotKeyController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotKeyController.swift; sourceTree = "<group>"; };
 		02000000000000000000001B /* OnboardingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingManager.swift; sourceTree = "<group>"; };
@@ -211,6 +213,7 @@
 				020000000000000000000015 /* ConversionService.swift */,
 				020000000000000000000017 /* AVFoundationVideoConverter.swift */,
 				020000000000000000000018 /* PDFFileConverter.swift */,
+				020000000000000000000020 /* ImageTools.swift */,
 			);
 			path = Conversion;
 			sourceTree = "<group>";
@@ -335,6 +338,7 @@
 				010000000000000000000012 /* ConversionService.swift in Sources */,
 				010000000000000000000014 /* AVFoundationVideoConverter.swift in Sources */,
 				010000000000000000000015 /* PDFFileConverter.swift in Sources */,
+				01000000000000000000001D /* ImageTools.swift in Sources */,
 				010000000000000000000017 /* GlobalHotKeyController.swift in Sources */,
 				010000000000000000000018 /* OnboardingManager.swift in Sources */,
 				010000000000000000000019 /* OnboardingWindowController.swift in Sources */,
@@ -496,7 +500,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = PD79TCT72F;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -508,7 +512,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.0;
+				MARKETING_VERSION = 1.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qxh1145.DropShelf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -524,7 +528,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = PD79TCT72F;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -536,7 +540,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.0;
+				MARKETING_VERSION = 1.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qxh1145.DropShelf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

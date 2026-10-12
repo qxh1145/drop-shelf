@@ -19,6 +19,8 @@ final class ShelfManager: ObservableObject {
     @Published private(set) var currentShelfName: String?
     @Published private(set) var isReceivingDrop = false
     @Published private(set) var pendingDropItemCount = 0
+    /// Keeps this Shelf visible: no auto-hide, no Esc hide, no close-when-empty.
+    @Published private(set) var isKeptOnScreen = false
 
     private var panel: ShelfPanel?
     private var currentHistoryEntryID: UUID?
@@ -112,6 +114,17 @@ final class ShelfManager: ObservableObject {
 
     private var isRegistered: Bool {
         Self.shelves.contains { $0 === self }
+    }
+
+    /// Where activation shows the Shelf, per the placement preference.
+    static var activationPoint: CGPoint {
+        let preferences = AppPreferences.shared
+        if preferences.shelfPlacement == .lastPosition,
+           let center = preferences.lastShelfCenter,
+           NSScreen.screens.contains(where: { $0.frame.contains(center) }) {
+            return center
+        }
+        return NSEvent.mouseLocation
     }
 
     private func markActive() {
@@ -318,6 +331,7 @@ final class ShelfManager: ObservableObject {
         isShowingHistory = false
         isReceivingDrop = false
         pendingDropItemCount = 0
+        isKeptOnScreen = false
         if Self.active === self {
             Self.active = Self.shelves.last { $0 !== self && $0.isShelfVisible } ?? self
         }
@@ -553,8 +567,70 @@ final class ShelfManager: ObservableObject {
             hideHistory()
         } else if !selectedItemIDs.isEmpty {
             clearSelection()
-        } else {
+        } else if !isKeptOnScreen {
             hideShelf()
+        }
+    }
+
+    func toggleKeepOnScreen() {
+        isKeptOnScreen.toggle()
+        scheduleAutoHideIfNeeded()
+    }
+
+    /// Called after the user drags the Shelf by its handle.
+    func shelfPanelDidFinishMove() {
+        guard let panel else { return }
+        var frame = panel.frame
+        if preferences.snapToScreenEdges, let visibleFrame = panel.screen?.visibleFrame {
+            frame = ShelfPanel.snappedFrame(frame, in: visibleFrame)
+            if frame != panel.frame {
+                panel.setFrame(frame, display: true, animate: true)
+            }
+        }
+        preferences.lastShelfCenter = CGPoint(x: frame.midX, y: frame.midY)
+        scheduleAutoHideIfNeeded()
+    }
+
+    // MARK: - Image tools
+
+    func applyImageTool(_ operation: ImageToolOperation, to id: UUID) {
+        let targets = actionItems(for: id).filter { conversionState(for: $0.id) != .converting }
+        guard !targets.isEmpty else { return }
+        for item in targets {
+            conversionStates[item.id] = .converting
+        }
+
+        Task { [weak self] in
+            var outputURLs: [URL] = []
+            var failures: [String] = []
+            for item in targets {
+                let sourceURL = item.url
+                do {
+                    outputURLs.append(try await Task.detached(priority: .userInitiated) {
+                        try ImageTools.apply(operation, to: sourceURL)
+                    }.value)
+                } catch {
+                    failures.append(
+                        targets.count == 1
+                            ? error.localizedDescription
+                            : "\(sourceURL.lastPathComponent): \(error.localizedDescription)"
+                    )
+                }
+                if self?.conversionStates[item.id] == .converting {
+                    self?.conversionStates.removeValue(forKey: item.id)
+                }
+            }
+
+            guard let self else { return }
+            self.add(urls: outputURLs)
+            if !failures.isEmpty {
+                self.showAlert(
+                    title: failures.count == 1
+                        ? "Couldn’t process image"
+                        : "Couldn’t process \(failures.count) images",
+                    message: failures.joined(separator: "\n")
+                )
+            }
         }
     }
 
@@ -922,7 +998,7 @@ final class ShelfManager: ObservableObject {
 
     @discardableResult
     private func closeShelfIfNeeded() -> Bool {
-        guard preferences.closeShelfWhenEmpty, items.isEmpty else {
+        guard preferences.closeShelfWhenEmpty, items.isEmpty, !isKeptOnScreen else {
             return false
         }
 
@@ -933,6 +1009,7 @@ final class ShelfManager: ObservableObject {
     private func scheduleAutoHideIfNeeded() {
         cancelAutoHide()
         guard preferences.automaticallyHideAfterTenSeconds,
+              !isKeptOnScreen,
               panel?.isVisible == true else {
             return
         }

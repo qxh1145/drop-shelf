@@ -1,4 +1,5 @@
 import AppKit
+import ImageIO
 import XCTest
 @testable import DropShelf
 
@@ -148,5 +149,106 @@ final class ShelfImportAndHistoryTests: XCTestCase {
         let defaults = UserDefaults(suiteName: suiteName)!
         addTeardownBlock { defaults.removePersistentDomain(forName: suiteName) }
         return ShelfManager(historyStore: ShelfHistoryStore(defaults: defaults))
+    }
+
+    func testResizeShrinksAndKeepsOriginal() throws {
+        let source = try makeJPEG(width: 3000, height: 2000)
+        let output = try ImageTools.apply(.resize(maxPixelSize: 1024), to: source)
+
+        XCTAssertEqual(output.lastPathComponent, "photo (1024px).jpg")
+        let properties = try imageProperties(of: output)
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 1024)
+        XCTAssertEqual(try imageProperties(of: source)[kCGImagePropertyPixelWidth] as? Int, 3000)
+        XCTAssertThrowsError(try ImageTools.apply(.resize(maxPixelSize: 4096), to: source)) {
+            XCTAssertEqual($0 as? ImageToolError, .alreadySmaller(4096))
+        }
+    }
+
+    func testRemoveMetadataDropsLocationButKeepsOrientation() throws {
+        let source = try makeJPEG(
+            width: 40,
+            height: 20,
+            properties: [
+                kCGImagePropertyOrientation: 6,
+                kCGImagePropertyGPSDictionary: [
+                    kCGImagePropertyGPSLatitude: 10.5,
+                    kCGImagePropertyGPSLatitudeRef: "N",
+                    kCGImagePropertyGPSLongitude: 106.7,
+                    kCGImagePropertyGPSLongitudeRef: "E"
+                ]
+            ]
+        )
+        XCTAssertNotNil(try imageProperties(of: source)[kCGImagePropertyGPSDictionary])
+
+        let output = try ImageTools.apply(.removeMetadata, to: source)
+
+        let properties = try imageProperties(of: output)
+        XCTAssertNil(properties[kCGImagePropertyGPSDictionary])
+        XCTAssertEqual(properties[kCGImagePropertyOrientation] as? Int, 6)
+    }
+
+    func testCompressOnlyAcceptsLossyFormatsAndNeverOverwrites() throws {
+        let source = try makeJPEG(width: 64, height: 64)
+        let first = try ImageTools.apply(.compress, to: source)
+        let second = try ImageTools.apply(.compress, to: source)
+        XCTAssertEqual(first.lastPathComponent, "photo (compressed).jpg")
+        XCTAssertEqual(second.lastPathComponent, "photo (compressed) 2.jpg")
+
+        let png = directory.appendingPathComponent("image.png")
+        try writeImage(to: png, type: "public.png", width: 8, height: 8, properties: [:])
+        XCTAssertThrowsError(try ImageTools.apply(.compress, to: png))
+    }
+
+    func testSnappedFramePullsNearEdgesFlush() {
+        let screen = NSRect(x: 0, y: 0, width: 1000, height: 800)
+        let nearRight = NSRect(x: 680, y: 300, width: 300, height: 200)
+        XCTAssertEqual(ShelfPanel.snappedFrame(nearRight, in: screen).origin, CGPoint(x: 692, y: 300))
+
+        let offBottomLeft = NSRect(x: -40, y: -10, width: 300, height: 200)
+        XCTAssertEqual(ShelfPanel.snappedFrame(offBottomLeft, in: screen).origin, CGPoint(x: 8, y: 8))
+
+        let middle = NSRect(x: 300, y: 300, width: 300, height: 200)
+        XCTAssertEqual(ShelfPanel.snappedFrame(middle, in: screen), middle)
+    }
+
+    private func makeJPEG(
+        width: Int,
+        height: Int,
+        properties: [CFString: Any] = [:]
+    ) throws -> URL {
+        let url = directory.appendingPathComponent("photo.jpg")
+        try writeImage(to: url, type: "public.jpeg", width: width, height: height, properties: properties)
+        return url
+    }
+
+    private func writeImage(
+        to url: URL,
+        type: String,
+        width: Int,
+        height: Int,
+        properties: [CFString: Any]
+    ) throws {
+        let context = try XCTUnwrap(CGContext(
+            data: nil,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: CGColorSpace(name: CGColorSpace.sRGB)!,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ))
+        context.setFillColor(CGColor(red: 0.3, green: 0.6, blue: 0.9, alpha: 1))
+        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        let image = try XCTUnwrap(context.makeImage())
+        let destination = try XCTUnwrap(
+            CGImageDestinationCreateWithURL(url as CFURL, type as CFString, 1, nil)
+        )
+        CGImageDestinationAddImage(destination, image, properties as CFDictionary)
+        XCTAssertTrue(CGImageDestinationFinalize(destination))
+    }
+
+    private func imageProperties(of url: URL) throws -> [CFString: Any] {
+        let source = try XCTUnwrap(CGImageSourceCreateWithURL(url as CFURL, nil))
+        return try XCTUnwrap(CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any])
     }
 }

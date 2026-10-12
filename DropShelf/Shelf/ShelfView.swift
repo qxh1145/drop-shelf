@@ -120,6 +120,13 @@ struct ShelfView: View {
                 }
                 .keyboardShortcut("n", modifiers: .command)
 
+                Toggle(isOn: Binding(
+                    get: { manager.isKeptOnScreen },
+                    set: { _ in manager.toggleKeepOnScreen() }
+                )) {
+                    Label("Keep on Screen", systemImage: "pin.circle")
+                }
+
                 Divider()
 
                 Button {
@@ -556,7 +563,38 @@ private struct ShelfItemActionsMenu: View {
     @ObservedObject var manager: ShelfManager
 
     @State private var options: [ConversionOption] = []
+    @State private var imageTypes: [String?] = []
     @State private var isAnalyzing = true
+
+    private var imageToolsMenu: some View {
+        Menu {
+            Menu {
+                ForEach([(2048, "Large"), (1024, "Medium"), (512, "Small")], id: \.0) { size, name in
+                    Button("\(name) (\(size) px)") {
+                        manager.applyImageTool(.resize(maxPixelSize: size), to: item.id)
+                    }
+                }
+            } label: {
+                Label("Resize", systemImage: "arrow.down.right.and.arrow.up.left")
+            }
+            Button {
+                manager.applyImageTool(.compress, to: item.id)
+            } label: {
+                Label("Compress", systemImage: "arrow.down.circle")
+            }
+            .disabled(!imageTypes.allSatisfy { $0.map(ImageTools.compressibleTypes.contains) == true })
+            Button {
+                manager.applyImageTool(.removeMetadata, to: item.id)
+            } label: {
+                Label("Remove Metadata", systemImage: "eye.slash")
+            }
+        } label: {
+            Label(
+                targetURLs.count > 1 ? "Image Tools (\(targetURLs.count) Items)" : "Image Tools",
+                systemImage: "photo"
+            )
+        }
+    }
 
     /// The selection when this item is part of it, otherwise just this item.
     private var targetURLs: [URL] {
@@ -615,6 +653,10 @@ private struct ShelfItemActionsMenu: View {
                         )
                     }
 
+                    if !imageTypes.isEmpty, imageTypes.allSatisfy({ $0 != nil }) {
+                        imageToolsMenu
+                    }
+
                     if isAnalyzing {
                         Button("Checking formats…") {}
                             .disabled(true)
@@ -665,8 +707,13 @@ private struct ShelfItemActionsMenu: View {
         .frame(width: 20, height: 20)
         .task(id: targetURLs) {
             isAnalyzing = true
+            let urls = targetURLs
+            let detectedImageTypes = await Task.detached(priority: .utility) {
+                urls.map(ImageTools.editableType(of:))
+            }.value
             let detectedOptions = await ConversionOptionsCache.commonOptions(for: targetURLs)
             guard !Task.isCancelled else { return }
+            imageTypes = detectedImageTypes
             options = detectedOptions
             isAnalyzing = false
         }
@@ -733,6 +780,7 @@ private final class WindowDragHandleView: NSView {
         NSCursor.closedHand.set()
         window.performDrag(with: event)
         isDraggingWindow = false
+        (window as? ShelfPanel)?.userDidFinishMove()
         
         let currentLocation = convert(window.mouseLocationOutsideOfEventStream, from: nil)
         (bounds.contains(currentLocation) ? NSCursor.openHand : NSCursor.arrow).set()
