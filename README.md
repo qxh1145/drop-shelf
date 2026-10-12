@@ -68,6 +68,10 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 - Optional shake trigger and a customizable global keyboard shortcut
 - Optional Dock icon
 - Drop multiple files and folders into one place
+- Drop or paste text, web links, and images: they become `.txt`, `.webloc`, and `.png` files
+- Per-item Quick Look, Open, Show in Finder, Copy, Copy Path, and Share
+- Keyboard control: Space, Delete, Return, arrows, Esc, Command-A/C/V/O
+- Recent Shelves follow files that are renamed or moved
 - Drag items from the Shelf into Finder or compatible apps
 - Remove individual items
 - Clear and close the Shelf
@@ -211,7 +215,24 @@ CSV/XLSX conversion is intentionally not exposed: CSV cannot preserve workbook
 sheets, formulas, styles, charts, or reliable cell types, while XLSX → CSV needs
 an explicit sheet and data-loss policy.
 
-## 8. Close the Shelf
+## 8. Keyboard shortcuts
+
+Click the Shelf once to give it keyboard focus.
+
+| Key | Action |
+|---|---|
+| Space / Command-Y | Quick Look the selection |
+| Return / Command-O | Open the selection |
+| Delete | Remove the selection from the Shelf (files are not deleted) |
+| ← / → (Shift to extend) | Move the selection |
+| Command-A | Select all |
+| Command-C | Copy the selected files |
+| Command-V | Paste files, text, links, or images |
+| Esc | Clear selection, then hide the Shelf (items are kept) |
+
+Double-click an item to open it.
+
+## 9. Close the Shelf
 
 Click the close button in the upper-right corner.
 

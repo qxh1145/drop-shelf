@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import Darwin
+import Quartz
 import UniformTypeIdentifiers
 
 @MainActor
@@ -369,6 +370,115 @@ final class ShelfManager: ObservableObject {
         }
         updatePanelLayout(animated: true)
         scheduleAutoHideIfNeeded()
+    }
+
+    // MARK: - Item actions
+
+    /// The selection when `id` is part of it, otherwise just that item.
+    func actionItems(for id: UUID? = nil) -> [ShelfItem] {
+        if let id, !selectedItemIDs.contains(id) {
+            return items.filter { $0.id == id }
+        }
+        return items.filter { selectedItemIDs.contains($0.id) }
+    }
+
+    func openItems(for id: UUID? = nil) {
+        for item in actionItems(for: id) {
+            NSWorkspace.shared.open(item.url)
+        }
+    }
+
+    func revealItems(for id: UUID? = nil) {
+        let urls = actionItems(for: id).map(\.url)
+        guard !urls.isEmpty else { return }
+        NSWorkspace.shared.activateFileViewerSelecting(urls)
+    }
+
+    func copyItems(for id: UUID? = nil) {
+        let urls = actionItems(for: id).map { $0.url as NSURL }
+        guard !urls.isEmpty else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.writeObjects(urls)
+    }
+
+    func copyPaths(for id: UUID? = nil) {
+        let paths = actionItems(for: id).map(\.url.path)
+        guard !paths.isEmpty else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(paths.joined(separator: "\n"), forType: .string)
+    }
+
+    func pasteFromClipboard() {
+        add(urls: ShelfPasteboardImporter.fileURLs(from: .general))
+    }
+
+    func removeSelectedItems() {
+        for id in selectedItemIDs {
+            removeItem(id: id)
+        }
+    }
+
+    func selectAllItems() {
+        let allIDs = Set(items.map(\.id))
+        guard allIDs != selectedItemIDs else { return }
+        selectedItemIDs = allIDs
+        updatePanelLayout(animated: true)
+        scheduleAutoHideIfNeeded()
+    }
+
+    func moveSelection(by offset: Int, extendingSelection: Bool) {
+        guard !items.isEmpty else { return }
+        let currentIndex = items.lastIndex { selectedItemIDs.contains($0.id) }
+        let nextIndex = currentIndex.map { min(max($0 + offset, 0), items.count - 1) }
+            ?? (offset > 0 ? 0 : items.count - 1)
+        let nextID = items[nextIndex].id
+        if extendingSelection {
+            guard !selectedItemIDs.contains(nextID) else { return }
+            selectItem(nextID, extendingSelection: true)
+        } else {
+            selectItem(nextID, extendingSelection: false)
+        }
+    }
+
+    private(set) var quickLookURLs: [URL] = []
+
+    func toggleQuickLook(for id: UUID? = nil) {
+        guard let previewPanel = QLPreviewPanel.shared() else { return }
+        if QLPreviewPanel.sharedPreviewPanelExists(), previewPanel.isVisible {
+            previewPanel.orderOut(nil)
+            return
+        }
+
+        var urls = actionItems(for: id).map(\.url)
+        if urls.isEmpty, let first = items.first {
+            urls = [first.url]
+        }
+        guard !urls.isEmpty else { return }
+        quickLookURLs = urls
+        cancelAutoHide()
+
+        // QLPreviewPanel finds its controller through the key window's
+        // responder chain, which ShelfPanel joins.
+        NSApp.activate(ignoringOtherApps: true)
+        panel?.makeKey()
+        previewPanel.makeKeyAndOrderFront(nil)
+        previewPanel.reloadData()
+    }
+
+    func quickLookDidEnd() {
+        quickLookURLs = []
+        scheduleAutoHideIfNeeded()
+    }
+
+    /// Esc hides the Shelf but keeps its items, like an inactivity auto-hide.
+    func dismissShelf() {
+        if isShowingHistory {
+            hideHistory()
+        } else if !selectedItemIDs.isEmpty {
+            clearSelection()
+        } else {
+            hideShelf()
+        }
     }
 
     func shelfDidReceiveUserActivity() {

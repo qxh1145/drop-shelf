@@ -1,5 +1,5 @@
 import AppKit
-import QuartzCore
+import Quartz
 
 final class ShelfPanel: NSPanel {
     private static let initialPanelSize = NSSize(width: 310, height: 204)
@@ -29,7 +29,9 @@ final class ShelfPanel: NSPanel {
         contentView = ShelfDropHostingView(manager: manager)
     }
 
-    override var canBecomeKey: Bool { false }
+    // Key only after the user clicks the Shelf (it is ordered front without
+    // focus), so keyboard shortcuts work without stealing typing elsewhere.
+    override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
 
     func updateLayout(
@@ -78,6 +80,9 @@ final class ShelfPanel: NSPanel {
 
     override func sendEvent(_ event: NSEvent) {
         switch event.type {
+        case .keyDown:
+            shelfManager?.shelfDidReceiveUserActivity()
+            if handleKeyDown(event) { return }
         case .leftMouseDown,
              .leftMouseUp,
              .leftMouseDragged,
@@ -94,6 +99,36 @@ final class ShelfPanel: NSPanel {
         }
 
         super.sendEvent(event)
+    }
+
+    private func handleKeyDown(_ event: NSEvent) -> Bool {
+        guard let manager = shelfManager else { return false }
+        let flags = event.modifierFlags.intersection([.command, .shift, .option, .control])
+
+        if flags == .command {
+            switch event.charactersIgnoringModifiers?.lowercased() {
+            case "a": manager.selectAllItems()
+            case "c": manager.copyItems()
+            case "v": manager.pasteFromClipboard()
+            case "o": manager.openItems()
+            case "y": manager.toggleQuickLook()
+            case "\u{7F}": manager.removeSelectedItems()
+            default: return false
+            }
+            return true
+        }
+
+        guard flags.subtracting(.shift).isEmpty else { return false }
+        switch Int(event.keyCode) {
+        case 49: manager.toggleQuickLook() // Space
+        case 51, 117: manager.removeSelectedItems() // Delete, Forward Delete
+        case 53: manager.dismissShelf() // Escape
+        case 36, 76: manager.openItems() // Return, Enter
+        case 123: manager.moveSelection(by: -1, extendingSelection: flags == .shift)
+        case 124: manager.moveSelection(by: 1, extendingSelection: flags == .shift)
+        default: return false
+        }
+        return true
     }
 
     func position(near cursor: CGPoint) {
@@ -124,5 +159,28 @@ final class ShelfPanel: NSPanel {
             visibleFrame.maxY - result.height - 8
         )
         return result
+    }
+}
+
+extension ShelfPanel: QLPreviewPanelDataSource {
+    override func acceptsPreviewPanelControl(_ panel: QLPreviewPanel!) -> Bool {
+        true
+    }
+
+    override func beginPreviewPanelControl(_ panel: QLPreviewPanel!) {
+        panel.dataSource = self
+    }
+
+    override func endPreviewPanelControl(_ panel: QLPreviewPanel!) {
+        panel.dataSource = nil
+        shelfManager?.quickLookDidEnd()
+    }
+
+    func numberOfPreviewItems(in panel: QLPreviewPanel!) -> Int {
+        shelfManager?.quickLookURLs.count ?? 0
+    }
+
+    func previewPanel(_ panel: QLPreviewPanel!, previewItemAt index: Int) -> QLPreviewItem! {
+        shelfManager?.quickLookURLs[index] as NSURL?
     }
 }

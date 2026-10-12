@@ -6,6 +6,8 @@ struct ShelfHistoryEntry: Codable, Equatable, Identifiable, Sendable {
     let name: String?
     let isPinned: Bool
     let paths: [String]
+    // Bookmarks follow files that are renamed or moved after the snapshot.
+    let bookmarks: [Data?]
 
     init(
         id: UUID = UUID(),
@@ -19,10 +21,23 @@ struct ShelfHistoryEntry: Codable, Equatable, Identifiable, Sendable {
         self.name = name
         self.isPinned = isPinned
         self.paths = urls.map { $0.standardizedFileURL.path }
+        self.bookmarks = urls.map { try? $0.bookmarkData() }
     }
 
     var urls: [URL] {
-        paths.map { URL(fileURLWithPath: $0).standardizedFileURL }
+        paths.indices.map { index in
+            if index < bookmarks.count, let bookmark = bookmarks[index] {
+                var isStale = false
+                if let resolved = try? URL(
+                    resolvingBookmarkData: bookmark,
+                    options: [.withoutUI, .withoutMounting],
+                    bookmarkDataIsStale: &isStale
+                ) {
+                    return resolved.standardizedFileURL
+                }
+            }
+            return URL(fileURLWithPath: paths[index]).standardizedFileURL
+        }
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -31,6 +46,7 @@ struct ShelfHistoryEntry: Codable, Equatable, Identifiable, Sendable {
         case name
         case isPinned
         case paths
+        case bookmarks
     }
 
     init(from decoder: Decoder) throws {
@@ -40,6 +56,7 @@ struct ShelfHistoryEntry: Codable, Equatable, Identifiable, Sendable {
         name = try container.decodeIfPresent(String.self, forKey: .name)
         isPinned = try container.decodeIfPresent(Bool.self, forKey: .isPinned) ?? false
         paths = try container.decode([String].self, forKey: .paths)
+        bookmarks = try container.decodeIfPresent([Data?].self, forKey: .bookmarks) ?? []
     }
 
     func encode(to encoder: Encoder) throws {
@@ -49,6 +66,7 @@ struct ShelfHistoryEntry: Codable, Equatable, Identifiable, Sendable {
         try container.encodeIfPresent(name, forKey: .name)
         try container.encode(isPinned, forKey: .isPinned)
         try container.encode(paths, forKey: .paths)
+        try container.encode(bookmarks, forKey: .bookmarks)
     }
 }
 

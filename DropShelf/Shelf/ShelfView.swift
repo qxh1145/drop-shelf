@@ -123,6 +123,13 @@ struct ShelfView: View {
                 }
                 .disabled(!manager.canNameCurrentShelf || manager.isShowingHistory)
 
+                Button {
+                    manager.pasteFromClipboard()
+                } label: {
+                    Label("Paste", systemImage: "doc.on.clipboard")
+                }
+                .disabled(manager.isShowingHistory)
+
                 Divider()
 
                 Button {
@@ -207,7 +214,7 @@ struct ShelfView: View {
             Image(systemName: "tray.and.arrow.down")
                 .font(.system(size: 26, weight: .light))
                 .symbolRenderingMode(.hierarchical)
-            Text("Drop files or folders here")
+            Text("Drop files, text, or links here")
                 .font(.system(size: 12, weight: .semibold))
             Text(emptyStateHint)
                 .font(.system(size: 10))
@@ -551,6 +558,40 @@ private struct ShelfItemActionsMenu: View {
                     .help("Converting \(item.url.lastPathComponent)…")
             } else {
                 Menu {
+                    Button {
+                        manager.toggleQuickLook(for: item.id)
+                    } label: {
+                        Label("Quick Look", systemImage: "eye")
+                    }
+                    Button {
+                        manager.openItems(for: item.id)
+                    } label: {
+                        Label("Open", systemImage: "arrow.up.forward.app")
+                    }
+                    Button {
+                        manager.revealItems(for: item.id)
+                    } label: {
+                        Label("Show in Finder", systemImage: "folder")
+                    }
+
+                    Divider()
+
+                    Button {
+                        manager.copyItems(for: item.id)
+                    } label: {
+                        Label("Copy", systemImage: "doc.on.doc")
+                    }
+                    Button {
+                        manager.copyPaths(for: item.id)
+                    } label: {
+                        Label("Copy Path", systemImage: "link")
+                    }
+                    ShareLink(items: manager.actionItems(for: item.id).map(\.url)) {
+                        Label("Share…", systemImage: "square.and.arrow.up")
+                    }
+
+                    Divider()
+
                     if isAnalyzing {
                         Button("Checking formats…") {}
                             .disabled(true)

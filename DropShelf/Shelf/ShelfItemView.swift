@@ -301,6 +301,10 @@ final class DraggableShelfItemView: NSView, NSDraggingSource {
         }
         guard !dragStarted, !suppressClickSelection else { return }
 
+        if event.clickCount == 2 {
+            manager?.openItems(for: item.id)
+            return
+        }
         manager?.selectItem(
             item.id,
             extendingSelection: extendsSelectionOnClick

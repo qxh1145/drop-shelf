@@ -25,7 +25,7 @@ final class ShelfDropHostingView: NSView {
         registerForDraggedTypes(
             [.fileURL] + NSFilePromiseReceiver.readableDraggedTypes.map {
                 NSPasteboard.PasteboardType($0)
-            }
+            } + ShelfPasteboardImporter.contentTypes
         )
 
         hostingView.translatesAutoresizingMaskIntoConstraints = false
@@ -92,12 +92,22 @@ final class ShelfDropHostingView: NSView {
             manager.add(urls: urls)
             return true
         }
-        return receivePromisedFiles(from: sender)
+        if receivePromisedFiles(from: sender) {
+            return true
+        }
+        let materializedURLs = ShelfPasteboardImporter.materializeContent(
+            from: sender.draggingPasteboard
+        )
+        manager.add(urls: materializedURLs)
+        return !materializedURLs.isEmpty
     }
 
     private func dropItemCount(from sender: NSDraggingInfo) -> Int {
         let urlCount = fileURLs(from: sender).count
-        return urlCount > 0 ? urlCount : promiseReceivers(from: sender).count
+        if urlCount > 0 { return urlCount }
+        let promiseCount = promiseReceivers(from: sender).count
+        if promiseCount > 0 { return promiseCount }
+        return ShelfPasteboardImporter.hasContent(sender.draggingPasteboard) ? 1 : 0
     }
 
     private func promiseReceivers(from sender: NSDraggingInfo) -> [NSFilePromiseReceiver] {
@@ -111,7 +121,7 @@ final class ShelfDropHostingView: NSView {
     private func receivePromisedFiles(from sender: NSDraggingInfo) -> Bool {
         let receivers = promiseReceivers(from: sender)
         guard !receivers.isEmpty,
-              let destination = try? Self.makePromiseDestination() else {
+              let destination = try? ShelfPasteboardImporter.makeReceivedDirectory() else {
             return false
         }
 
@@ -130,19 +140,6 @@ final class ShelfDropHostingView: NSView {
         return true
     }
 
-    private static func makePromiseDestination() throws -> URL {
-        // ponytail: received files are never pruned; add cleanup if disk use grows.
-        let directory = try FileManager.default.url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: true
-        )
-        .appendingPathComponent("DropShelf/Received/\(UUID().uuidString)", isDirectory: true)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        return directory
-    }
-
     private func fileURLs(from sender: NSDraggingInfo) -> [URL] {
         return (sender.draggingPasteboard.readObjects(
             forClasses: [NSURL.self],
@@ -158,5 +155,94 @@ final class ShelfDropHostingView: NSView {
         acceptedDragSequenceNumber = nil
         acceptedDragOperation = []
         manager.setDropTargetActive(false)
+    }
+}
+
+/// Turns non-file pasteboard content (images, web links, text) into files so
+/// the Shelf can hold it like any other item.
+enum ShelfPasteboardImporter {
+    static let contentTypes: [NSPasteboard.PasteboardType] = [.png, .tiff, .URL, .string]
+
+    static func fileURLs(from pasteboard: NSPasteboard) -> [URL] {
+        let urls = (pasteboard.readObjects(
+            forClasses: [NSURL.self],
+            options: [.urlReadingFileURLsOnly: true]
+        ) as? [URL]) ?? []
+        return urls.isEmpty ? materializeContent(from: pasteboard) : urls
+    }
+
+    static func hasContent(_ pasteboard: NSPasteboard) -> Bool {
+        pasteboard.availableType(from: contentTypes) != nil
+    }
+
+    static func materializeContent(
+        from pasteboard: NSPasteboard,
+        in directory: URL? = nil
+    ) -> [URL] {
+        guard let (data, fileName) = content(from: pasteboard),
+              let directory = directory ?? (try? makeReceivedDirectory()) else {
+            return []
+        }
+        let url = directory.appendingPathComponent(fileName)
+        do {
+            try data.write(to: url, options: .withoutOverwriting)
+            return [url]
+        } catch {
+            return []
+        }
+    }
+
+    static func makeReceivedDirectory() throws -> URL {
+        // ponytail: received files are never pruned; add cleanup if disk use grows.
+        let directory = try FileManager.default.url(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        .appendingPathComponent("DropShelf/Received/\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory
+    }
+
+    private static func content(from pasteboard: NSPasteboard) -> (Data, String)? {
+        let stamp = timestamp()
+
+        if let png = pasteboard.data(forType: .png) {
+            return (png, "Image \(stamp).png")
+        }
+        if let tiff = pasteboard.data(forType: .tiff),
+           let png = NSBitmapImageRep(data: tiff)?.representation(using: .png, properties: [:]) {
+            return (png, "Image \(stamp).png")
+        }
+        if let link = pasteboard.readObjects(forClasses: [NSURL.self])?.first as? URL,
+           !link.isFileURL,
+           let scheme = link.scheme?.lowercased(),
+           scheme == "http" || scheme == "https" {
+            let plist: [String: String] = ["URL": link.absoluteString]
+            guard let data = try? PropertyListSerialization.data(
+                fromPropertyList: plist,
+                format: .xml,
+                options: 0
+            ) else { return nil }
+            return (data, "\(safeFileName(link.host ?? "Link")).webloc")
+        }
+        if let text = pasteboard.string(forType: .string),
+           !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return (Data(text.utf8), "Text \(stamp).txt")
+        }
+        return nil
+    }
+
+    private static func timestamp() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
+        return formatter.string(from: Date())
+    }
+
+    private static func safeFileName(_ name: String) -> String {
+        let cleaned = name.replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: ":", with: "-")
+        return cleaned.isEmpty ? "Link" : String(cleaned.prefix(80))
     }
 }
