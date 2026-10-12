@@ -87,7 +87,7 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 - Drag handle for repositioning the Shelf
 - **AirDrop All**
 - **Zip All…**
-- **Recent Shelves** history retained for 72 hours
+- **Recent Shelves** history retained for 72 hours, in the Shelf and in the menu bar
 - Global **Command-Shift-H** shortcut for recent shelves
 - Custom Shelf names and pinned history that does not expire
 - Fast access to pinned shelves from the menu bar

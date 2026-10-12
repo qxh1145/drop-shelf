@@ -1,2603 +1,2611 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "" : {
-
-    },
-    "“%@” already exists in that folder." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” đã có trong thư mục đó."
+  "sourceLanguage": "en",
+  "strings": {
+    "": {},
+    "%@ (%lld px)": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ (%2$lld px)"
           }
         }
       }
     },
-    "%@ (%lld px)" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ (%2$lld px)"
+    "%@ +%lld more": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ và %2$lld mục khác"
           }
         }
       }
     },
-    "%@ +%lld more" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ và %2$lld mục khác"
+    "%lld": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
           }
         }
       }
     },
-    "%lld" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld"
-          }
-        }
-      }
-    },
-    "%lld items" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld item"
+    "%lld items": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld item"
                 }
               },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld items"
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld items"
                 }
               }
             }
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld mục"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld mục"
           }
         }
       }
     },
-    "%lld items selected" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã chọn %lld mục"
+    "%lld items selected": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã chọn %lld mục"
           }
         }
       }
     },
-    "⌘⇧H" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⌘⇧H"
+    "72-hour history": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lịch sử 72 giờ"
           }
         }
       }
     },
-    "72-hour history" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lịch sử 72 giờ"
+    "A lightweight temporary Shelf for macOS.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ tạm thời gọn nhẹ cho macOS."
           }
         }
       }
     },
-    "A lightweight temporary Shelf for macOS." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ tạm thời gọn nhẹ cho macOS."
+    "A unique output filename could not be created.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể tạo tên tệp đầu ra không trùng."
           }
         }
       }
     },
-    "A unique output filename could not be created." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể tạo tên tệp đầu ra không trùng."
+    "About": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giới thiệu"
           }
         }
       }
     },
-    "About" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Giới thiệu"
+    "Actions for %@": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thao tác cho %@"
           }
         }
       }
     },
-    "Actions for %@" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thao tác cho %@"
+    "Activation": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kích hoạt"
           }
         }
       }
     },
-    "Activation" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kích hoạt"
+    "Add Files to DropShelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thêm tệp vào DropShelf"
           }
         }
       }
     },
-    "Add a modifier…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thêm phím bổ trợ…"
+    "Add a modifier…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thêm phím bổ trợ…"
           }
         }
       }
     },
-    "Add files and folders to one shelf." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gom tệp và thư mục vào một kệ."
+    "Add files and folders to one shelf.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gom tệp và thư mục vào một kệ."
           }
         }
       }
     },
-    "Add Files to DropShelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thêm tệp vào DropShelf"
+    "Add to Selection": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thêm vào vùng chọn"
           }
         }
       }
     },
-    "Add to Selection" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thêm vào vùng chọn"
-          }
-        }
-      }
-    },
-    "Added %lld items to the Shelf" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Added %lld item to the Shelf"
+    "Added %lld items to the Shelf": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Added %lld item to the Shelf"
                 }
               },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Added %lld items to the Shelf"
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Added %lld items to the Shelf"
                 }
               }
             }
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã thêm %lld mục vào Kệ"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã thêm %lld mục vào Kệ"
           }
         }
       }
     },
-    "AirDrop %lld Selected" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AirDrop %lld mục đã chọn"
+    "AirDrop %lld Selected": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AirDrop %lld mục đã chọn"
           }
         }
       }
     },
-    "AirDrop All" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AirDrop tất cả"
+    "AirDrop All": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AirDrop tất cả"
           }
         }
       }
     },
-    "AirDrop is unavailable" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không dùng được AirDrop"
+    "AirDrop is unavailable": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không dùng được AirDrop"
           }
         }
       }
     },
-    "Animated or multi-frame images are not supported." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không hỗ trợ ảnh động hoặc ảnh nhiều khung hình."
+    "Animated or multi-frame images are not supported.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không hỗ trợ ảnh động hoặc ảnh nhiều khung hình."
           }
         }
       }
     },
-    "Approval is required in System Settings → General → Login Items." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cần cho phép trong Cài đặt hệ thống → Cài đặt chung → Mục đăng nhập."
+    "Approval is required in System Settings → General → Login Items.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần cho phép trong Cài đặt hệ thống → Cài đặt chung → Mục đăng nhập."
           }
         }
       }
     },
-    "Ask GitHub once a day whether a newer release exists. No personal data is sent." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hỏi GitHub mỗi ngày một lần xem có bản mới không. Không gửi dữ liệu cá nhân."
+    "Ask GitHub once a day whether a newer release exists. No personal data is sent.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hỏi GitHub mỗi ngày một lần xem có bản mới không. Không gửi dữ liệu cá nhân."
           }
         }
       }
     },
-    "Back" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quay lại"
+    "Back": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quay lại"
           }
         }
       }
     },
-    "Back to Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quay lại Kệ"
+    "Back to Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quay lại Kệ"
           }
         }
       }
     },
-    "Balanced" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cân bằng"
+    "Balanced": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cân bằng"
           }
         }
       }
     },
-    "Cancel" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hủy"
+    "Cancel": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hủy"
           }
         }
       }
     },
-    "Check for updates automatically" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tự động kiểm tra cập nhật"
+    "Check for Updates…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiểm tra cập nhật…"
           }
         }
       }
     },
-    "Check for Updates…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kiểm tra cập nhật…"
+    "Check for updates automatically": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tự động kiểm tra cập nhật"
           }
         }
       }
     },
-    "Checking formats…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đang kiểm tra định dạng…"
+    "Checking formats…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang kiểm tra định dạng…"
           }
         }
       }
     },
-    "Choose" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chọn"
+    "Choose": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn"
           }
         }
       }
     },
-    "Choose another location" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hãy chọn vị trí khác"
+    "Choose Destination Folder": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn thư mục đích"
           }
         }
       }
     },
-    "Choose Destination Folder" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chọn thư mục đích"
+    "Choose another location": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hãy chọn vị trí khác"
           }
         }
       }
     },
-    "Choose how DropShelf appears and starts." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chọn cách DropShelf hiển thị và khởi động."
+    "Choose how DropShelf appears and starts.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn cách DropShelf hiển thị và khởi động."
           }
         }
       }
     },
-    "Clear" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bỏ chọn"
+    "Clear": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bỏ chọn"
           }
         }
       }
     },
-    "Clear search" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xóa tìm kiếm"
+    "Clear search": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa tìm kiếm"
           }
         }
       }
     },
-    "Click the shortcut, then press a new combination." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bấm vào phím tắt rồi nhấn tổ hợp phím mới."
+    "Click the shortcut, then press a new combination.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bấm vào phím tắt rồi nhấn tổ hợp phím mới."
           }
         }
       }
     },
-    "Click, then type a keyboard shortcut" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bấm vào rồi nhấn phím tắt"
+    "Click, then type a keyboard shortcut": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bấm vào rồi nhấn phím tắt"
           }
         }
       }
     },
-    "Close and clear Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đóng và dọn Kệ"
+    "Close and clear Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đóng và dọn Kệ"
           }
         }
       }
     },
-    "Close search (Esc)" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đóng tìm kiếm (Esc)"
+    "Close search (Esc)": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đóng tìm kiếm (Esc)"
           }
         }
       }
     },
-    "Close the Shelf after its final item is removed or dragged out." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đóng Kệ khi mục cuối cùng bị gỡ hoặc kéo ra ngoài."
+    "Close the Shelf after its final item is removed or dragged out.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đóng Kệ khi mục cuối cùng bị gỡ hoặc kéo ra ngoài."
           }
         }
       }
     },
-    "Close when empty" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đóng khi trống"
+    "Close when empty": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đóng khi trống"
           }
         }
       }
     },
-    "Collect files" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gom tệp"
+    "Collect files": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gom tệp"
           }
         }
       }
     },
-    "Compress" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nén"
+    "Compress": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nén"
           }
         }
       }
     },
-    "Configure how you summon a Shelf." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thiết lập cách mở Kệ."
+    "Configure how you summon a Shelf.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thiết lập cách mở Kệ."
           }
         }
       }
     },
-    "Continue" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tiếp tục"
+    "Continue": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiếp tục"
           }
         }
       }
     },
-    "Control Shelf placement, closing, and visibility." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Điều chỉnh vị trí, cách đóng và hiển thị của Kệ."
+    "Control Shelf placement, closing, and visibility.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Điều chỉnh vị trí, cách đóng và hiển thị của Kệ."
           }
         }
       }
     },
-    "Convert %lld Items to" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chuyển %lld mục sang"
+    "Convert %lld Items to": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chuyển %lld mục sang"
           }
         }
       }
     },
-    "Convert %lld items to %@?" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chuyển %1$lld mục sang %2$@?"
+    "Convert %lld items to %@?": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chuyển %1$lld mục sang %2$@?"
           }
         }
       }
     },
-    "Convert to" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chuyển sang"
+    "Convert to": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chuyển sang"
           }
         }
       }
     },
-    "Convert to %@?" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chuyển sang %@?"
+    "Convert to %@?": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chuyển sang %@?"
           }
         }
       }
     },
-    "Converting %@ to %@ is not supported." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không hỗ trợ chuyển %1$@ sang %2$@."
+    "Converting %@ to %@ is not supported.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không hỗ trợ chuyển %1$@ sang %2$@."
           }
         }
       }
     },
-    "Converting %@…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đang chuyển %@…"
+    "Converting %@…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang chuyển %@…"
           }
         }
       }
     },
-    "Copy" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sao chép"
+    "Copy": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sao chép"
           }
         }
       }
     },
-    "Copy Path" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sao chép đường dẫn"
+    "Copy Path": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sao chép đường dẫn"
           }
         }
       }
     },
-    "Couldn’t check for updates" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể kiểm tra cập nhật"
+    "Couldn’t check for updates": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể kiểm tra cập nhật"
           }
         }
       }
     },
-    "Couldn’t convert %lld files" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể chuyển %lld tệp"
+    "Couldn’t convert %lld files": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể chuyển %lld tệp"
           }
         }
       }
     },
-    "Couldn’t convert file" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể chuyển tệp"
+    "Couldn’t convert file": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể chuyển tệp"
           }
         }
       }
     },
-    "Couldn’t create ZIP" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể tạo ZIP"
+    "Couldn’t create ZIP": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể tạo ZIP"
           }
         }
       }
     },
-    "Couldn’t process %lld images" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể xử lý %lld ảnh"
+    "Couldn’t process %lld images": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể xử lý %lld ảnh"
           }
         }
       }
     },
-    "Couldn’t process image" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể xử lý ảnh"
+    "Couldn’t process image": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể xử lý ảnh"
           }
         }
       }
     },
-    "Couldn’t rename" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể đổi tên"
+    "Couldn’t rename": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể đổi tên"
           }
         }
       }
     },
-    "Couldn’t save next to the original. Check that its folder is writable." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể lưu cạnh tệp gốc. Hãy kiểm tra quyền ghi của thư mục."
+    "Couldn’t save next to the original. Check that its folder is writable.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể lưu cạnh tệp gốc. Hãy kiểm tra quyền ghi của thư mục."
           }
         }
       }
     },
-    "Create ZIP" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tạo ZIP"
+    "Create ZIP": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tạo ZIP"
           }
         }
       }
     },
-    "Creating ZIP…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đang tạo ZIP…"
+    "Creating ZIP…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang tạo ZIP…"
           }
         }
       }
     },
-    "Disabled in Settings" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã tắt trong Cài đặt"
+    "Disabled in Settings": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã tắt trong Cài đặt"
           }
         }
       }
     },
-    "Display DropShelf alongside your other running applications." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hiện DropShelf cùng các ứng dụng đang chạy khác."
+    "Display DropShelf alongside your other running applications.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện DropShelf cùng các ứng dụng đang chạy khác."
           }
         }
       }
     },
-    "Dock the Shelf against the nearest edge when you drop it close to one." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gắn Kệ vào cạnh màn hình gần nhất khi thả nó sát cạnh."
+    "Dock the Shelf against the nearest edge when you drop it close to one.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gắn Kệ vào cạnh màn hình gần nhất khi thả nó sát cạnh."
           }
         }
       }
     },
-    "Download" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tải về"
+    "Download": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tải về"
           }
         }
       }
     },
-    "Drag left and right" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kéo qua trái và phải"
+    "Drag left and right": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kéo qua trái và phải"
           }
         }
       }
     },
-    "Drag quickly left ↔ right a few times" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kéo nhanh trái ↔ phải vài lần"
+    "Drag quickly left ↔ right a few times": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kéo nhanh trái ↔ phải vài lần"
           }
         }
       }
     },
-    "Drag them back to Finder together." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kéo tất cả trở lại Finder cùng lúc."
+    "Drag them back to Finder together.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kéo tất cả trở lại Finder cùng lúc."
           }
         }
       }
     },
-    "Drag to move Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kéo để di chuyển Kệ"
+    "Drag to move Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kéo để di chuyển Kệ"
           }
         }
       }
     },
-    "Drop anywhere" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thả ở bất cứ đâu"
+    "Drop anywhere": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thả ở bất cứ đâu"
           }
         }
       }
     },
-    "Drop files, text, or links here" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thả tệp, văn bản hoặc liên kết vào đây"
+    "Drop files, text, or links here": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thả tệp, văn bản hoặc liên kết vào đây"
           }
         }
       }
     },
-    "Drop to add %lld items" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Drop to add %lld item"
+    "Drop to add %lld items": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Drop to add %lld item"
                 }
               },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Drop to add %lld items"
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Drop to add %lld items"
                 }
               }
             }
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thả để thêm %lld mục"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thả để thêm %lld mục"
           }
         }
       }
     },
-    "Drop to add items" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thả để thêm mục"
+    "Drop to add items": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thả để thêm mục"
           }
         }
       }
     },
-    "DropShelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DropShelf"
+    "DropShelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DropShelf"
           }
         }
       }
     },
-    "DropShelf %@ is available" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã có DropShelf %@"
+    "DropShelf %@ is available": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã có DropShelf %@"
           }
         }
       }
     },
-    "DropShelf %@ is the latest version." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DropShelf %@ là phiên bản mới nhất."
+    "DropShelf %@ is the latest version.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DropShelf %@ là phiên bản mới nhất."
           }
         }
       }
     },
-    "DropShelf couldn’t read the selection." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DropShelf không đọc được nội dung đã chọn."
+    "DropShelf Settings": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cài đặt DropShelf"
           }
         }
       }
     },
-    "DropShelf creates a temporary floating shelf while you drag files in Finder. It keeps references only—your files stay exactly where they are." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DropShelf tạo một kệ nổi tạm thời khi bạn kéo tệp trong Finder. Ứng dụng chỉ giữ tham chiếu, tệp của bạn vẫn nằm nguyên chỗ cũ."
+    "DropShelf Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ DropShelf"
           }
         }
       }
     },
-    "DropShelf does not have permission to read the source file." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DropShelf không có quyền đọc tệp nguồn."
+    "DropShelf couldn’t read the selection.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DropShelf không đọc được nội dung đã chọn."
           }
         }
       }
     },
-    "DropShelf Settings" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cài đặt DropShelf"
+    "DropShelf creates a temporary floating shelf while you drag files in Finder. It keeps references only—your files stay exactly where they are.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DropShelf tạo một kệ nổi tạm thời khi bạn kéo tệp trong Finder. Ứng dụng chỉ giữ tham chiếu, tệp của bạn vẫn nằm nguyên chỗ cũ."
           }
         }
       }
     },
-    "DropShelf Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ DropShelf"
+    "DropShelf does not have permission to read the source file.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DropShelf không có quyền đọc tệp nguồn."
           }
         }
       }
     },
-    "DropShelf stays available from the menu bar and uses almost no CPU while idle." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DropShelf luôn sẵn trên thanh menu và gần như không dùng CPU khi rảnh."
+    "DropShelf stays available from the menu bar and uses almost no CPU while idle.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DropShelf luôn sẵn trên thanh menu và gần như không dùng CPU khi rảnh."
           }
         }
       }
     },
-    "e.g. Design review" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ví dụ: Duyệt thiết kế"
+    "Earlier": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trước đó"
           }
         }
       }
     },
-    "Earlier" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trước đó"
+    "Enabled": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang bật"
           }
         }
       }
     },
-    "Enabled" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đang bật"
+    "Enter a name.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hãy nhập tên."
           }
         }
       }
     },
-    "Enter a name." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hãy nhập tên."
+    "Every PDF page will be rasterized as a lossy JPEG at 144 DPI. Text, vectors, links, forms, and annotations will no longer be editable. A multi-page PDF creates one JPEG per page.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mỗi trang PDF sẽ thành ảnh JPEG nén mất dữ liệu ở 144 DPI. Văn bản, hình vector, liên kết, biểu mẫu và chú thích sẽ không còn chỉnh sửa được. PDF nhiều trang tạo ra mỗi trang một tệp JPEG."
           }
         }
       }
     },
-    "Every PDF page will be rasterized as a lossy JPEG at 144 DPI. Text, vectors, links, forms, and annotations will no longer be editable. A multi-page PDF creates one JPEG per page." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mỗi trang PDF sẽ thành ảnh JPEG nén mất dữ liệu ở 144 DPI. Văn bản, hình vector, liên kết, biểu mẫu và chú thích sẽ không còn chỉnh sửa được. PDF nhiều trang tạo ra mỗi trang một tệp JPEG."
+    "Every PDF page will be rasterized at 144 DPI. Text, vectors, links, forms, and annotations will no longer be editable. A multi-page PDF creates one PNG per page.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mỗi trang PDF sẽ thành ảnh ở 144 DPI. Văn bản, hình vector, liên kết, biểu mẫu và chú thích sẽ không còn chỉnh sửa được. PDF nhiều trang tạo ra mỗi trang một tệp PNG."
           }
         }
       }
     },
-    "Every PDF page will be rasterized at 144 DPI. Text, vectors, links, forms, and annotations will no longer be editable. A multi-page PDF creates one PNG per page." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mỗi trang PDF sẽ thành ảnh ở 144 DPI. Văn bản, hình vector, liên kết, biểu mẫu và chú thích sẽ không còn chỉnh sửa được. PDF nhiều trang tạo ra mỗi trang một tệp PNG."
+    "Files": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tệp"
           }
         }
       }
     },
-    "Files" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tệp"
+    "Files are renamed in place, numbered in Shelf order: “Name 1”, “Name 2”, … Extensions are kept.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tệp được đổi tên tại chỗ, đánh số theo thứ tự trên Kệ: “Tên 1”, “Tên 2”, … Phần mở rộng được giữ nguyên."
           }
         }
       }
     },
-    "Files are renamed in place, numbered in Shelf order: “Name 1”, “Name 2”, … Extensions are kept." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tệp được đổi tên tại chỗ, đánh số theo thứ tự trên Kệ: “Tên 1”, “Tên 2”, … Phần mở rộng được giữ nguyên."
+    "Filter items": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lọc mục"
           }
         }
       }
     },
-    "Filter items" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lọc mục"
+    "General": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chung"
           }
         }
       }
     },
-    "General" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chung"
+    "Getting Started": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu"
           }
         }
       }
     },
-    "Getting Started" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bắt đầu"
+    "Getting Started…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hướng dẫn bắt đầu…"
           }
         }
       }
     },
-    "Getting Started…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hướng dẫn bắt đầu…"
+    "Great—that’s the gesture": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tuyệt, đúng thao tác rồi"
           }
         }
       }
     },
-    "Great—that’s the gesture" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tuyệt, đúng thao tác rồi"
+    "Hide after 10 seconds": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ẩn sau 10 giây"
           }
         }
       }
     },
-    "Hide after 10 seconds" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ẩn sau 10 giây"
+    "Hide inactive Shelves without removing their current files.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ẩn Kệ không dùng đến mà vẫn giữ các tệp trên đó."
           }
         }
       }
     },
-    "Hide inactive Shelves without removing their current files." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ẩn Kệ không dùng đến mà vẫn giữ các tệp trên đó."
+    "High": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cao"
           }
         }
       }
     },
-    "High" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cao"
+    "History": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lịch sử"
           }
         }
       }
     },
-    "History" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lịch sử"
+    "Hold and drag the sample file left and right a few times. This uses the same motion you will make while dragging a real file in Finder.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giữ và kéo tệp mẫu qua trái, qua phải vài lần. Đây chính là thao tác bạn sẽ làm khi kéo tệp thật trong Finder."
           }
         }
       }
     },
-    "Hold and drag the sample file left and right a few times. This uses the same motion you will make while dragging a real file in Finder." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Giữ và kéo tệp mẫu qua trái, qua phải vài lần. Đây chính là thao tác bạn sẽ làm khi kéo tệp thật trong Finder."
+    "Image Tools": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Công cụ ảnh"
           }
         }
       }
     },
-    "Image Tools" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Công cụ ảnh"
+    "Image Tools (%lld Items)": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Công cụ ảnh (%lld mục)"
           }
         }
       }
     },
-    "Image Tools (%lld Items)" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Công cụ ảnh (%lld mục)"
+    "JPEG does not support transparency. Transparent pixels will be placed on a white background.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JPEG không hỗ trợ độ trong suốt. Vùng trong suốt sẽ được đặt trên nền trắng."
           }
         }
       }
     },
-    "JPEG does not support transparency. Transparent pixels will be placed on a white background." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "JPEG không hỗ trợ độ trong suốt. Vùng trong suốt sẽ được đặt trên nền trắng."
+    "JPEG uses lossy compression. HDR range and some HEIC metadata may be reduced. For a multi-image HEIF/HEICS file, only its primary image is converted.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JPEG nén mất dữ liệu. Dải HDR và một số metadata HEIC có thể bị giảm. Với tệp HEIF/HEICS nhiều ảnh, chỉ ảnh chính được chuyển."
           }
         }
       }
     },
-    "JPEG uses lossy compression. HDR range and some HEIC metadata may be reduced. For a multi-image HEIF/HEICS file, only its primary image is converted." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "JPEG nén mất dữ liệu. Dải HDR và một số metadata HEIC có thể bị giảm. Với tệp HEIF/HEICS nhiều ảnh, chỉ ảnh chính được chuyển."
+    "Keep DropShelf available from the menu bar after signing in.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giữ DropShelf trên thanh menu sau khi đăng nhập."
           }
         }
       }
     },
-    "Keep DropShelf available from the menu bar after signing in." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Giữ DropShelf trên thanh menu sau khi đăng nhập."
+    "Keep on Screen": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giữ trên màn hình"
           }
         }
       }
     },
-    "Keep on Screen" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Giữ trên màn hình"
+    "Large": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lớn"
           }
         }
       }
     },
-    "Large" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lớn"
+    "Later": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để sau"
           }
         }
       }
     },
-    "Later" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Để sau"
+    "Launch at login": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở khi đăng nhập"
           }
         }
       }
     },
-    "Launch at login" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mở khi đăng nhập"
+    "Low": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thấp"
           }
         }
       }
     },
-    "Low" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thấp"
+    "Medium": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vừa"
           }
         }
       }
     },
-    "macOS could not create a valid PDF from this image." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS không tạo được PDF hợp lệ từ ảnh này."
+    "Move files without breaking your flow": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Di chuyển tệp mà không gián đoạn công việc"
           }
         }
       }
     },
-    "macOS could not encode the converted image. Check disk space and try again." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS không mã hóa được ảnh đã chuyển. Hãy kiểm tra dung lượng ổ đĩa rồi thử lại."
+    "Name Shelf…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đặt tên Kệ…"
           }
         }
       }
     },
-    "macOS could not prepare this video for conversion. Its codecs may be unsupported." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS không chuẩn bị được video này để chuyển. Codec của video có thể không được hỗ trợ."
+    "Name this Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đặt tên cho Kệ này"
           }
         }
       }
     },
-    "macOS could not start AirDrop for the files currently in the Shelf." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS không mở được AirDrop cho các tệp đang có trên Kệ."
+    "Names can’t contain “/” or “:”.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tên không được chứa “/” hoặc “:”."
           }
         }
       }
     },
-    "macOS ended the export without producing a video." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS đã dừng xuất mà không tạo ra video."
+    "Names can’t start with a period.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tên không được bắt đầu bằng dấu chấm."
           }
         }
       }
     },
-    "macOS returned an unknown video export status." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS trả về trạng thái xuất video không xác định."
+    "Near the pointer": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gần con trỏ"
           }
         }
       }
     },
-    "Medium" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vừa"
+    "New DropShelf Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ DropShelf mới"
           }
         }
       }
     },
-    "Move files without breaking your flow" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Di chuyển tệp mà không gián đoạn công việc"
+    "New Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ mới"
           }
         }
       }
     },
-    "Name Shelf…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đặt tên Kệ…"
+    "No conversions available": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không có định dạng để chuyển"
           }
         }
       }
     },
-    "Name this Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đặt tên cho Kệ này"
+    "No items match “%@”": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không có mục nào khớp “%@”"
           }
         }
       }
     },
-    "Names can’t contain “/” or “:”." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tên không được chứa “/” hoặc “:”."
+    "No open shelves": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không có kệ nào đang mở"
           }
         }
       }
     },
-    "Names can’t start with a period." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tên không được bắt đầu bằng dấu chấm."
+    "No pinned shelves": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không có kệ đã ghim"
           }
         }
       }
     },
-    "Near the pointer" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gần con trỏ"
+    "No recent shelves": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa có kệ gần đây"
           }
         }
       }
     },
-    "New DropShelf Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ DropShelf mới"
+    "No shelves match “%@”": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không có kệ nào khớp “%@”"
           }
         }
       }
     },
-    "New Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ mới"
+    "Now do this while dragging a file in Finder.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giờ hãy làm vậy khi đang kéo tệp trong Finder."
           }
         }
       }
     },
-    "No conversions available" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không có định dạng để chuyển"
+    "OK": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
           }
         }
       }
     },
-    "No items match “%@”" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không có mục nào khớp “%@”"
+    "Open": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở"
           }
         }
       }
     },
-    "No open shelves" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không có kệ nào đang mở"
+    "Open DropShelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở DropShelf"
           }
         }
       }
     },
-    "No pinned shelves" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không có kệ đã ghim"
+    "Open Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở Kệ"
           }
         }
       }
     },
-    "No recent shelves" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chưa có kệ gần đây"
+    "Open Shelf shortcut": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phím tắt mở Kệ"
           }
         }
       }
     },
-    "No shelves match “%@”" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không có kệ nào khớp “%@”"
+    "Open Shelf shortcut: %@": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phím tắt mở Kệ: %@"
           }
         }
       }
     },
-    "Now do this while dragging a file in Finder." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Giờ hãy làm vậy khi đang kéo tệp trong Finder."
+    "Open Shelves": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ đang mở"
           }
         }
       }
     },
-    "OK" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
+    "Open a Shelf by shaking the pointer while dragging files.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở Kệ bằng cách lắc con trỏ khi đang kéo tệp."
           }
         }
       }
     },
-    "Open" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mở"
+    "Opens an empty Shelf beside the current one.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở một Kệ trống bên cạnh Kệ hiện tại."
           }
         }
       }
     },
-    "Open a Shelf by shaking the pointer while dragging files." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mở Kệ bằng cách lắc con trỏ khi đang kéo tệp."
+    "PDF pages can currently be converted only to PNG or JPEG.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện chỉ chuyển được trang PDF sang PNG hoặc JPEG."
           }
         }
       }
     },
-    "Open DropShelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mở DropShelf"
+    "Password-protected PDFs must be unlocked before conversion.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần mở khóa PDF có mật khẩu trước khi chuyển."
           }
         }
       }
     },
-    "Open Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mở Kệ"
+    "Paste": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dán"
           }
         }
       }
     },
-    "Open Shelf shortcut" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Phím tắt mở Kệ"
+    "Pin Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghim Kệ"
           }
         }
       }
     },
-    "Open Shelf shortcut: %@" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Phím tắt mở Kệ: %@"
+    "Pin this Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghim Kệ này"
           }
         }
       }
     },
-    "Open Shelves" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ đang mở"
+    "Pinned": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã ghim"
           }
         }
       }
     },
-    "Opens an empty Shelf beside the current one." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mở một Kệ trống bên cạnh Kệ hiện tại."
+    "Pinned Shelves": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ đã ghim"
           }
         }
       }
     },
-    "Password-protected PDFs must be unlocked before conversion." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cần mở khóa PDF có mật khẩu trước khi chuyển."
+    "Pinned entries do not expire and remain accessible from the menu bar.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mục đã ghim không hết hạn và luôn mở được từ thanh menu."
           }
         }
       }
     },
-    "Paste" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dán"
+    "Pixel data is preserved, but some JPEG-specific metadata may not be copied.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dữ liệu điểm ảnh được giữ nguyên, nhưng một số metadata riêng của JPEG có thể không được chép."
           }
         }
       }
     },
-    "PDF pages can currently be converted only to PNG or JPEG." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hiện chỉ chuyển được trang PDF sang PNG hoặc JPEG."
+    "Practice": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luyện tập"
           }
         }
       }
     },
-    "Pin Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ghim Kệ"
+    "Practice the shake": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tập thao tác lắc"
           }
         }
       }
     },
-    "Pin this Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ghim Kệ này"
+    "Press %@ to open": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhấn %@ để mở"
           }
         }
       }
     },
-    "Pinned" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã ghim"
+    "Press Command–Shift–H to open Recent Shelves.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhấn Command–Shift–H để mở Kệ gần đây."
           }
         }
       }
     },
-    "Pinned entries do not expire and remain accessible from the menu bar." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mục đã ghim không hết hạn và luôn mở được từ thanh menu."
+    "Puts files on the current Shelf.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đặt tệp lên Kệ hiện tại."
           }
         }
       }
     },
-    "Pinned Shelves" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ đã ghim"
+    "Quick Look": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xem nhanh"
           }
         }
       }
     },
-    "Pixel data is preserved, but some JPEG-specific metadata may not be copied." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dữ liệu điểm ảnh được giữ nguyên, nhưng một số metadata riêng của JPEG có thể không được chép."
+    "Quick access": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truy cập nhanh"
           }
         }
       }
     },
-    "Practice" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Luyện tập"
+    "Quit DropShelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thoát DropShelf"
           }
         }
       }
     },
-    "Practice the shake" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tập thao tác lắc"
+    "Ready": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sẵn sàng"
           }
         }
       }
     },
-    "Press %@ to open" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nhấn %@ để mở"
+    "Recent Shelves": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ gần đây"
           }
         }
       }
     },
-    "Press Command–Shift–H to open Recent Shelves." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nhấn Command–Shift–H để mở Kệ gần đây."
+    "Recent Shelves…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ gần đây…"
           }
         }
       }
     },
-    "Puts files on the current Shelf." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đặt tệp lên Kệ hiện tại."
+    "Remove %@ from Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gỡ %@ khỏi Kệ"
           }
         }
       }
     },
-    "Quick access" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Truy cập nhanh"
+    "Remove Metadata": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa metadata"
           }
         }
       }
     },
-    "Quick Look" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xem nhanh"
+    "Remove from Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gỡ khỏi Kệ"
           }
         }
       }
     },
-    "Quit DropShelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thoát DropShelf"
+    "Rename": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đổi tên"
           }
         }
       }
     },
-    "Ready" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sẵn sàng"
+    "Rename %lld Items": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đổi tên %lld mục"
           }
         }
       }
     },
-    "Recent Shelves" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ gần đây"
+    "Rename %lld Items…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đổi tên %lld mục…"
           }
         }
       }
     },
-    "Recent Shelves…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ gần đây…"
+    "Rename Shelf…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đổi tên Kệ…"
           }
         }
       }
     },
-    "Remove %@ from Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gỡ %@ khỏi Kệ"
+    "Rename this Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đổi tên Kệ này"
           }
         }
       }
     },
-    "Remove from Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gỡ khỏi Kệ"
+    "Rename “%@”": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đổi tên “%@”"
           }
         }
       }
     },
-    "Remove Metadata" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xóa metadata"
+    "Rename…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đổi tên…"
           }
         }
       }
     },
-    "Rename" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đổi tên"
+    "Resize": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đổi kích thước"
           }
         }
       }
     },
-    "Rename “%@”" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đổi tên “%@”"
+    "Restore %@": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khôi phục %@"
           }
         }
       }
     },
-    "Rename %lld Items" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đổi tên %lld mục"
+    "Restore this Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khôi phục Kệ này"
           }
         }
       }
     },
-    "Rename %lld Items…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đổi tên %lld mục…"
+    "Save": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lưu"
           }
         }
       }
     },
-    "Rename Shelf…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đổi tên Kệ…"
+    "Search (⌘F)": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tìm kiếm (⌘F)"
           }
         }
       }
     },
-    "Rename this Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đổi tên Kệ này"
+    "Search shelves and files": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tìm kệ và tệp"
           }
         }
       }
     },
-    "Rename…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đổi tên…"
+    "Selected": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã chọn"
           }
         }
       }
     },
-    "Resize" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đổi kích thước"
+    "Settings": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cài đặt"
           }
         }
       }
     },
-    "Restore %@" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Khôi phục %@"
+    "Settings…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cài đặt…"
           }
         }
       }
     },
-    "Restore this Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Khôi phục Kệ này"
+    "Shake gesture": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thao tác lắc"
           }
         }
       }
     },
-    "sample-file.pdf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tep-mau.pdf"
+    "Shake left and right while dragging.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lắc qua trái và phải khi đang kéo."
           }
         }
       }
     },
-    "Save" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lưu"
+    "Shake sensitivity": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Độ nhạy khi lắc"
           }
         }
       }
     },
-    "Search (⌘F)" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tìm kiếm (⌘F)"
+    "Shake the pointer or press %@": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lắc con trỏ hoặc nhấn %@"
           }
         }
       }
     },
-    "Search shelves and files" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tìm kệ và tệp"
+    "Shake to open": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lắc để mở"
           }
         }
       }
     },
-    "Selected" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã chọn"
+    "Shake while dragging": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lắc khi đang kéo"
           }
         }
       }
     },
-    "Settings" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cài đặt"
+    "Share…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chia sẻ…"
           }
         }
       }
     },
-    "Settings…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cài đặt…"
+    "Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ"
           }
         }
       }
     },
-    "Shake gesture" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thao tác lắc"
+    "Shelf %lld": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ %lld"
           }
         }
       }
     },
-    "Shake left and right while dragging." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lắc qua trái và phải khi đang kéo."
+    "Shelf actions": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thao tác với Kệ"
           }
         }
       }
     },
-    "Shake sensitivity" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Độ nhạy khi lắc"
+    "Show in Dock": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện trên Dock"
           }
         }
       }
     },
-    "Shake the pointer or press %@" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lắc con trỏ hoặc nhấn %@"
+    "Show in Finder": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện trong Finder"
           }
         }
       }
     },
-    "Shake to open" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lắc để mở"
+    "Show in Shelf…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện trong Kệ…"
           }
         }
       }
     },
-    "Shake while dragging" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lắc khi đang kéo"
+    "Shows the current Shelf.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện Kệ hiện tại."
           }
         }
       }
     },
-    "Share…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chia sẻ…"
+    "Skip": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bỏ qua"
           }
         }
       }
     },
-    "Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ"
+    "Skip This Version": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bỏ qua phiên bản này"
           }
         }
       }
     },
-    "Shelf %lld" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ %lld"
+    "Small": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhỏ"
           }
         }
       }
     },
-    "Shelf actions" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thao tác với Kệ"
+    "Snap to screen edges": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gắn vào cạnh màn hình"
           }
         }
       }
     },
-    "Show in Dock" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hiện trên Dock"
+    "Some HEIC-specific metadata and HDR information may not be preserved. For a multi-image HEIF/HEICS file, only its primary image is converted.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Một số metadata riêng của HEIC và thông tin HDR có thể không được giữ lại. Với tệp HEIF/HEICS nhiều ảnh, chỉ ảnh chính được chuyển."
           }
         }
       }
     },
-    "Show in Finder" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hiện trong Finder"
+    "Start Using DropShelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu dùng DropShelf"
           }
         }
       }
     },
-    "Shows the current Shelf." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hiện Kệ hiện tại."
+    "That name is too long.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tên quá dài."
           }
         }
       }
     },
-    "Skip" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bỏ qua"
+    "The PDF could not be read. It may be damaged or contain an invalid page.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không đọc được PDF. Tệp có thể bị hỏng hoặc có trang không hợp lệ."
           }
         }
       }
     },
-    "Skip This Version" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bỏ qua phiên bản này"
+    "The ZIP cannot replace an item in the Shelf or be created inside a folder that is being zipped.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tệp ZIP không được ghi đè lên một mục trên Kệ, cũng không được nằm trong thư mục đang được nén."
           }
         }
       }
     },
-    "Small" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nhỏ"
+    "The archive tool exited with status %d.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Công cụ nén đã dừng với mã %d."
           }
         }
       }
     },
-    "Snap to screen edges" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gắn vào cạnh màn hình"
+    "The conversion did not produce any files.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quá trình chuyển không tạo ra tệp nào."
           }
         }
       }
     },
-    "Some HEIC-specific metadata and HDR information may not be preserved. For a multi-image HEIF/HEICS file, only its primary image is converted." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Một số metadata riêng của HEIC và thông tin HDR có thể không được giữ lại. Với tệp HEIF/HEICS nhiều ảnh, chỉ ảnh chính được chuyển."
+    "The file is renamed in place on disk.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tệp được đổi tên ngay trên ổ đĩa."
           }
         }
       }
     },
-    "Start Using DropShelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bắt đầu dùng DropShelf"
+    "The image could not be decoded. It may be damaged or use an unsupported codec.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không giải mã được ảnh. Ảnh có thể bị hỏng hoặc dùng codec không được hỗ trợ."
           }
         }
       }
     },
-    "That name is too long." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tên quá dài."
+    "The image is already %lld px or smaller.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ảnh đã nhỏ hơn hoặc bằng %lld px."
           }
         }
       }
     },
-    "The archive tool exited with status %d." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Công cụ nén đã dừng với mã %d."
+    "The image transparency could not be prepared for JPEG.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không xử lý được vùng trong suốt của ảnh để chuyển sang JPEG."
           }
         }
       }
     },
-    "The conversion did not produce any files." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quá trình chuyển không tạo ra tệp nào."
+    "The image will remain raster content inside a one-page PDF. HDR and HEIC metadata may be reduced; multi-image HEIF/HEICS uses only its primary image.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ảnh sẽ vẫn là ảnh điểm trong một PDF một trang. HDR và metadata HEIC có thể bị giảm; với HEIF/HEICS nhiều ảnh chỉ dùng ảnh chính."
           }
         }
       }
     },
-    "The file is renamed in place on disk." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tệp được đổi tên ngay trên ổ đĩa."
+    "The image will remain raster content inside a one-page PDF. Transparent areas will appear on a white page.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ảnh sẽ vẫn là ảnh điểm trong một PDF một trang. Vùng trong suốt sẽ hiện trên trang trắng."
           }
         }
       }
     },
-    "The image could not be decoded. It may be damaged or use an unsupported codec." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không giải mã được ảnh. Ảnh có thể bị hỏng hoặc dùng codec không được hỗ trợ."
+    "The image will remain raster content inside a one-page PDF; this does not create editable or searchable text.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ảnh sẽ vẫn là ảnh điểm trong một PDF một trang; không tạo ra văn bản sửa được hay tìm kiếm được."
           }
         }
       }
     },
-    "The image is already %lld px or smaller." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ảnh đã nhỏ hơn hoặc bằng %lld px."
+    "The output file could not be created. Check folder permissions and free disk space.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không tạo được tệp đầu ra. Hãy kiểm tra quyền thư mục và dung lượng trống."
           }
         }
       }
     },
-    "The image transparency could not be prepared for JPEG." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không xử lý được vùng trong suốt của ảnh để chuyển sang JPEG."
+    "The selected destination is not a folder.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vị trí đã chọn không phải thư mục."
           }
         }
       }
     },
-    "The image will remain raster content inside a one-page PDF; this does not create editable or searchable text." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ảnh sẽ vẫn là ảnh điểm trong một PDF một trang; không tạo ra văn bản sửa được hay tìm kiếm được."
+    "The selected output is not a supported video format.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Định dạng đầu ra đã chọn không phải định dạng video được hỗ trợ."
           }
         }
       }
     },
-    "The image will remain raster content inside a one-page PDF. HDR and HEIC metadata may be reduced; multi-image HEIF/HEICS uses only its primary image." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ảnh sẽ vẫn là ảnh điểm trong một PDF một trang. HDR và metadata HEIC có thể bị giảm; với HEIF/HEICS nhiều ảnh chỉ dùng ảnh chính."
+    "The source file no longer exists.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tệp nguồn không còn tồn tại."
           }
         }
       }
     },
-    "The image will remain raster content inside a one-page PDF. Transparent areas will appear on a white page." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ảnh sẽ vẫn là ảnh điểm trong một PDF một trang. Vùng trong suốt sẽ hiện trên trang trắng."
+    "The video codec is not compatible with the selected container.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codec video không tương thích với định dạng chứa đã chọn."
           }
         }
       }
     },
-    "The output file could not be created. Check folder permissions and free disk space." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không tạo được tệp đầu ra. Hãy kiểm tra quyền thư mục và dung lượng trống."
+    "The video could not be converted. %@": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không chuyển được video. %@"
           }
         }
       }
     },
-    "The PDF could not be read. It may be damaged or contain an invalid page." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không đọc được PDF. Tệp có thể bị hỏng hoặc có trang không hợp lệ."
+    "This changes the video container without re-encoding. It is available only when the existing video and audio codecs are compatible with MOV.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thao tác này đổi định dạng chứa video mà không mã hóa lại. Chỉ dùng được khi codec video và âm thanh hiện có tương thích với MOV."
           }
         }
       }
     },
-    "The selected destination is not a folder." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vị trí đã chọn không phải thư mục."
+    "This changes the video container without re-encoding. It is available only when the existing video and audio codecs are compatible with MP4.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thao tác này đổi định dạng chứa video mà không mã hóa lại. Chỉ dùng được khi codec video và âm thanh hiện có tương thích với MP4."
           }
         }
       }
     },
-    "The selected output is not a supported video format." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Định dạng đầu ra đã chọn không phải định dạng video được hỗ trợ."
+    "This conversion produced multiple files. Use the multi-file conversion result.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lần chuyển này tạo ra nhiều tệp. Hãy dùng kết quả nhiều tệp."
           }
         }
       }
     },
-    "The source file no longer exists." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tệp nguồn không còn tồn tại."
+    "This file is not a supported JPEG, PNG, HEIC, PDF, MOV, or MP4 file.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đây không phải tệp JPEG, PNG, HEIC, PDF, MOV hoặc MP4 được hỗ trợ."
           }
         }
       }
     },
-    "The video codec is not compatible with the selected container." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Codec video không tương thích với định dạng chứa đã chọn."
+    "This image type can’t be edited.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không chỉnh sửa được loại ảnh này."
           }
         }
       }
     },
-    "The video could not be converted. %@" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không chuyển được video. %@"
+    "This is not a supported MOV or MP4 video, or it does not contain a video track.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đây không phải video MOV hoặc MP4 được hỗ trợ, hoặc tệp không có rãnh video."
           }
         }
       }
     },
-    "The ZIP cannot replace an item in the Shelf or be created inside a folder that is being zipped." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tệp ZIP không được ghi đè lên một mục trên Kệ, cũng không được nằm trong thư mục đang được nén."
+    "This name will appear in Recent Shelves and the menu bar when pinned.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tên này sẽ hiện trong Kệ gần đây và trên thanh menu khi được ghim."
           }
         }
       }
     },
-    "This changes the video container without re-encoding. It is available only when the existing video and audio codecs are compatible with MOV." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thao tác này đổi định dạng chứa video mà không mã hóa lại. Chỉ dùng được khi codec video và âm thanh hiện có tương thích với MOV."
+    "This re-encodes an already compressed image and may introduce additional quality loss.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thao tác này nén lại một ảnh đã nén nên có thể giảm thêm chất lượng."
           }
         }
       }
     },
-    "This changes the video container without re-encoding. It is available only when the existing video and audio codecs are compatible with MP4." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thao tác này đổi định dạng chứa video mà không mã hóa lại. Chỉ dùng được khi codec video và âm thanh hiện có tương thích với MP4."
+    "This shortcut is already used by macOS or another app. Choose a different one.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phím tắt này đã được macOS hoặc ứng dụng khác dùng. Hãy chọn phím tắt khác."
           }
         }
       }
     },
-    "This conversion produced multiple files. Use the multi-file conversion result." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lần chuyển này tạo ra nhiều tệp. Hãy dùng kết quả nhiều tệp."
+    "Today": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hôm nay"
           }
         }
       }
     },
-    "This file is not a supported JPEG, PNG, HEIC, PDF, MOV, or MP4 file." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đây không phải tệp JPEG, PNG, HEIC, PDF, MOV hoặc MP4 được hỗ trợ."
+    "Type shortcut…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhấn phím tắt…"
           }
         }
       }
     },
-    "This image type can’t be edited." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không chỉnh sửa được loại ảnh này."
+    "Unavailable — change in Settings": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không dùng được, hãy đổi trong Cài đặt"
           }
         }
       }
     },
-    "This is not a supported MOV or MP4 video, or it does not contain a video track." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đây không phải video MOV hoặc MP4 được hỗ trợ, hoặc tệp không có rãnh video."
+    "Understand recent and pinned Shelf retention.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cách DropShelf lưu giữ Kệ gần đây và Kệ đã ghim."
           }
         }
       }
     },
-    "This name will appear in Recent Shelves and the menu bar when pinned." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tên này sẽ hiện trong Kệ gần đây và trên thanh menu khi được ghim."
+    "Unpin Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bỏ ghim Kệ"
           }
         }
       }
     },
-    "This re-encodes an already compressed image and may introduce additional quality loss." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thao tác này nén lại một ảnh đã nén nên có thể giảm thêm chất lượng."
+    "Unpin this Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bỏ ghim Kệ này"
           }
         }
       }
     },
-    "This shortcut is already used by macOS or another app. Choose a different one." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Phím tắt này đã được macOS hoặc ứng dụng khác dùng. Hãy chọn phím tắt khác."
+    "Unpinned Shelves are retained for 72 hours. DropShelf stores file references only.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ chưa ghim được giữ trong 72 giờ. DropShelf chỉ lưu tham chiếu tới tệp."
           }
         }
       }
     },
-    "Today" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hôm nay"
+    "Unpinned shelves are kept for 72 hours.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kệ chưa ghim được giữ trong 72 giờ."
           }
         }
       }
     },
-    "Type shortcut…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nhấn phím tắt…"
+    "Version %@ (%@)": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phiên bản %1$@ (%2$@)"
           }
         }
       }
     },
-    "Unavailable — change in Settings" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không dùng được, hãy đổi trong Cài đặt"
+    "Version and application information.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thông tin phiên bản và ứng dụng."
           }
         }
       }
     },
-    "Understand recent and pinned Shelf retention." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cách DropShelf lưu giữ Kệ gần đây và Kệ đã ghim."
+    "Welcome": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chào mừng"
           }
         }
       }
     },
-    "Unpin Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bỏ ghim Kệ"
+    "Welcome to DropShelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chào mừng đến với DropShelf"
           }
         }
       }
     },
-    "Unpin this Shelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bỏ ghim Kệ này"
+    "Where I last moved it": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nơi tôi kéo tới lần trước"
           }
         }
       }
     },
-    "Unpinned shelves are kept for 72 hours." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ chưa ghim được giữ trong 72 giờ."
+    "Where shaking or the shortcut shows the Shelf.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nơi Kệ hiện ra khi lắc hoặc dùng phím tắt."
           }
         }
       }
     },
-    "Unpinned Shelves are retained for 72 hours. DropShelf stores file references only." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kệ chưa ghim được giữ trong 72 giờ. DropShelf chỉ lưu tham chiếu tới tệp."
+    "Yesterday": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hôm qua"
           }
         }
       }
     },
-    "Version %@ (%@)" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Phiên bản %1$@ (%2$@)"
+    "You have version %@.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn đang dùng phiên bản %@."
           }
         }
       }
     },
-    "Version and application information." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thông tin phiên bản và ứng dụng."
+    "You’re ready": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn đã sẵn sàng"
           }
         }
       }
     },
-    "Welcome" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chào mừng"
+    "You’re up to date": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn đang dùng bản mới nhất"
           }
         }
       }
     },
-    "Welcome to DropShelf" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chào mừng đến với DropShelf"
+    "Zip %lld Selected…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nén %lld mục đã chọn…"
           }
         }
       }
     },
-    "Where I last moved it" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nơi tôi kéo tới lần trước"
+    "Zip All Shelf Items": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nén tất cả mục trên Kệ"
           }
         }
       }
     },
-    "Where shaking or the shortcut shows the Shelf." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nơi Kệ hiện ra khi lắc hoặc dùng phím tắt."
+    "Zip All…": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nén tất cả…"
           }
         }
       }
     },
-    "Yesterday" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hôm qua"
+    "Zip Selected Shelf Items": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nén các mục đã chọn trên Kệ"
           }
         }
       }
     },
-    "You have version %@." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bạn đang dùng phiên bản %@."
+    "e.g. Design review": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ví dụ: Duyệt thiết kế"
           }
         }
       }
     },
-    "You’re ready" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bạn đã sẵn sàng"
+    "macOS could not create a valid PDF from this image.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS không tạo được PDF hợp lệ từ ảnh này."
           }
         }
       }
     },
-    "You’re up to date" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bạn đang dùng bản mới nhất"
+    "macOS could not encode the converted image. Check disk space and try again.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS không mã hóa được ảnh đã chuyển. Hãy kiểm tra dung lượng ổ đĩa rồi thử lại."
           }
         }
       }
     },
-    "Zip %lld Selected…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nén %lld mục đã chọn…"
+    "macOS could not prepare this video for conversion. Its codecs may be unsupported.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS không chuẩn bị được video này để chuyển. Codec của video có thể không được hỗ trợ."
           }
         }
       }
     },
-    "Zip All Shelf Items" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nén tất cả mục trên Kệ"
+    "macOS could not start AirDrop for the files currently in the Shelf.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS không mở được AirDrop cho các tệp đang có trên Kệ."
           }
         }
       }
     },
-    "Zip All…" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nén tất cả…"
+    "macOS ended the export without producing a video.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS đã dừng xuất mà không tạo ra video."
           }
         }
       }
     },
-    "Zip Selected Shelf Items" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nén các mục đã chọn trên Kệ"
+    "macOS returned an unknown video export status.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS trả về trạng thái xuất video không xác định."
+          }
+        }
+      }
+    },
+    "sample-file.pdf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tep-mau.pdf"
+          }
+        }
+      }
+    },
+    "“%@” already exists in that folder.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” đã có trong thư mục đó."
+          }
+        }
+      }
+    },
+    "⌘⇧H": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘⇧H"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

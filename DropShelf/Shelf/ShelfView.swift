@@ -473,35 +473,7 @@ private struct ShelfHistoryView: View {
     }
 
     private var historyGroups: [ShelfHistoryGroup] {
-        let entries = manager.visibleHistoryEntries
-        let pinned = entries.filter(\.isPinned)
-        let unpinned = entries.filter { !$0.isPinned }
-        let calendar = Calendar.current
-        var groups: [ShelfHistoryGroup] = []
-
-        if !pinned.isEmpty {
-            groups.append(ShelfHistoryGroup(title: String(localized: "Pinned"), entries: pinned))
-        }
-
-        let today = unpinned.filter { calendar.isDateInToday($0.createdAt) }
-        if !today.isEmpty {
-            groups.append(ShelfHistoryGroup(title: String(localized: "Today"), entries: today))
-        }
-
-        let yesterday = unpinned.filter { calendar.isDateInYesterday($0.createdAt) }
-        if !yesterday.isEmpty {
-            groups.append(ShelfHistoryGroup(title: String(localized: "Yesterday"), entries: yesterday))
-        }
-
-        let earlier = unpinned.filter {
-            !calendar.isDateInToday($0.createdAt)
-                && !calendar.isDateInYesterday($0.createdAt)
-        }
-        if !earlier.isEmpty {
-            groups.append(ShelfHistoryGroup(title: String(localized: "Earlier"), entries: earlier))
-        }
-
-        return groups
+        ShelfHistoryPresentation.groups(for: manager.visibleHistoryEntries)
     }
 }
 
@@ -540,13 +512,6 @@ private struct ShelfSearchField: View {
         )
         .onAppear { isFocused = true }
     }
-}
-
-private struct ShelfHistoryGroup: Identifiable {
-    let title: String
-    let entries: [ShelfHistoryEntry]
-
-    var id: String { title }
 }
 
 private struct ShelfHistoryEntryRow: View {

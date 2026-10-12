@@ -70,7 +70,38 @@ struct ShelfHistoryEntry: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
+struct ShelfHistoryGroup: Identifiable {
+    let title: String
+    let entries: [ShelfHistoryEntry]
+
+    var id: String { title }
+}
+
 enum ShelfHistoryPresentation {
+    /// Pinned, Today, Yesterday, Earlier; empty groups are left out.
+    static func groups(
+        for entries: [ShelfHistoryEntry],
+        relativeTo now: Date = Date()
+    ) -> [ShelfHistoryGroup] {
+        let calendar = Calendar.current
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: now) ?? now
+        let unpinned = entries.filter { !$0.isPinned }
+        let isToday = { (entry: ShelfHistoryEntry) in calendar.isDate(entry.createdAt, inSameDayAs: now) }
+        let isYesterday = { (entry: ShelfHistoryEntry) in
+            calendar.isDate(entry.createdAt, inSameDayAs: yesterday)
+        }
+
+        return [
+            ShelfHistoryGroup(title: String(localized: "Pinned"), entries: entries.filter(\.isPinned)),
+            ShelfHistoryGroup(title: String(localized: "Today"), entries: unpinned.filter(isToday)),
+            ShelfHistoryGroup(title: String(localized: "Yesterday"), entries: unpinned.filter(isYesterday)),
+            ShelfHistoryGroup(
+                title: String(localized: "Earlier"),
+                entries: unpinned.filter { !isToday($0) && !isYesterday($0) }
+            )
+        ].filter { !$0.entries.isEmpty }
+    }
+
     static func displayName(for entry: ShelfHistoryEntry) -> String {
         entry.name ?? dateTitle(for: entry.createdAt)
     }

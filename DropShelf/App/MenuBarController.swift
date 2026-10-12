@@ -6,6 +6,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private var openSettingsHandler: (() -> Void)?
     private var openOnboardingHandler: (() -> Void)?
     private let pinnedShelvesMenu = NSMenu(title: String(localized: "Pinned Shelves"))
+    private let recentShelvesMenu = NSMenu(title: String(localized: "Recent Shelves"))
     private let openShelvesMenu = NSMenu(title: String(localized: "Open Shelves"))
 
     init(
@@ -50,6 +51,18 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         )
         openShelvesItem.submenu = openShelvesMenu
         menu.addItem(openShelvesItem)
+
+        let recentShelvesItem = NSMenuItem(
+            title: String(localized: "Recent Shelves"),
+            action: nil,
+            keyEquivalent: ""
+        )
+        recentShelvesItem.image = NSImage(
+            systemSymbolName: "clock.arrow.circlepath",
+            accessibilityDescription: String(localized: "Recent Shelves")
+        )
+        recentShelvesItem.submenu = recentShelvesMenu
+        menu.addItem(recentShelvesItem)
 
         let pinnedShelvesItem = NSMenuItem(
             title: String(localized: "Pinned Shelves"),
@@ -107,6 +120,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     func menuWillOpen(_ menu: NSMenu) {
         ShelfManager.active.refreshHistory()
         rebuildPinnedShelvesMenu()
+        rebuildRecentShelvesMenu()
         rebuildOpenShelvesMenu()
     }
 
@@ -175,6 +189,60 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         NSApp.terminate(nil)
     }
 
+    /// Every history entry, grouped like the Shelf's own Recent Shelves view.
+    private func rebuildRecentShelvesMenu() {
+        recentShelvesMenu.removeAllItems()
+
+        let groups = ShelfHistoryPresentation.groups(for: ShelfManager.active.historyEntries)
+        if groups.isEmpty {
+            let emptyItem = NSMenuItem(
+                title: String(localized: "No recent shelves"),
+                action: nil,
+                keyEquivalent: ""
+            )
+            emptyItem.isEnabled = false
+            recentShelvesMenu.addItem(emptyItem)
+        }
+
+        for (index, group) in groups.enumerated() {
+            if index > 0 {
+                recentShelvesMenu.addItem(.separator())
+            }
+            let header = NSMenuItem(title: group.title, action: nil, keyEquivalent: "")
+            header.isEnabled = false
+            recentShelvesMenu.addItem(header)
+
+            for entry in group.entries {
+                let item = NSMenuItem(
+                    title: ShelfHistoryPresentation.displayName(for: entry),
+                    action: nil,
+                    keyEquivalent: ""
+                )
+                item.view = PinnedShelfMenuItemView(
+                    entry: entry,
+                    symbol: entry.isPinned ? "pin.fill" : "tray.full.fill",
+                    restore: { [weak self] in
+                        self?.restorePinnedShelf(entryID: entry.id)
+                    }
+                )
+                recentShelvesMenu.addItem(item)
+            }
+        }
+
+        recentShelvesMenu.addItem(.separator())
+        let showInShelfItem = NSMenuItem(
+            title: String(localized: "Show in Shelf…"),
+            action: #selector(showHistoryInShelf),
+            keyEquivalent: ""
+        )
+        showInShelfItem.target = self
+        recentShelvesMenu.addItem(showInShelfItem)
+    }
+
+    @objc private func showHistoryInShelf() {
+        ShelfManager.active.showHistory(near: NSEvent.mouseLocation)
+    }
+
     private func rebuildPinnedShelvesMenu() {
         pinnedShelvesMenu.removeAllItems()
 
@@ -211,7 +279,7 @@ private final class PinnedShelfMenuItemView: NSView {
     private let restore: () -> Void
     private var trackingAreaReference: NSTrackingArea?
 
-    init(entry: ShelfHistoryEntry, restore: @escaping () -> Void) {
+    init(entry: ShelfHistoryEntry, symbol: String = "pin.fill", restore: @escaping () -> Void) {
         self.restore = restore
         super.init(frame: NSRect(x: 0, y: 0, width: 420, height: 76))
 
@@ -220,8 +288,8 @@ private final class PinnedShelfMenuItemView: NSView {
 
         let iconView = NSImageView()
         iconView.image = NSImage(
-            systemSymbolName: "pin.fill",
-            accessibilityDescription: "Pinned"
+            systemSymbolName: symbol,
+            accessibilityDescription: nil
         )
         iconView.contentTintColor = .secondaryLabelColor
         iconView.translatesAutoresizingMaskIntoConstraints = false

@@ -341,4 +341,22 @@ final class ShelfImportAndHistoryTests: XCTestCase {
             "\(String(localized: "Selected")), \(kind)"
         )
     }
+
+    func testHistoryGroupsForMenuBarAndShelf() {
+        let now = Date()
+        let url = [URL(fileURLWithPath: "/tmp/a.txt")]
+        let day: TimeInterval = 24 * 60 * 60
+        let entries = [
+            ShelfHistoryEntry(createdAt: now.addingTimeInterval(-3 * day), isPinned: true, urls: url),
+            ShelfHistoryEntry(createdAt: now, urls: url),
+            ShelfHistoryEntry(createdAt: now.addingTimeInterval(-day), urls: url),
+            ShelfHistoryEntry(createdAt: now.addingTimeInterval(-2.5 * day), urls: url)
+        ]
+
+        let groups = ShelfHistoryPresentation.groups(for: entries, relativeTo: now)
+
+        XCTAssertEqual(groups.map(\.entries.count), [1, 1, 1, 1])
+        XCTAssertEqual(groups.first?.entries.first?.isPinned, true)
+        XCTAssertTrue(ShelfHistoryPresentation.groups(for: [], relativeTo: now).isEmpty)
+    }
 }
