@@ -21,6 +21,8 @@ final class ShelfManager: ObservableObject {
     @Published private(set) var pendingDropItemCount = 0
     /// Keeps this Shelf visible: no auto-hide, no Esc hide, no close-when-empty.
     @Published private(set) var isKeptOnScreen = false
+    @Published private(set) var isSearching = false
+    @Published private(set) var searchText = ""
 
     private var panel: ShelfPanel?
     private var currentHistoryEntryID: UUID?
@@ -155,7 +157,56 @@ final class ShelfManager: ObservableObject {
     }
 
     var bulkActionItemCount: Int {
-        selectedItemIDs.count > 1 ? selectedItemIDs.count : items.count
+        selectedItemIDs.count > 1 ? selectedItemIDs.count : visibleItems.count
+    }
+
+    // MARK: - Search
+
+    private var trimmedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Items whose name matches the search; every item when not searching.
+    var visibleItems: [ShelfItem] {
+        let query = trimmedSearchText
+        guard !query.isEmpty else { return items }
+        return items.filter { $0.url.lastPathComponent.localizedStandardContains(query) }
+    }
+
+    /// History entries whose name or file names match the search.
+    var visibleHistoryEntries: [ShelfHistoryEntry] {
+        let query = trimmedSearchText
+        guard !query.isEmpty else { return historyEntries }
+        return historyEntries.filter { entry in
+            ShelfHistoryPresentation.displayName(for: entry).localizedStandardContains(query)
+                || entry.paths.contains {
+                    URL(fileURLWithPath: $0).lastPathComponent.localizedStandardContains(query)
+                }
+        }
+    }
+
+    func toggleSearch() {
+        isSearching.toggle()
+        if isSearching {
+            // The search field needs keyboard focus.
+            panel?.makeKey()
+        } else {
+            setSearchText("")
+        }
+        updatePanelLayout(animated: true)
+        scheduleAutoHideIfNeeded()
+    }
+
+    func setSearchText(_ text: String) {
+        guard text != searchText else { return }
+        searchText = text
+        // Hidden items must not ride along in drags or bulk actions.
+        let visibleIDs = Set(visibleItems.map(\.id))
+        if !selectedItemIDs.isSubset(of: visibleIDs) {
+            selectedItemIDs.formIntersection(visibleIDs)
+        }
+        updatePanelLayout(animated: true)
+        scheduleAutoHideIfNeeded()
     }
 
     var usesSelectionForBulkActions: Bool {
@@ -171,12 +222,7 @@ final class ShelfManager: ObservableObject {
             panel?.contentView = ShelfDropHostingView(manager: self)
         }
 
-        panel?.updateLayout(
-            itemCount: items.count,
-            selectionCount: selectedItemIDs.count,
-            showingHistory: false,
-            animated: false
-        )
+        updatePanelLayout(animated: false)
         panel?.position(near: point)
         panel?.orderFrontRegardless()
         markActive()
@@ -332,6 +378,8 @@ final class ShelfManager: ObservableObject {
         isReceivingDrop = false
         pendingDropItemCount = 0
         isKeptOnScreen = false
+        isSearching = false
+        searchText = ""
         if Self.active === self {
             Self.active = Self.shelves.last { $0 !== self && $0.isShelfVisible } ?? self
         }
@@ -510,7 +558,7 @@ final class ShelfManager: ObservableObject {
     }
 
     func selectAllItems() {
-        let allIDs = Set(items.map(\.id))
+        let allIDs = Set(visibleItems.map(\.id))
         guard allIDs != selectedItemIDs else { return }
         selectedItemIDs = allIDs
         updatePanelLayout(animated: true)
@@ -518,6 +566,7 @@ final class ShelfManager: ObservableObject {
     }
 
     func moveSelection(by offset: Int, extendingSelection: Bool) {
+        let items = visibleItems
         guard !items.isEmpty else { return }
         let currentIndex = items.lastIndex { selectedItemIDs.contains($0.id) }
         let nextIndex = currentIndex.map { min(max($0 + offset, 0), items.count - 1) }
@@ -563,7 +612,9 @@ final class ShelfManager: ObservableObject {
 
     /// Esc hides the Shelf but keeps its items, like an inactivity auto-hide.
     func dismissShelf() {
-        if isShowingHistory {
+        if isSearching {
+            toggleSearch()
+        } else if isShowingHistory {
             hideHistory()
         } else if !selectedItemIDs.isEmpty {
             clearSelection()
@@ -932,15 +983,16 @@ final class ShelfManager: ObservableObject {
     }
 
     private var bulkActionItems: [ShelfItem] {
-        guard usesSelectionForBulkActions else { return items }
+        guard usesSelectionForBulkActions else { return visibleItems }
         return items.filter { selectedItemIDs.contains($0.id) }
     }
 
     private func updatePanelLayout(animated: Bool) {
         panel?.updateLayout(
-            itemCount: items.count,
+            itemCount: visibleItems.count,
             selectionCount: selectedItemIDs.count,
             showingHistory: isShowingHistory,
+            showingSearch: isSearching,
             animated: animated
         )
     }

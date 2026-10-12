@@ -11,6 +11,11 @@ struct ShelfView: View {
             dragHandle
             header
 
+            if manager.isSearching {
+                ShelfSearchField(manager: manager)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
             if !manager.isShowingHistory, manager.selectedItemIDs.count > 1 {
                 selectionBar
                     .transition(.move(edge: .top).combined(with: .opacity))
@@ -20,10 +25,15 @@ struct ShelfView: View {
                 ShelfHistoryView(manager: manager)
             } else if manager.items.isEmpty {
                 emptyState
+            } else if manager.visibleItems.isEmpty {
+                Text("No items match “\(manager.searchText)”")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: 10) {
-                        ForEach(manager.items) { item in
+                        ForEach(manager.visibleItems) { item in
                             ShelfItemCard(item: item, manager: manager)
                                 .transition(
                                     .scale(scale: 0.92).combined(with: .opacity)
@@ -59,6 +69,7 @@ struct ShelfView: View {
         .animation(.easeOut(duration: 0.18), value: manager.items.map(\.id))
         .animation(.easeOut(duration: 0.16), value: manager.selectedItemIDs.count)
         .animation(.easeOut(duration: 0.14), value: manager.isReceivingDrop)
+        .animation(.easeOut(duration: 0.16), value: manager.isSearching)
     }
     
     private var dragHandle: some View {
@@ -101,6 +112,15 @@ struct ShelfView: View {
                 .help(manager.currentShelfName ?? "DropShelf")
             
             Spacer()
+
+            if manager.isShowingHistory || !manager.items.isEmpty {
+                ShelfToolbarButton(
+                    symbol: "magnifyingglass",
+                    help: manager.isSearching ? "Close search (Esc)" : "Search (⌘F)",
+                    tint: manager.isSearching ? .accentColor : .secondary,
+                    action: manager.toggleSearch
+                )
+            }
 
             if !manager.isShowingHistory {
                 ShelfToolbarButton(
@@ -405,7 +425,12 @@ private struct ShelfHistoryView: View {
 
     var body: some View {
         Group {
-            if manager.historyEntries.isEmpty {
+            if manager.visibleHistoryEntries.isEmpty, !manager.historyEntries.isEmpty {
+                Text("No shelves match “\(manager.searchText)”")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if manager.historyEntries.isEmpty {
                 VStack(spacing: 6) {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.system(size: 22, weight: .light))
@@ -447,8 +472,9 @@ private struct ShelfHistoryView: View {
     }
 
     private var historyGroups: [ShelfHistoryGroup] {
-        let pinned = manager.historyEntries.filter(\.isPinned)
-        let unpinned = manager.historyEntries.filter { !$0.isPinned }
+        let entries = manager.visibleHistoryEntries
+        let pinned = entries.filter(\.isPinned)
+        let unpinned = entries.filter { !$0.isPinned }
         let calendar = Calendar.current
         var groups: [ShelfHistoryGroup] = []
 
@@ -475,6 +501,43 @@ private struct ShelfHistoryView: View {
         }
 
         return groups
+    }
+}
+
+private struct ShelfSearchField: View {
+    @ObservedObject var manager: ShelfManager
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+            TextField(
+                manager.isShowingHistory ? "Search shelves and files" : "Filter items",
+                text: Binding(get: { manager.searchText }, set: manager.setSearchText)
+            )
+            .textFieldStyle(.plain)
+            .focused($isFocused)
+            .onExitCommand(perform: manager.toggleSearch)
+            if !manager.searchText.isEmpty {
+                Button {
+                    manager.setSearchText("")
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help("Clear search")
+            }
+        }
+        .font(.system(size: 12))
+        .padding(.horizontal, 9)
+        .frame(height: 26)
+        .background(
+            Color.primary.opacity(0.07),
+            in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+        )
+        .onAppear { isFocused = true }
     }
 }
 

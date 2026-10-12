@@ -251,4 +251,58 @@ final class ShelfImportAndHistoryTests: XCTestCase {
         let source = try XCTUnwrap(CGImageSourceCreateWithURL(url as CFURL, nil))
         return try XCTUnwrap(CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any])
     }
+
+    func testURLCommandsParse() {
+        XCTAssertEqual(ShelfURLCommand(url: URL(string: "dropshelf://open")!), .open)
+        XCTAssertEqual(ShelfURLCommand(url: URL(string: "dropshelf:")!), .open)
+        XCTAssertEqual(ShelfURLCommand(url: URL(string: "DropShelf://NEW")!), .newShelf)
+        XCTAssertEqual(ShelfURLCommand(url: URL(string: "dropshelf://history")!), .history)
+        XCTAssertEqual(
+            ShelfURLCommand(url: URL(string: "dropshelf://add?path=/tmp/a%20b.txt&path=/tmp/c")!),
+            .add([URL(fileURLWithPath: "/tmp/a b.txt"), URL(fileURLWithPath: "/tmp/c")])
+        )
+        XCTAssertNil(ShelfURLCommand(url: URL(string: "dropshelf://delete")!))
+        XCTAssertNil(ShelfURLCommand(url: URL(string: "https://open")!))
+    }
+
+    @MainActor
+    func testReceiveAddsOnlyExistingFilesToActiveShelf() throws {
+        let file = directory.appendingPathComponent("from-service.txt")
+        try Data().write(to: file)
+        let shelf = ShelfManager.active
+        shelf.clearAndCloseShelf()
+        defer { shelf.clearAndCloseShelf() }
+
+        ShelfManager.receive([file, directory.appendingPathComponent("missing.txt")])
+
+        XCTAssertEqual(shelf.items.map(\.url), [file.standardizedFileURL])
+        XCTAssertTrue(shelf.isShelfVisible)
+    }
+
+    @MainActor
+    func testSearchFiltersItemsSelectionAndHistory() throws {
+        let manager = makeIsolatedManager()
+        manager.add(urls: ["Invoice.pdf", "photo.jpg", "invoice-2.pdf"].map {
+            URL(fileURLWithPath: "/tmp/\($0)")
+        })
+        manager.selectAllItems()
+
+        manager.toggleSearch()
+        manager.setSearchText("invoice")
+
+        XCTAssertEqual(manager.visibleItems.map(\.url.lastPathComponent), ["Invoice.pdf", "invoice-2.pdf"])
+        XCTAssertEqual(manager.selectedItemIDs, Set(manager.visibleItems.map(\.id)))
+        XCTAssertEqual(manager.bulkActionItemCount, 2)
+
+        manager.toggleSearch()
+        XCTAssertEqual(manager.searchText, "")
+        XCTAssertEqual(manager.visibleItems.count, 3)
+    }
+
+    @MainActor
+    func testShelfPanelGrowsForSearchField() {
+        let panel = ShelfPanel(manager: makeIsolatedManager())
+        panel.updateLayout(itemCount: 1, selectionCount: 0, showingHistory: false, showingSearch: true, animated: false)
+        XCTAssertEqual(panel.frame.size, NSSize(width: 310, height: 252))
+    }
 }

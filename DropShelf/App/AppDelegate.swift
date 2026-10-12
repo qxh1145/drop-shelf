@@ -10,6 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var historyHotKeyController: GlobalHotKeyController?
     private var activationHotKeyController: GlobalHotKeyController?
     private var didStartApplicationServices = false
+    private let servicesProvider = ShelfServicesProvider()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         applyDockVisibility()
@@ -49,6 +50,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         menuBarController?.invalidate()
         menuBarController = nil
+    }
+
+    /// Open With, files dropped on the Dock icon, and `dropshelf://` links.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        ShelfURLCommand.handle(urls)
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -104,6 +110,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         configureShakeGesture()
+
+        NSApp.servicesProvider = servicesProvider
+        NSUpdateDynamicServices()
 
         let historyHotKeyController = GlobalHotKeyController()
         historyHotKeyController.registerCommandShiftH {

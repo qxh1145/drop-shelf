@@ -20,6 +20,7 @@
 		01000000000000000000000B /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000E /* XCTest.framework */; };
 		01000000000000000000000C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000F /* Assets.xcassets */; };
 		01000000000000000000000D /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000010 /* MenuBarController.swift */; };
+		01000000000000000000001E /* AppIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000021 /* AppIntegration.swift */; };
 		01000000000000000000000E /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000011 /* AppPreferences.swift */; };
 		01000000000000000000000F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000012 /* SettingsView.swift */; };
 		010000000000000000000010 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000013 /* SettingsWindowController.swift */; };
@@ -65,6 +66,7 @@
 		02000000000000000000000E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 		02000000000000000000000F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		020000000000000000000010 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		020000000000000000000021 /* AppIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntegration.swift; sourceTree = "<group>"; };
 		020000000000000000000011 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
 		020000000000000000000012 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		020000000000000000000013 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
@@ -133,6 +135,7 @@
 				020000000000000000000001 /* DropShelfApp.swift */,
 				020000000000000000000002 /* AppDelegate.swift */,
 				020000000000000000000010 /* MenuBarController.swift */,
+				020000000000000000000021 /* AppIntegration.swift */,
 				02000000000000000000001A /* GlobalHotKeyController.swift */,
 			);
 			path = App;
@@ -330,6 +333,7 @@
 				010000000000000000000001 /* DropShelfApp.swift in Sources */,
 				010000000000000000000002 /* AppDelegate.swift in Sources */,
 				01000000000000000000000D /* MenuBarController.swift in Sources */,
+				01000000000000000000001E /* AppIntegration.swift in Sources */,
 				010000000000000000000003 /* ShakeDetector.swift in Sources */,
 				01000000000000000000000E /* AppPreferences.swift in Sources */,
 				01000000000000000000000F /* SettingsView.swift in Sources */,
@@ -500,7 +504,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = PD79TCT72F;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -512,7 +516,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.6.0;
+				MARKETING_VERSION = 1.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qxh1145.DropShelf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -528,7 +532,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = PD79TCT72F;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -540,7 +544,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.6.0;
+				MARKETING_VERSION = 1.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qxh1145.DropShelf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

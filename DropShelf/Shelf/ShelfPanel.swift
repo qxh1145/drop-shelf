@@ -38,9 +38,10 @@ final class ShelfPanel: NSPanel {
         itemCount: Int,
         selectionCount: Int,
         showingHistory: Bool,
+        showingSearch: Bool = false,
         animated: Bool
     ) {
-        let targetSize: NSSize
+        var targetSize: NSSize
         if showingHistory {
             targetSize = NSSize(width: 470, height: 340)
         } else {
@@ -57,6 +58,10 @@ final class ShelfPanel: NSPanel {
                     ? (selectionCount > 1 ? 252 : 218)
                     : 204
             )
+        }
+
+        if showingSearch, !showingHistory {
+            targetSize.height += 34
         }
 
         guard frame.size != targetSize else { return }
@@ -104,6 +109,15 @@ final class ShelfPanel: NSPanel {
     private func handleKeyDown(_ event: NSEvent) -> Bool {
         guard let manager = shelfManager else { return false }
         let flags = event.modifierFlags.intersection([.command, .shift, .option, .control])
+
+        if flags == .command, event.charactersIgnoringModifiers?.lowercased() == "f" {
+            manager.toggleSearch()
+            return true
+        }
+        // While the search field is being edited, keys belong to it.
+        if firstResponder is NSText {
+            return false
+        }
 
         if flags == .command {
             switch event.charactersIgnoringModifiers?.lowercased() {

@@ -76,6 +76,8 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 - Batch convert and batch rename the selected items
 - Image Tools: resize, compress, and remove metadata (location, camera info)
 - Open the Shelf at the pointer or where you last left it, snap to screen edges, Keep on Screen
+- Search (Command-F) filters Shelf items and Recent Shelves
+- Finder Services, Open With / Dock drop, `dropshelf://` links, and Shortcuts actions
 - Drag items from the Shelf into Finder or compatible apps
 - Remove individual items
 - Clear and close the Shelf
@@ -233,6 +235,7 @@ Click the Shelf once to give it keyboard focus.
 | Command-C | Copy the selected files |
 | Command-V | Paste files, text, links, or images |
 | Command-N | Open a new Shelf beside the current one |
+| Command-F | Search items (or Recent Shelves); Esc closes the search |
 | Esc | Clear selection, then hide the Shelf (items are kept) |
 
 Double-click an item to open it.
@@ -277,7 +280,33 @@ Originals are never changed.
 - **••• → Keep on Screen** keeps that Shelf visible. It is not auto-hidden, Esc does
   not hide it, and it stays open when empty. Closing the Shelf turns this off.
 
-## 13. Close the Shelf
+## 13. Search
+
+Click the magnifying glass or press **Command-F**. On a Shelf, the field filters
+items by file name. Select All, arrow keys, AirDrop All, and Zip All then act on
+the matching items only. In Recent Shelves, it matches Shelf names and file names.
+
+## 14. Add files from other apps
+
+- **Services**: right-click files in Finder and choose **Services → Add to DropShelf**.
+  Selected text or links in other apps use **Add Selection to DropShelf**. If the
+  entries don't appear, enable them in **System Settings → Keyboard → Keyboard
+  Shortcuts → Services**.
+- **Open With / Dock**: open files with DropShelf, or drop them on its Dock icon.
+- **Links**:
+
+| URL | Action |
+|---|---|
+| `dropshelf://open` | Show the current Shelf |
+| `dropshelf://new` | Open a new Shelf |
+| `dropshelf://history` | Show Recent Shelves |
+| `dropshelf://add?path=/path/to/file&path=…` | Add files to the current Shelf |
+
+  For example: `open "dropshelf://add?path=$HOME/Desktop/report.pdf"`
+- **Shortcuts**: **Add Files to DropShelf**, **Open DropShelf**, and
+  **New DropShelf Shelf** actions.
+
+## 15. Close the Shelf
 
 Click the close button in the upper-right corner.
 
