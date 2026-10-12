@@ -159,6 +159,31 @@ final class ConversionServiceTests: XCTestCase {
         XCTAssertNotEqual(codec, .proRes422)
     }
 
+    func testStillWebPConvertsToJPEGPNGAndPDFAndKeepsAlphaInPNG() async throws {
+        let sourceURL = testDirectory.appendingPathComponent("still.webp")
+        try Self.stillWebPWithAlpha.write(to: sourceURL)
+
+        let options = await ConversionService.shared.supportedOutputFormats(for: sourceURL)
+        XCTAssertEqual(Set(options.map(\.targetFormat)), [.jpeg, .png, .pdf])
+
+        let pngURL = try await ConversionService.shared.convert(
+            sourceURL,
+            to: .png,
+            destinationDirectory: testDirectory
+        )
+        let source = try XCTUnwrap(CGImageSourceCreateWithURL(pngURL as CFURL, nil))
+        let image = try XCTUnwrap(CGImageSourceCreateImageAtIndex(source, 0, nil))
+        XCTAssertFalse([.none, .noneSkipFirst, .noneSkipLast].contains(image.alphaInfo))
+    }
+
+    func testAnimatedWebPExposesNoConversionOptions() async throws {
+        let sourceURL = testDirectory.appendingPathComponent("animated.webp")
+        try Self.animatedWebP.write(to: sourceURL)
+
+        let options = await ConversionService.shared.supportedOutputFormats(for: sourceURL)
+        XCTAssertTrue(options.isEmpty)
+    }
+
     func testFakeVideoContainerExposesNoConversionOptions() async throws {
         let fakeVideo = testDirectory.appendingPathComponent("fake.mp4")
         try Data("not a video".utf8).write(to: fakeVideo)
@@ -469,9 +494,24 @@ final class ConversionServiceTests: XCTestCase {
         XCTAssertEqual(options.map(\.targetFormat), [.pdf])
     }
 
+    /// 16x16 lossless WEBP, top half semi-transparent (made with cwebp).
+    private static let stillWebPWithAlpha = Data(base64Encoded:
+        "UklGRiYAAABXRUJQVlA4TBoAAAAvD8ADEA8wTFM+mQMY8BALJvlLd04hov8ZJw=="
+    )!
+
+    /// Two-frame 16x16 animated WEBP (made with img2webp).
+    private static let animatedWebP = Data(base64Encoded:
+        "UklGRogAAABXRUJQVlA4WAoAAAASAAAADwAADwAAQU5JTQYAAAD/////AABBTk1GKgAAAAAAAAQAAA8AAAcAAGQAAAJWUDhMEQAAAC8PwAEQB1CmljezgIGI6H8AAEFOTUYqAAAAAAAABAAADwAABwAAZAAAAFZQOEwRAAAALw/AAQAH0KZqNLP/gYjofwAA"
+    )!
+
     private func makeImage(at url: URL, format: FileFormat, size: Int) throws {
         guard format.mediaKind == .image else {
             XCTFail("makeImage only accepts image formats")
+            return
+        }
+        // ImageIO has no WEBP encoder, so WEBP sources come from a fixture.
+        if format == .webp {
+            try Self.stillWebPWithAlpha.write(to: url)
             return
         }
 

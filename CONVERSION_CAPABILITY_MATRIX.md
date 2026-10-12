@@ -12,14 +12,19 @@ The MVP exposes only conversions backed by native macOS frameworks and verified 
 | JPEG | HEIC | SUPPORTED / Native | ImageIO | Medium: lossy recompression |
 | PNG | JPEG | SUPPORTED / Native | ImageIO, white alpha flattening | Medium: transparency is removed; lossy encode |
 | PNG | HEIC | PARTIALLY_SUPPORTED | ImageIO | Hidden in MVP because alpha/HDR behavior varies by encoder |
-| WEBP | JPEG/PNG/HEIC | PARTIALLY_SUPPORTED | Native decode varies; no native ImageIO WEBP encoder | Hidden until a reliable bundled codec is selected |
+| WEBP | JPEG | SUPPORTED / Native | ImageIO decode, white alpha flattening | Medium: lossy encode; transparency is removed |
+| WEBP | PNG | SUPPORTED / Native | ImageIO decode | Low: pixels and alpha kept; WEBP metadata may be omitted |
+| WEBP | PDF | SUPPORTED / Native | ImageIO decode + CoreGraphics PDF context | Low: one raster page; transparency uses a white page |
+| WEBP | HEIC | PARTIALLY_SUPPORTED | ImageIO | Hidden for the same alpha/HDR reason as PNG → HEIC |
+| Animated WEBP | any | UNSAFE | ImageIO could decode frames | Hidden because animation would be lost |
+| Any | WEBP | REQUIRES_LIBRARY | libwebp | ImageIO has no WEBP encoder |
 | GIF | JPEG/PNG | UNSAFE | ImageIO could decode frames | Hidden because animation would be lost |
 | PSD | JPEG/PNG | UNSAFE | ImageIO can flatten | Hidden because layers, masks, and editing structure would be lost |
 | MOV | MP4 | SUPPORTED / Native | AVFoundation passthrough export; HighestQuality re-encode when codecs (e.g. ProRes) do not fit MP4 | Low for passthrough; Medium when re-encoded (lossy, slower) |
 | MP4 | MOV | SUPPORTED / Native | AVFoundation passthrough export; HighestQuality re-encode as fallback | Low for passthrough; Medium when re-encoded (lossy, slower) |
 | PDF | PNG | SUPPORTED / Native | CoreGraphics + ImageIO, 144 DPI | Medium: one image per page; text, vectors, links, forms, and annotations become raster content |
 | PDF | JPEG | SUPPORTED / Native | CoreGraphics + ImageIO, 144 DPI | High: one lossy image per page; editable/interactive PDF structure is lost |
-| JPEG/PNG/HEIC | PDF | SUPPORTED / Native | CoreGraphics PDF context | Low: creates a one-page PDF containing raster content; transparency uses a white page |
+| JPEG/PNG/HEIC/WEBP | PDF | SUPPORTED / Native | CoreGraphics PDF context | Low: creates a one-page PDF containing raster content; transparency uses a white page |
 
 ## Long-term format assessment
 
@@ -48,7 +53,7 @@ The MVP exposes only conversions backed by native macOS frameworks and verified 
 ## Detection and safety rules
 
 - Image source format is detected from ImageIO content identifiers, not filename extension.
-- HEIC, HEIF, and HEICS containers use the primary image selected by ImageIO. Multi-frame JPEG/PNG remains hidden to avoid silently discarding animation.
+- HEIC, HEIF, and HEICS containers use the primary image selected by ImageIO. Multi-frame JPEG/PNG/WEBP remains hidden to avoid silently discarding animation.
 - MOV/MP4 is detected from ISO Base Media File Format `ftyp` brands and then validated for a real video track by AVFoundation.
 - MOV/MP4 options use `AVAssetExportSession.compatibility(ofExportPreset:with:outputFileType:)`: passthrough when the source codecs fit the target container, otherwise a HighestQuality re-encode with a re-encode warning. `supportedFileTypes` is not used because it lists MP4 for ProRes MOV even though passthrough then fails.
 - Every PDF page is rendered sequentially at 144 DPI. Multi-page PDFs produce one collision-safe image per page, and per-page autorelease pools keep peak memory bounded.

@@ -5,6 +5,7 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
     case jpeg
     case png
     case heic
+    case webp
     case mov
     case mp4
     case pdf
@@ -15,7 +16,7 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
         case document
     }
 
-    static let imageFormats: [FileFormat] = [.jpeg, .png, .heic]
+    static let imageFormats: [FileFormat] = [.jpeg, .png, .heic, .webp]
     static let videoFormats: [FileFormat] = [.mov, .mp4]
     static let documentFormats: [FileFormat] = [.pdf]
 
@@ -26,6 +27,7 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
         case .jpeg: return "JPEG"
         case .png: return "PNG"
         case .heic: return "HEIC"
+        case .webp: return "WEBP"
         case .mov: return "MOV"
         case .mp4: return "MP4"
         case .pdf: return "PDF"
@@ -37,6 +39,7 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
         case .jpeg: return "jpg"
         case .png: return "png"
         case .heic: return "heic"
+        case .webp: return "webp"
         case .mov: return "mov"
         case .mp4: return "mp4"
         case .pdf: return "pdf"
@@ -48,6 +51,7 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
         case .jpeg: return UTType.jpeg.identifier
         case .png: return UTType.png.identifier
         case .heic: return UTType.heic.identifier
+        case .webp: return UTType.webP.identifier
         case .mov: return UTType.quickTimeMovie.identifier
         case .mp4: return UTType.mpeg4Movie.identifier
         case .pdf: return UTType.pdf.identifier
@@ -56,7 +60,7 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
 
     var mediaKind: MediaKind {
         switch self {
-        case .jpeg, .png, .heic:
+        case .jpeg, .png, .heic, .webp:
             return .image
         case .mov, .mp4:
             return .video
@@ -71,6 +75,7 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
         if type.conforms(to: .jpeg) { return .jpeg }
         if type.conforms(to: .png) { return .png }
         if type.conforms(to: .pdf) { return .pdf }
+        if type.conforms(to: .webP) { return .webp }
         if identifier == UTType.heic.identifier
             || identifier == UTType.heif.identifier
             || identifier == "public.heics"
@@ -138,6 +143,18 @@ enum ConversionCapabilityMatrix {
             targetFormat: .jpeg,
             risk: .medium,
             warning: String(localized: "JPEG does not support transparency. Transparent pixels will be placed on a white background.")
+        ),
+        ConversionOption(
+            sourceFormat: .webp,
+            targetFormat: .jpeg,
+            risk: .medium,
+            warning: String(localized: "JPEG uses lossy compression and does not support transparency. Transparent pixels will be placed on a white background. Animated WEBP files are not converted.")
+        ),
+        ConversionOption(
+            sourceFormat: .webp,
+            targetFormat: .png,
+            risk: .low,
+            warning: String(localized: "Pixels and transparency are preserved, but WEBP metadata may not be copied. Animated WEBP files are not converted.")
         )
     ]
 
@@ -186,6 +203,12 @@ enum ConversionCapabilityMatrix {
             targetFormat: .pdf,
             risk: .medium,
             warning: String(localized: "The image will remain raster content inside a one-page PDF. HDR and HEIC metadata may be reduced; multi-image HEIF/HEICS uses only its primary image.")
+        ),
+        ConversionOption(
+            sourceFormat: .webp,
+            targetFormat: .pdf,
+            risk: .low,
+            warning: String(localized: "The image will remain raster content inside a one-page PDF. Transparent areas will appear on a white page.")
         )
     ]
 

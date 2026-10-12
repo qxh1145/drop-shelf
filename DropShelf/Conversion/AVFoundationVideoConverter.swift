@@ -286,7 +286,7 @@ private extension FileFormat {
         switch self {
         case .mov: return .mov
         case .mp4: return .mp4
-        case .jpeg, .png, .heic, .pdf: return nil
+        case .jpeg, .png, .heic, .webp, .pdf: return nil
         }
     }
 

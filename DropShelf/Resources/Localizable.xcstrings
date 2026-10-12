@@ -1096,6 +1096,16 @@
         }
       }
     },
+    "JPEG uses lossy compression and does not support transparency. Transparent pixels will be placed on a white background. Animated WEBP files are not converted.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JPEG nén có suy giảm chất lượng và không hỗ trợ độ trong suốt. Vùng trong suốt sẽ được đặt trên nền trắng. Không chuyển được file WEBP động."
+          }
+        }
+      }
+    },
     "JPEG does not support transparency. Transparent pixels will be placed on a white background.": {
       "localizations": {
         "vi": {
@@ -1502,6 +1512,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mục đã ghim không hết hạn và luôn mở được từ thanh menu."
+          }
+        }
+      }
+    },
+    "Pixels and transparency are preserved, but WEBP metadata may not be copied. Animated WEBP files are not converted.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Điểm ảnh và độ trong suốt được giữ nguyên, nhưng metadata của WEBP có thể không được sao chép. Không chuyển được file WEBP động."
           }
         }
       }
