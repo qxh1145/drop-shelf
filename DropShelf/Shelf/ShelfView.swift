@@ -59,6 +59,12 @@ struct ShelfView: View {
             }
         }
         .padding(1)
+        .onHover { isHovering in
+            // Catch files renamed, moved, or trashed while the Shelf was open.
+            if isHovering {
+                manager.refreshItemLocations()
+            }
+        }
         .scaleEffect(hasAppeared ? 1 : 0.98)
         .opacity(hasAppeared ? 1 : 0)
         .onAppear {
@@ -217,7 +223,7 @@ struct ShelfView: View {
             ShelfToolbarButton(
                 symbol: "xmark",
                 help: "Close and clear Shelf",
-                action: manager.clearAndCloseShelf
+                action: { manager.clearAndCloseShelf() }
             )
         }
         .frame(height: 28)
@@ -330,6 +336,7 @@ private struct ShelfItemCard: View {
                 item: item,
                 isSelected: isSelected,
                 isHovered: isHovered,
+                isMissing: manager.missingItemIDs.contains(item.id),
                 manager: manager
             )
 

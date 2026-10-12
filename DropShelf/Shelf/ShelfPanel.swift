@@ -89,8 +89,11 @@ final class ShelfPanel: NSPanel {
         case .keyDown:
             shelfManager?.shelfDidReceiveUserActivity()
             if handleKeyDown(event) { return }
-        case .leftMouseDown,
-             .leftMouseUp,
+        case .leftMouseDown:
+            shelfManager?.shelfDidReceiveUserActivity()
+            // Drags and menu actions must use where the files are now.
+            shelfManager?.refreshItemLocations(rechecksMissing: false)
+        case .leftMouseUp,
              .leftMouseDragged,
              .rightMouseDown,
              .rightMouseUp,
@@ -118,6 +121,20 @@ final class ShelfPanel: NSPanel {
         // While the search field is being edited, keys belong to it.
         if firstResponder is NSText {
             return false
+        }
+        // Keyboard actions must use where the files are now.
+        manager.refreshItemLocations(rechecksMissing: false)
+
+        if event.charactersIgnoringModifiers?.lowercased() == "z" {
+            let undoManager = ShelfManager.undoManager
+            if flags == .command, undoManager.canUndo {
+                undoManager.undo()
+                return true
+            }
+            if flags == [.command, .shift], undoManager.canRedo {
+                undoManager.redo()
+                return true
+            }
         }
 
         if flags == .command {

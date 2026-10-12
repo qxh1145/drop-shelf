@@ -233,6 +233,15 @@ struct SettingsView: View {
 
             )
             Divider()
+            SettingsToggleRow(
+                title: "Keep items after dragging out",
+                description: "Leave files on the Shelf after you drop them elsewhere, so you can drop them again. Dropping on another Shelf still moves them.",
+                isOn: Binding(
+                    get: { preferences.keepItemsAfterDragOut },
+                    set: { preferences.setKeepItemsAfterDragOut($0) }
+                )
+            )
+            Divider()
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Open Shelf")

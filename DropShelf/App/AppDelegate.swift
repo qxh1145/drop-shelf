@@ -33,6 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         for shelf in ShelfManager.shelves {
             shelf.prepareForTermination()
         }
+        ShelfManager.saveOpenShelves()
         ShakeDetector.shared.stop()
 
         historyHotKeyController?.invalidate()
@@ -98,6 +99,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func startApplicationServices() {
         guard !didStartApplicationServices else { return }
         didStartApplicationServices = true
+
+        ShelfManager.restoreOpenShelves()
 
         menuBarController = MenuBarController { [weak self] in
             self?.showSettings()

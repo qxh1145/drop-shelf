@@ -8,7 +8,11 @@ import UniformTypeIdentifiers
 final class ShelfManager: ObservableObject {
     static let shared = ShelfManager()
 
-    @Published private(set) var items: [ShelfItem] = []
+    @Published private(set) var items: [ShelfItem] = [] {
+        didSet { Self.setNeedsSaveOpenShelves() }
+    }
+    /// Items whose files were deleted or moved to the Trash.
+    @Published private(set) var missingItemIDs: Set<UUID> = []
     @Published private(set) var selectedItemIDs: Set<UUID> = []
     @Published private(set) var isCreatingArchive = false
     @Published private(set) var conversionStates: [UUID: ConversionState] = [:]
@@ -16,7 +20,9 @@ final class ShelfManager: ObservableObject {
         didSet { Self.shareHistory(historyEntries, from: self) }
     }
     @Published private(set) var isShowingHistory = false
-    @Published private(set) var currentShelfName: String?
+    @Published private(set) var currentShelfName: String? {
+        didSet { Self.setNeedsSaveOpenShelves() }
+    }
     @Published private(set) var isReceivingDrop = false
     @Published private(set) var pendingDropItemCount = 0
     /// Keeps this Shelf visible: no auto-hide, no Esc hide, no close-when-empty.
@@ -25,7 +31,12 @@ final class ShelfManager: ObservableObject {
     @Published private(set) var searchText = ""
 
     private var panel: ShelfPanel?
-    private var currentHistoryEntryID: UUID?
+    private var currentHistoryEntryID: UUID? {
+        didSet { Self.setNeedsSaveOpenShelves() }
+    }
+    /// The history entry the last close saved, adopted when an undo brings
+    /// that session back so closing again doesn't file it twice.
+    private var lastClosedHistoryEntryID: UUID?
     private var itemURLs: Set<URL> = []
     private var sessionURLs: [URL] = []
     private var sessionURLSet: Set<URL> = []
@@ -135,6 +146,171 @@ final class ShelfManager: ObservableObject {
         }
     }
 
+    // MARK: - Open Shelves across launches
+
+    /// nil until the saved Shelves are read back, so nothing overwrites them first.
+    private static var openShelvesStore: OpenShelvesStore?
+    private static var isOpenShelvesSaveScheduled = false
+
+    var openShelfState: OpenShelfState? {
+        items.isEmpty
+            ? nil
+            : OpenShelfState(
+                name: currentShelfName,
+                historyEntryID: currentHistoryEntryID,
+                items: items,
+                sessionURLs: sessionURLs
+            )
+    }
+
+    /// Brings back the Shelves that had items at the last quit or crash,
+    /// hidden until shown.
+    static func restoreOpenShelves(from store: OpenShelvesStore = OpenShelvesStore()) {
+        for state in store.load() {
+            let shelf = shelves.first { $0.items.isEmpty && !$0.isShelfVisible } ?? makeShelf()
+            shelf.restoreOpenState(state)
+        }
+        openShelvesStore = store
+        saveOpenShelves()
+    }
+
+    /// Fills an empty Shelf from `state`, following moved files and leaving
+    /// out the ones that are gone.
+    func restoreOpenState(_ state: OpenShelfState) {
+        var restored: [ShelfItem] = []
+        var movedURLs: [URL: URL] = [:]
+        for item in state.items {
+            let (current, isMissing) = item.located()
+            guard !isMissing else { continue }
+            restored.append(current)
+            movedURLs[item.url] = current.url
+        }
+        guard items.isEmpty, !restored.isEmpty else { return }
+        currentShelfName = state.name
+        currentHistoryEntryID = state.historyEntryID
+        items = restored
+        itemURLs = Set(restored.map(\.url))
+        // Files dragged out earlier stay in the session, so its history
+        // entry keeps them.
+        sessionURLs = state.sessionURLs.map { movedURLs[$0] ?? $0 }
+        sessionURLSet = Set(sessionURLs)
+        for url in restored.map(\.url) where sessionURLSet.insert(url).inserted {
+            sessionURLs.append(url)
+        }
+    }
+
+    static func saveOpenShelves() {
+        guard let openShelvesStore else { return }
+        // The active Shelf first: it is restored into the main Shelf.
+        let ordered = [active] + shelves.filter { $0 !== active }
+        openShelvesStore.save(ordered.compactMap(\.openShelfState))
+    }
+
+    /// Coalesces the several changes one action makes into a single save.
+    private static func setNeedsSaveOpenShelves() {
+        guard openShelvesStore != nil, !isOpenShelvesSaveScheduled else { return }
+        isOpenShelvesSaveScheduled = true
+        DispatchQueue.main.async {
+            isOpenShelvesSaveScheduled = false
+            saveOpenShelves()
+        }
+    }
+
+    // MARK: - Undo
+
+    /// One stack for every Shelf, so Command-Z in any Shelf, or the menu bar,
+    /// can bring back one that was closed.
+    static let undoManager: UndoManager = {
+        let undoManager = UndoManager()
+        undoManager.groupsByEvent = false
+        return undoManager
+    }()
+
+    /// What a removal or close took off the Shelf, and the session it
+    /// belonged to in case the Shelf closed along with it.
+    private struct RemovalRecord {
+        let removed: [(offset: Int, item: ShelfItem)]
+        let sessionURLs: [URL]
+        let historyEntryID: UUID?
+        let name: String?
+        let closedShelf: Bool
+    }
+
+    private func registerUndoAction(named actionName: String, _ handler: @escaping (ShelfManager) -> Void) {
+        let undoManager = Self.undoManager
+        // Undo and redo group what they register themselves.
+        let needsGroup = !undoManager.isUndoing && !undoManager.isRedoing
+        if needsGroup { undoManager.beginUndoGrouping() }
+        undoManager.registerUndo(withTarget: self, handler: handler)
+        undoManager.setActionName(actionName)
+        if needsGroup { undoManager.endUndoGrouping() }
+    }
+
+    /// Makes taking `ids` off the Shelf undoable. Undo puts back only those
+    /// items, so files added since stay.
+    private func registerRemovalUndo(of ids: Set<UUID>, closingShelf: Bool, named actionName: String) {
+        let record = RemovalRecord(
+            removed: items.enumerated()
+                .filter { ids.contains($0.element.id) }
+                .map { (offset: $0.offset, item: $0.element) },
+            sessionURLs: sessionURLs,
+            historyEntryID: currentHistoryEntryID,
+            name: currentShelfName,
+            closedShelf: closingShelf
+        )
+        registerUndoAction(named: actionName) { shelf in
+            shelf.undoRemoval(record, named: actionName)
+        }
+    }
+
+    private func undoRemoval(_ record: RemovalRecord, named actionName: String) {
+        if sessionURLs.isEmpty {
+            // The removal closed the Shelf; reopen that session. A new
+            // session would have cleared this undo.
+            sessionURLs = record.sessionURLs
+            sessionURLSet = Set(record.sessionURLs)
+            let entryID = record.historyEntryID ?? lastClosedHistoryEntryID
+            let isOpenElsewhere = Self.shelves.contains {
+                $0 !== self && $0.currentHistoryEntryID == entryID
+            }
+            currentHistoryEntryID = isOpenElsewhere ? nil : entryID
+            currentShelfName = record.name
+        }
+
+        var restoredItems = items
+        var restoredIDs: Set<UUID> = []
+        for (offset, item) in record.removed where !itemURLs.contains(item.url) {
+            restoredItems.insert(item, at: min(offset, restoredItems.count))
+            itemURLs.insert(item.url)
+            if sessionURLSet.insert(item.url).inserted {
+                sessionURLs.append(item.url)
+            }
+            restoredIDs.insert(item.id)
+        }
+        items = restoredItems
+
+        registerUndoAction(named: actionName) { shelf in
+            if record.closedShelf {
+                shelf.clearAndCloseShelf()
+            } else {
+                shelf.removeItems(ids: restoredIDs, undoActionName: actionName)
+            }
+        }
+
+        // Like Finder, select what came back, unless the search hides it.
+        selectedItemIDs = restoredIDs.intersection(visibleItems.map(\.id))
+        isShowingHistory = false
+        markActive()
+        refreshItemLocations()
+        synchronizeCurrentHistoryEntryIfNeeded()
+        if isShelfVisible {
+            updatePanelLayout(animated: true)
+            scheduleAutoHideIfNeeded()
+        } else if !items.isEmpty {
+            showShelf(near: Self.activationPoint)
+        }
+    }
+
     var isShelfVisible: Bool {
         panel?.isVisible == true
     }
@@ -157,7 +333,7 @@ final class ShelfManager: ObservableObject {
     }
 
     var bulkActionItemCount: Int {
-        selectedItemIDs.count > 1 ? selectedItemIDs.count : visibleItems.count
+        bulkActionItems.count
     }
 
     // MARK: - Search
@@ -215,6 +391,7 @@ final class ShelfManager: ObservableObject {
 
     func showShelf(near point: CGPoint) {
         isShowingHistory = false
+        refreshItemLocations()
 
         if panel == nil {
             panel = ShelfPanel(manager: self)
@@ -366,12 +543,24 @@ final class ShelfManager: ObservableObject {
         scheduleAutoHideIfNeeded()
     }
 
-    func clearAndCloseShelf() {
+    func clearAndCloseShelf(registersUndo: Bool = true) {
         cancelAutoHide()
         saveCurrentSessionToHistory()
+        if registersUndo, !items.isEmpty {
+            // After saving, so undo brings back the history entry it made.
+            registerRemovalUndo(
+                of: Set(items.map(\.id)),
+                closingShelf: true,
+                named: String(localized: "Close Shelf")
+            )
+        }
+        if !sessionURLs.isEmpty {
+            lastClosedHistoryEntryID = currentHistoryEntryID
+        }
         cancelAllConversions()
         ShelfIconCache.shared.remove(urls: Array(itemURLs))
         items.removeAll(keepingCapacity: false)
+        missingItemIDs.removeAll(keepingCapacity: false)
         selectedItemIDs.removeAll(keepingCapacity: false)
         itemURLs.removeAll(keepingCapacity: false)
         sessionURLs.removeAll(keepingCapacity: false)
@@ -395,16 +584,31 @@ final class ShelfManager: ObservableObject {
     }
 
     func removeItem(id: UUID) {
-        guard let index = items.firstIndex(where: { $0.id == id }) else { return }
+        removeItems(ids: [id], undoActionName: String(localized: "Remove from Shelf"))
+    }
 
-        cancelConversion(for: id)
-        let removedURL = items[index].url
-        items.remove(at: index)
-        if selectedItemIDs.contains(id) {
-            selectedItemIDs.remove(id)
+    /// Removes items from the Shelf, never from disk. `undoActionName` nil
+    /// leaves the removal out of undo.
+    private func removeItems(ids: Set<UUID>, undoActionName: String?) {
+        let removedURLs = items.filter { ids.contains($0.id) }.map(\.url)
+        guard !removedURLs.isEmpty else { return }
+
+        if let undoActionName {
+            registerRemovalUndo(of: ids, closingShelf: false, named: undoActionName)
         }
-        itemURLs.remove(removedURL)
-        ShelfIconCache.shared.remove(urls: [removedURL])
+        for id in ids {
+            cancelConversion(for: id)
+        }
+        items.removeAll { ids.contains($0.id) }
+        let newSelection = selectedItemIDs.subtracting(ids)
+        if newSelection != selectedItemIDs {
+            selectedItemIDs = newSelection
+        }
+        if !missingItemIDs.isDisjoint(with: ids) {
+            missingItemIDs.subtract(ids)
+        }
+        itemURLs.subtract(removedURLs)
+        ShelfIconCache.shared.remove(urls: removedURLs)
 
         if closeShelfIfNeeded() {
             return
@@ -414,6 +618,7 @@ final class ShelfManager: ObservableObject {
     }
 
     func add(urls: [URL]) {
+        let startsSession = sessionURLs.isEmpty
         var additions: [ShelfItem] = []
         additions.reserveCapacity(urls.count)
 
@@ -431,6 +636,11 @@ final class ShelfManager: ObservableObject {
         }
 
         guard !additions.isEmpty else { return }
+        if startsSession {
+            // Undo stays within one session; earlier ones are in Recent Shelves.
+            Self.undoManager.removeAllActions(withTarget: self)
+            lastClosedHistoryEntryID = nil
+        }
         markActive()
         items.append(contentsOf: additions)
         announce(String(localized: "Added \(additions.count) items to the Shelf"))
@@ -486,44 +696,86 @@ final class ShelfManager: ObservableObject {
             selectItem(id, extendingSelection: extendingSelection)
         }
 
-        return items.filter { selectedItemIDs.contains($0.id) }
+        return items.filter { selectedItemIDs.contains($0.id) && !missingItemIDs.contains($0.id) }
     }
 
-    func outboundDragDidSucceed(itemIDs: Set<UUID>) {
-        guard !itemIDs.isEmpty else { return }
+    /// Items dropped on another Shelf always move there. Elsewhere they stay
+    /// when the user keeps items after dragging out.
+    func outboundDragDidSucceed(itemIDs: Set<UUID>, movedToShelf: Bool = false) {
+        if movedToShelf {
+            // Not undoable: the items are still in view on the other Shelf.
+            removeItems(ids: itemIDs, undoActionName: nil)
+        } else if !preferences.keepItemsAfterDragOut {
+            removeItems(ids: itemIDs, undoActionName: String(localized: "Drag Out"))
+        }
+    }
 
-        for id in itemIDs {
+    /// Follows files renamed or moved since they were added, and marks the
+    /// ones deleted or moved to the Trash. `rechecksMissing` false, for
+    /// every click and key, only catches Put Back for missing items.
+    func refreshItemLocations(rechecksMissing: Bool = true) {
+        var moved: [UUID: ShelfItem] = [:]
+        var missing: Set<UUID> = []
+        for item in items {
+            let (current, isMissing) = item.located(
+                resolvingBookmark: rechecksMissing || !missingItemIDs.contains(item.id)
+            )
+            if current != item {
+                moved[item.id] = current
+            }
+            if isMissing {
+                missing.insert(item.id)
+            }
+        }
+        replaceItems(moved)
+        if missing != missingItemIDs {
+            missingItemIDs = missing
+        }
+    }
+
+    /// Swaps in items whose files moved, keeping lookups and history in step.
+    private func replaceItems(_ replacements: [UUID: ShelfItem]) {
+        guard !replacements.isEmpty else { return }
+        var movedURLs: [URL: URL] = [:]
+        var seenURLs: Set<URL> = []
+        var droppedIDs: Set<UUID> = []
+        items = items
+            .map { item in
+                guard let replacement = replacements[item.id] else { return item }
+                movedURLs[item.url] = replacement.url
+                return replacement
+            }
+            // A file followed to where another item already points shows once.
+            .filter { item in
+                guard seenURLs.insert(item.url).inserted else {
+                    droppedIDs.insert(item.id)
+                    return false
+                }
+                return true
+            }
+        itemURLs = seenURLs
+        for id in droppedIDs {
             cancelConversion(for: id)
         }
-
-        let removedURLs = items.lazy
-            .filter { itemIDs.contains($0.id) }
-            .map(\.url)
-        let removedURLArray = Array(removedURLs)
-
-        items.removeAll { itemIDs.contains($0.id) }
-        let newSelection = selectedItemIDs.subtracting(itemIDs)
-        if newSelection != selectedItemIDs {
-            selectedItemIDs = newSelection
+        if !droppedIDs.isEmpty {
+            selectedItemIDs.subtract(droppedIDs)
+            missingItemIDs.subtract(droppedIDs)
         }
-        itemURLs.subtract(removedURLArray)
-        ShelfIconCache.shared.remove(urls: removedURLArray)
-
-        if closeShelfIfNeeded() {
-            return
-        }
-        updatePanelLayout(animated: true)
-        scheduleAutoHideIfNeeded()
+        sessionURLs = sessionURLs.map { movedURLs[$0] ?? $0 }
+        sessionURLSet = Set(sessionURLs)
+        ShelfIconCache.shared.remove(urls: Array(movedURLs.keys))
+        synchronizeCurrentHistoryEntryIfNeeded()
     }
 
     // MARK: - Item actions
 
     /// The selection when `id` is part of it, otherwise just that item.
+    /// Missing files are left out.
     func actionItems(for id: UUID? = nil) -> [ShelfItem] {
         if let id, !selectedItemIDs.contains(id) {
-            return items.filter { $0.id == id }
+            return items.filter { $0.id == id && !missingItemIDs.contains($0.id) }
         }
-        return items.filter { selectedItemIDs.contains($0.id) }
+        return items.filter { selectedItemIDs.contains($0.id) && !missingItemIDs.contains($0.id) }
     }
 
     func openItems(for id: UUID? = nil) {
@@ -557,9 +809,7 @@ final class ShelfManager: ObservableObject {
     }
 
     func removeSelectedItems() {
-        for id in selectedItemIDs {
-            removeItem(id: id)
-        }
+        removeItems(ids: selectedItemIDs, undoActionName: String(localized: "Remove from Shelf"))
     }
 
     func selectAllItems() {
@@ -595,7 +845,8 @@ final class ShelfManager: ObservableObject {
         }
 
         var urls = actionItems(for: id).map(\.url)
-        if urls.isEmpty, let first = items.first {
+        if urls.isEmpty, id == nil, selectedItemIDs.isEmpty,
+           let first = items.first(where: { !missingItemIDs.contains($0.id) }) {
             urls = [first.url]
         }
         guard !urls.isEmpty else { return }
@@ -757,15 +1008,9 @@ final class ShelfManager: ObservableObject {
         }
 
         let renamedURLs = Dictionary(uniqueKeysWithValues: completed.map { ($0.from, $0.to) })
-        guard !renamedURLs.isEmpty else { return nil }
-        items = items.map { item in
-            renamedURLs[item.url].map { ShelfItem(id: item.id, url: $0) } ?? item
-        }
-        itemURLs = Set(items.map(\.url))
-        sessionURLs = sessionURLs.map { renamedURLs[$0] ?? $0 }
-        sessionURLSet = Set(sessionURLs)
-        ShelfIconCache.shared.remove(urls: Array(renamedURLs.keys))
-        synchronizeCurrentHistoryEntryIfNeeded()
+        replaceItems(Dictionary(uniqueKeysWithValues: targets.compactMap { item in
+            renamedURLs[item.url].map { (item.id, ShelfItem(id: item.id, url: $0)) }
+        }))
         return nil
     }
 
@@ -987,8 +1232,10 @@ final class ShelfManager: ObservableObject {
     }
 
     private var bulkActionItems: [ShelfItem] {
-        guard usesSelectionForBulkActions else { return visibleItems }
-        return items.filter { selectedItemIDs.contains($0.id) }
+        let candidates = usesSelectionForBulkActions
+            ? items.filter { selectedItemIDs.contains($0.id) }
+            : visibleItems
+        return candidates.filter { !missingItemIDs.contains($0.id) }
     }
 
     private func updatePanelLayout(animated: Bool) {
@@ -1058,7 +1305,8 @@ final class ShelfManager: ObservableObject {
             return false
         }
 
-        clearAndCloseShelf()
+        // The removal that emptied the Shelf already registered its undo.
+        clearAndCloseShelf(registersUndo: false)
         return true
     }
 
@@ -1149,10 +1397,10 @@ final class ShelfManager: ObservableObject {
             return
         }
 
-        if let currentHistoryEntryID,
-           let entry = historyEntries.first(where: { $0.id == currentHistoryEntryID }) {
+        let entryID = currentHistoryEntryID ?? UUID()
+        if let entry = historyEntries.first(where: { $0.id == entryID }) {
             historyEntries = historyStore.updatingSnapshot(
-                entryID: currentHistoryEntryID,
+                entryID: entryID,
                 urls: sessionURLs,
                 name: currentShelfName,
                 isPinned: entry.isPinned,
@@ -1162,9 +1410,13 @@ final class ShelfManager: ObservableObject {
             historyEntries = historyStore.addingSnapshot(
                 urls: sessionURLs,
                 name: currentShelfName,
+                entryID: entryID,
                 to: historyEntries
             )
         }
+        // Saving this session again, after an undo or a relaunch, updates
+        // the same entry instead of adding a duplicate.
+        currentHistoryEntryID = historyEntries.contains { $0.id == entryID } ? entryID : nil
     }
 
     private func synchronizeCurrentHistoryEntryIfNeeded() {

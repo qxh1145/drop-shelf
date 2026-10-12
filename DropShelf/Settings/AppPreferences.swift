@@ -84,6 +84,7 @@ final class AppPreferences: ObservableObject {
         static let snapToScreenEdges = "DropShelf.snapToScreenEdges"
         static let lastShelfCenter = "DropShelf.lastShelfCenter"
         static let checkForUpdatesAutomatically = "DropShelf.checkForUpdatesAutomatically"
+        static let keepItemsAfterDragOut = "DropShelf.keepItemsAfterDragOut"
     }
 
     @Published private(set) var shakeSensitivity: Double
@@ -95,6 +96,7 @@ final class AppPreferences: ObservableObject {
     @Published private(set) var automaticallyHideAfterTenSeconds: Bool
     @Published private(set) var shelfPlacement: ShelfPlacement
     @Published private(set) var snapToScreenEdges: Bool
+    @Published private(set) var keepItemsAfterDragOut: Bool
     @Published private(set) var checkForUpdatesAutomatically: Bool
     @Published private(set) var loginItemStatus: SMAppService.Status
     @Published private(set) var loginItemError: String?
@@ -157,6 +159,7 @@ final class AppPreferences: ObservableObject {
         snapToScreenEdges = defaults.object(forKey: Keys.snapToScreenEdges) == nil
             ? true
             : defaults.bool(forKey: Keys.snapToScreenEdges)
+        keepItemsAfterDragOut = defaults.bool(forKey: Keys.keepItemsAfterDragOut)
 
         checkForUpdatesAutomatically = defaults.object(forKey: Keys.checkForUpdatesAutomatically) == nil
             ? true
@@ -195,6 +198,12 @@ final class AppPreferences: ObservableObject {
         guard enabled != snapToScreenEdges else { return }
         snapToScreenEdges = enabled
         defaults.set(enabled, forKey: Keys.snapToScreenEdges)
+    }
+
+    func setKeepItemsAfterDragOut(_ enabled: Bool) {
+        guard enabled != keepItemsAfterDragOut else { return }
+        keepItemsAfterDragOut = enabled
+        defaults.set(enabled, forKey: Keys.keepItemsAfterDragOut)
     }
 
     var launchAtLoginEnabled: Bool {

@@ -428,6 +428,16 @@
         }
       }
     },
+    "Close Shelf": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đóng Kệ"
+          }
+        }
+      }
+    },
     "Close the Shelf after its final item is removed or dragged out.": {
       "localizations": {
         "vi": {
@@ -724,6 +734,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kéo qua trái và phải"
+          }
+        }
+      }
+    },
+    "Drag Out": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kéo ra"
           }
         }
       }
@@ -1136,6 +1156,16 @@
         }
       }
     },
+    "Keep items after dragging out": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giữ mục sau khi kéo ra"
+          }
+        }
+      }
+    },
     "Keep on Screen": {
       "localizations": {
         "vi": {
@@ -1176,12 +1206,32 @@
         }
       }
     },
+    "Leave files on the Shelf after you drop them elsewhere, so you can drop them again. Dropping on another Shelf still moves them.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giữ tệp trên Kệ sau khi thả chúng ra chỗ khác để có thể thả tiếp. Thả vào Kệ khác thì vẫn chuyển sang Kệ đó."
+          }
+        }
+      }
+    },
     "Low": {
       "localizations": {
         "vi": {
           "stringUnit": {
             "state": "translated",
             "value": "Thấp"
+          }
+        }
+      }
+    },
+    "Missing": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không tìm thấy"
           }
         }
       }
@@ -2662,6 +2712,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "“%@” đã có trong thư mục đó."
+          }
+        }
+      }
+    },
+    "“%@” was deleted or moved to the Trash.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” đã bị xóa hoặc chuyển vào Thùng rác."
           }
         }
       }

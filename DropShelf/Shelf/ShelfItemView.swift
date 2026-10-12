@@ -135,6 +135,7 @@ struct ShelfItemView: View {
     let item: ShelfItem
     let isSelected: Bool
     let isHovered: Bool
+    let isMissing: Bool
     let manager: ShelfManager
 
     private let icon: NSImage
@@ -143,11 +144,13 @@ struct ShelfItemView: View {
         item: ShelfItem,
         isSelected: Bool,
         isHovered: Bool = false,
+        isMissing: Bool = false,
         manager: ShelfManager
     ) {
         self.item = item
         self.isSelected = isSelected
         self.isHovered = isHovered
+        self.isMissing = isMissing
         self.manager = manager
         self.icon = ShelfIconCache.shared.image(for: item.url)
     }
@@ -158,7 +161,8 @@ struct ShelfItemView: View {
                 item: item,
                 icon: icon,
                 isSelected: isSelected,
-                isHovered: isHovered
+                isHovered: isHovered,
+                isMissing: isMissing
             )
                 .allowsHitTesting(false)
 
@@ -168,7 +172,9 @@ struct ShelfItemView: View {
         // One VoiceOver element per item; the drag overlay is mouse-only.
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(item.url.lastPathComponent)
-        .accessibilityValue(Self.accessibilityValue(for: item.url, isSelected: isSelected))
+        .accessibilityValue(
+            Self.accessibilityValue(for: item.url, isSelected: isSelected, isMissing: isMissing)
+        )
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
         .accessibilityAction {
             manager.selectItem(item.id, extendingSelection: false)
@@ -191,10 +197,13 @@ struct ShelfItemView: View {
     }
 
     /// "Selected, PDF document": selection state plus the file's kind.
-    static func accessibilityValue(for url: URL, isSelected: Bool) -> String {
+    static func accessibilityValue(for url: URL, isSelected: Bool, isMissing: Bool = false) -> String {
         let kind = (try? url.resourceValues(forKeys: [.localizedTypeDescriptionKey]))?
             .localizedTypeDescription
-        let parts = [isSelected ? String(localized: "Selected") : nil, kind].compactMap { $0 }
+        let parts = [
+            isSelected ? String(localized: "Selected") : nil,
+            isMissing ? String(localized: "Missing") : kind
+        ].compactMap { $0 }
         return parts.joined(separator: ", ")
     }
 }
@@ -204,6 +213,7 @@ private struct ShelfItemLabel: View {
     let icon: NSImage
     let isSelected: Bool
     let isHovered: Bool
+    let isMissing: Bool
 
     var body: some View {
         VStack(spacing: 8) {
@@ -212,13 +222,26 @@ private struct ShelfItemLabel: View {
                 .interpolation(.high)
                 .scaledToFit()
                 .frame(width: 52, height: 52)
+                .opacity(isMissing ? 0.35 : 1)
+                .overlay(alignment: .bottomTrailing) {
+                    if isMissing {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 15))
+                            .symbolRenderingMode(.multicolor)
+                    }
+                }
 
             Text(item.url.lastPathComponent)
                 .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(isMissing ? .secondary : .primary)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
-                .help(item.url.lastPathComponent)
+                .help(
+                    isMissing
+                        ? String(localized: "“\(item.url.lastPathComponent)” was deleted or moved to the Trash.")
+                        : item.url.lastPathComponent
+                )
         }
         .padding(.horizontal, 7)
         .padding(.vertical, 9)
@@ -276,6 +299,8 @@ final class DraggableShelfItemView: NSView, NSDraggingSource {
     private var suppressClickSelection = false
     private var extendsSelectionOnClick = false
     private var draggedItemIDs: Set<UUID> = []
+    /// Set by the receiving Shelf: items dropped on a Shelf always move.
+    var wasDroppedOnShelf = false
 
     init(item: ShelfItem, manager: ShelfManager) {
         self.item = item
@@ -397,9 +422,10 @@ final class DraggableShelfItemView: NSView, NSDraggingSource {
             draggedItemIDs.removeAll(keepingCapacity: false)
             dragStarted = false
             extendsSelectionOnClick = false
+            wasDroppedOnShelf = false
         }
 
         guard !operation.isEmpty else { return }
-        manager?.outboundDragDidSucceed(itemIDs: draggedItemIDs)
+        manager?.outboundDragDidSucceed(itemIDs: draggedItemIDs, movedToShelf: wasDroppedOnShelf)
     }
 }

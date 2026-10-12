@@ -359,4 +359,214 @@ final class ShelfImportAndHistoryTests: XCTestCase {
         XCTAssertEqual(groups.first?.entries.first?.isPinned, true)
         XCTAssertTrue(ShelfHistoryPresentation.groups(for: [], relativeTo: now).isEmpty)
     }
+
+    // MARK: - Keep after drag, undo, moved files, open Shelves across launches
+
+    @MainActor
+    func testItemFollowsFileMovedWhileOnShelf() throws {
+        let original = directory.appendingPathComponent("Draft.txt")
+        try Data("x".utf8).write(to: original)
+        let manager = makeManager(defaults: makeDefaults())
+        manager.add(urls: [original])
+
+        let folder = directory.appendingPathComponent("Moved")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let moved = folder.appendingPathComponent("Final.txt")
+        try FileManager.default.moveItem(at: original, to: moved)
+        manager.refreshItemLocations()
+
+        XCTAssertEqual(manager.items.map(\.url), [moved.standardizedFileURL])
+        XCTAssertTrue(manager.missingItemIDs.isEmpty)
+        XCTAssertEqual(manager.actionItems(for: manager.items[0].id).count, 1)
+    }
+
+    @MainActor
+    func testTrashedOrDeletedItemsAreMarkedMissing() throws {
+        let trashed = directory.appendingPathComponent("trashed.txt")
+        let deleted = directory.appendingPathComponent("deleted.txt")
+        try Data("1".utf8).write(to: trashed)
+        try Data("2".utf8).write(to: deleted)
+        let manager = makeManager(defaults: makeDefaults())
+        manager.add(urls: [trashed, deleted])
+
+        // Same path shape as ~/.Trash, without touching the real Trash.
+        let trash = directory.appendingPathComponent(".Trash")
+        try FileManager.default.createDirectory(at: trash, withIntermediateDirectories: true)
+        try FileManager.default.moveItem(at: trashed, to: trash.appendingPathComponent("trashed.txt"))
+        try FileManager.default.removeItem(at: deleted)
+        manager.refreshItemLocations()
+
+        let ids = manager.items.map(\.id)
+        XCTAssertEqual(manager.missingItemIDs, Set(ids))
+        XCTAssertEqual(manager.items[0].url, trashed.standardizedFileURL, "Keeps the spot Put Back restores")
+        XCTAssertTrue(manager.actionItems(for: ids[0]).isEmpty)
+        XCTAssertTrue(manager.itemsForDrag(startingWith: ids[0]).isEmpty)
+
+        // Dragged out of the Trash somewhere new: found again on a full check.
+        let rescued = directory.appendingPathComponent("rescued.txt")
+        try FileManager.default.moveItem(at: trash.appendingPathComponent("trashed.txt"), to: rescued)
+        manager.refreshItemLocations(rechecksMissing: false)
+        XCTAssertTrue(manager.missingItemIDs.contains(ids[0]))
+        manager.refreshItemLocations()
+        XCTAssertEqual(manager.items[0].url, rescued.standardizedFileURL)
+        XCTAssertEqual(manager.missingItemIDs, [ids[1]])
+    }
+
+    @MainActor
+    func testItemsStayAfterDragOutOnlyWhenKept() throws {
+        let file = directory.appendingPathComponent("a.txt")
+        try Data().write(to: file)
+        let defaults = makeDefaults()
+        let manager = makeManager(defaults: defaults)
+        manager.add(urls: [file])
+        let ids = Set(manager.items.map(\.id))
+
+        AppPreferences(defaults: defaults).setKeepItemsAfterDragOut(true)
+        let keeping = makeManager(defaults: defaults)
+        keeping.add(urls: [file])
+        keeping.outboundDragDidSucceed(itemIDs: Set(keeping.items.map(\.id)))
+        XCTAssertEqual(keeping.items.count, 1)
+        keeping.outboundDragDidSucceed(itemIDs: Set(keeping.items.map(\.id)), movedToShelf: true)
+        XCTAssertTrue(keeping.items.isEmpty, "A drop on another Shelf still moves")
+
+        manager.outboundDragDidSucceed(itemIDs: ids)
+        XCTAssertTrue(manager.items.isEmpty)
+    }
+
+    @MainActor
+    func testUndoAndRedoRemoval() throws {
+        let urls = try ["1.txt", "2.txt", "3.txt"].map { name -> URL in
+            let url = directory.appendingPathComponent(name)
+            try Data().write(to: url)
+            return url.standardizedFileURL
+        }
+        let manager = makeManager(defaults: makeDefaults())
+        manager.add(urls: urls)
+        let removedIDs = Set([manager.items[0].id, manager.items[2].id])
+        manager.selectItem(manager.items[0].id, extendingSelection: false)
+        manager.selectItem(manager.items[2].id, extendingSelection: true)
+
+        manager.removeSelectedItems()
+        XCTAssertEqual(manager.items.map(\.url), [urls[1]])
+
+        ShelfManager.undoManager.undo()
+        XCTAssertEqual(manager.items.map(\.url), urls, "Order is kept")
+        XCTAssertEqual(manager.selectedItemIDs, removedIDs)
+
+        ShelfManager.undoManager.redo()
+        XCTAssertEqual(manager.items.map(\.url), [urls[1]])
+        manager.clearAndCloseShelf(registersUndo: false)
+    }
+
+    @MainActor
+    func testUndoRemovalKeepsItemsAddedSince() throws {
+        let urls = try ["x.txt", "y.txt", "z.txt"].map { name -> URL in
+            let url = directory.appendingPathComponent(name)
+            try Data().write(to: url)
+            return url.standardizedFileURL
+        }
+        let manager = makeManager(defaults: makeDefaults())
+        manager.add(urls: [urls[0], urls[1]])
+        manager.removeItem(id: manager.items[0].id)
+        manager.add(urls: [urls[2]])
+
+        ShelfManager.undoManager.undo()
+
+        XCTAssertEqual(manager.items.map(\.url), urls)
+        manager.clearAndCloseShelf(registersUndo: false)
+    }
+
+    @MainActor
+    func testUndoCloseRestoresShelfWithoutDuplicatingHistory() throws {
+        let file = directory.appendingPathComponent("report.pdf")
+        try Data().write(to: file)
+        let manager = makeManager(defaults: makeDefaults())
+        manager.add(urls: [file])
+        manager.setCurrentShelfName("Work")
+
+        manager.clearAndCloseShelf()
+        XCTAssertTrue(manager.items.isEmpty)
+        ShelfManager.undoManager.undo()
+        XCTAssertEqual(manager.items.map(\.url), [file.standardizedFileURL])
+        XCTAssertEqual(manager.currentShelfName, "Work")
+        XCTAssertTrue(manager.isShelfVisible)
+
+        // Emptying the Shelf closes it; one undo brings the item back.
+        manager.removeItem(id: manager.items[0].id)
+        XCTAssertFalse(manager.isShelfVisible)
+        ShelfManager.undoManager.undo()
+        XCTAssertEqual(manager.items.count, 1)
+
+        manager.clearAndCloseShelf()
+        XCTAssertEqual(manager.historyEntries.count, 1)
+        XCTAssertEqual(manager.historyEntries.first?.name, "Work")
+    }
+
+    @MainActor
+    func testUndoingRemovalThatClosedShelfKeepsOneHistoryEntry() throws {
+        let file = directory.appendingPathComponent("only.txt")
+        try Data().write(to: file)
+        let manager = makeManager(defaults: makeDefaults())
+        manager.add(urls: [file])
+
+        // Closes the Shelf, filing it in history, before anything else did.
+        manager.removeItem(id: manager.items[0].id)
+        XCTAssertEqual(manager.historyEntries.count, 1)
+        ShelfManager.undoManager.undo()
+        XCTAssertEqual(manager.items.count, 1)
+
+        manager.clearAndCloseShelf(registersUndo: false)
+        XCTAssertEqual(manager.historyEntries.count, 1)
+    }
+
+    @MainActor
+    func testOpenShelvesComeBackAfterRelaunch() throws {
+        let kept = directory.appendingPathComponent("kept.txt")
+        let gone = directory.appendingPathComponent("gone.txt")
+        let draggedOut = directory.appendingPathComponent("dragged out.txt")
+        for url in [kept, gone, draggedOut] {
+            try Data().write(to: url)
+        }
+        let defaults = makeDefaults()
+        let store = OpenShelvesStore(defaults: defaults)
+        let before = makeManager(defaults: defaults)
+        before.add(urls: [kept, gone, draggedOut])
+        before.outboundDragDidSucceed(itemIDs: [before.items[2].id])
+        before.setCurrentShelfName("Trip")
+        before.prepareForTermination()
+        store.save([try XCTUnwrap(before.openShelfState)])
+
+        let renamed = directory.appendingPathComponent("kept renamed.txt")
+        try FileManager.default.moveItem(at: kept, to: renamed)
+        try FileManager.default.removeItem(at: gone)
+        let after = makeManager(defaults: defaults)
+        after.restoreOpenState(try XCTUnwrap(store.load().first))
+
+        XCTAssertEqual(after.items.map(\.url), [renamed.standardizedFileURL])
+        XCTAssertEqual(after.currentShelfName, "Trip")
+        after.clearAndCloseShelf(registersUndo: false)
+        XCTAssertEqual(after.historyEntries.count, 1, "Quitting and closing file one entry")
+        XCTAssertEqual(
+            after.historyEntries.first?.urls,
+            [renamed, draggedOut].map(\.standardizedFileURL),
+            "The entry still lists what was dragged out before quitting"
+        )
+    }
+
+    private func makeDefaults() -> UserDefaults {
+        let suiteName = "ShelfImportAndHistoryTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        addTeardownBlock { defaults.removePersistentDomain(forName: suiteName) }
+        return defaults
+    }
+
+    /// Isolated from the user's history and settings; managers made from the
+    /// same defaults share both.
+    @MainActor
+    private func makeManager(defaults: UserDefaults) -> ShelfManager {
+        ShelfManager(
+            historyStore: ShelfHistoryStore(defaults: defaults),
+            preferences: AppPreferences(defaults: defaults)
+        )
+    }
 }

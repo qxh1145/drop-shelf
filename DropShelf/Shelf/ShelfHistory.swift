@@ -351,3 +351,35 @@ struct ShelfHistoryStore {
         defaults.set(data, forKey: storageKey)
     }
 }
+
+/// A Shelf that still has items, saved as it changes so a crash, quit, or
+/// restart brings it back.
+struct OpenShelfState: Codable, Equatable {
+    let name: String?
+    let historyEntryID: UUID?
+    let items: [ShelfItem]
+    /// Everything added this session, including items since dragged out.
+    let sessionURLs: [URL]
+}
+
+struct OpenShelvesStore {
+    private static let defaultStorageKey = "DropShelf.OpenShelves.v1"
+
+    private let defaults: UserDefaults
+    private let storageKey: String
+
+    init(defaults: UserDefaults = .standard, storageKey: String = Self.defaultStorageKey) {
+        self.defaults = defaults
+        self.storageKey = storageKey
+    }
+
+    func load() -> [OpenShelfState] {
+        guard let data = defaults.data(forKey: storageKey) else { return [] }
+        return (try? JSONDecoder().decode([OpenShelfState].self, from: data)) ?? []
+    }
+
+    func save(_ shelves: [OpenShelfState]) {
+        guard let data = try? JSONEncoder().encode(shelves) else { return }
+        defaults.set(data, forKey: storageKey)
+    }
+}

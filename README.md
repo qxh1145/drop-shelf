@@ -72,6 +72,10 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 - Per-item Quick Look, Open, Show in Finder, Copy, Copy Path, and Share
 - Keyboard control: Space, Delete, Return, arrows, Esc, Command-A/C/V/O
 - Recent Shelves follow files that are renamed or moved
+- Shelf items follow files renamed or moved while on the Shelf; deleted or trashed files are dimmed and marked
+- Undo and redo (Command-Z / Command-Shift-Z, or the menu bar) for removing items, dragging them out, and closing a Shelf
+- Open Shelves come back after a quit, crash, or restart
+- Optional **Keep items after dragging out**, to drop the same files in several places
 - Several Shelves at once: **New Shelf** (Command-N), drag items between Shelves
 - Batch convert and batch rename the selected items
 - Image Tools: resize, compress, and remove metadata (location, camera info)
@@ -242,6 +246,7 @@ Click the Shelf once to give it keyboard focus.
 | Command-N | Open a new Shelf beside the current one |
 | Command-F | Search items (or Recent Shelves); Esc closes the search |
 | Esc | Clear selection, then hide the Shelf (items are kept) |
+| Command-Z / Command-Shift-Z | Undo / redo removing items, dragging them out, or closing a Shelf |
 
 Double-click an item to open it.
 
@@ -317,7 +322,8 @@ Click the close button in the upper-right corner.
 
 The current Shelf contents are cleared when the Shelf is closed. DropShelf keeps
 only their file references in **Recent Shelves** for 72 hours; it never copies or
-moves the original files. Open **••• → Recent Shelves…** or press **Command-Shift-H**
+moves the original files. Closed by mistake? Choose **Undo Close Shelf** in the
+menu bar, or press **Command-Z** on any Shelf. Open **••• → Recent Shelves…** or press **Command-Shift-H**
 to restore a recent Shelf. Missing or deleted files are removed from history
 automatically. Use **••• → Name Shelf…** before closing to add a memorable name,
 then click the pin button beside **•••** to keep that Shelf beyond 72 hours. You

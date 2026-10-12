@@ -89,6 +89,7 @@ final class ShelfDropHostingView: NSView {
 
         let urls = fileURLs(from: sender)
         if !urls.isEmpty {
+            (sender.draggingSource as? DraggableShelfItemView)?.wasDroppedOnShelf = true
             manager.add(urls: urls)
             return true
         }

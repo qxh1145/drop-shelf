@@ -8,6 +8,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private let pinnedShelvesMenu = NSMenu(title: String(localized: "Pinned Shelves"))
     private let recentShelvesMenu = NSMenu(title: String(localized: "Recent Shelves"))
     private let openShelvesMenu = NSMenu(title: String(localized: "Open Shelves"))
+    private let undoItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
 
     init(
         openSettingsHandler: @escaping () -> Void,
@@ -43,6 +44,14 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         )
         newShelfItem.target = self
         menu.addItem(newShelfItem)
+
+        undoItem.action = #selector(undo)
+        undoItem.target = self
+        undoItem.image = NSImage(
+            systemSymbolName: "arrow.uturn.backward",
+            accessibilityDescription: nil
+        )
+        menu.addItem(undoItem)
 
         let openShelvesItem = NSMenuItem(title: String(localized: "Open Shelves"), action: nil, keyEquivalent: "")
         openShelvesItem.image = NSImage(
@@ -118,6 +127,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     func menuWillOpen(_ menu: NSMenu) {
+        let undoManager = ShelfManager.undoManager
+        undoItem.isHidden = !undoManager.canUndo
+        undoItem.title = undoManager.undoMenuItemTitle
         ShelfManager.active.refreshHistory()
         rebuildPinnedShelvesMenu()
         rebuildRecentShelvesMenu()
@@ -148,6 +160,10 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     private func restorePinnedShelf(entryID: UUID) {
         ShelfManager.active.restoreHistoryEntry(id: entryID)
+    }
+
+    @objc private func undo() {
+        ShelfManager.undoManager.undo()
     }
 
     @objc private func openNewShelf() {
