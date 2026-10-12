@@ -165,6 +165,37 @@ struct ShelfItemView: View {
             ShelfItemDragOverlay(item: item, manager: manager)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        // One VoiceOver element per item; the drag overlay is mouse-only.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(item.url.lastPathComponent)
+        .accessibilityValue(Self.accessibilityValue(for: item.url, isSelected: isSelected))
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+        .accessibilityAction {
+            manager.selectItem(item.id, extendingSelection: false)
+        }
+        .accessibilityAction(named: Text("Open")) {
+            manager.openItems(for: item.id)
+        }
+        .accessibilityAction(named: Text("Quick Look")) {
+            manager.toggleQuickLook(for: item.id)
+        }
+        .accessibilityAction(named: Text("Show in Finder")) {
+            manager.revealItems(for: item.id)
+        }
+        .accessibilityAction(named: Text("Add to Selection")) {
+            manager.selectItem(item.id, extendingSelection: true)
+        }
+        .accessibilityAction(named: Text("Remove from Shelf")) {
+            manager.removeItem(id: item.id)
+        }
+    }
+
+    /// "Selected, PDF document": selection state plus the file's kind.
+    static func accessibilityValue(for url: URL, isSelected: Bool) -> String {
+        let kind = (try? url.resourceValues(forKeys: [.localizedTypeDescriptionKey]))?
+            .localizedTypeDescription
+        let parts = [isSelected ? String(localized: "Selected") : nil, kind].compactMap { $0 }
+        return parts.joined(separator: ", ")
     }
 }
 

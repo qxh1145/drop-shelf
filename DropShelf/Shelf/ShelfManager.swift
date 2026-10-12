@@ -225,6 +225,10 @@ final class ShelfManager: ObservableObject {
         updatePanelLayout(animated: false)
         panel?.position(near: point)
         panel?.orderFrontRegardless()
+        if NSWorkspace.shared.isVoiceOverEnabled {
+            // VoiceOver users can't click the Shelf to focus it first.
+            panel?.makeKey()
+        }
         markActive()
         scheduleAutoHideIfNeeded()
     }
@@ -429,6 +433,7 @@ final class ShelfManager: ObservableObject {
         guard !additions.isEmpty else { return }
         markActive()
         items.append(contentsOf: additions)
+        announce(String(localized: "Added \(additions.count) items to the Shelf"))
         synchronizeCurrentHistoryEntryIfNeeded()
         updatePanelLayout(animated: true)
         scheduleAutoHideIfNeeded()
@@ -1174,6 +1179,19 @@ final class ShelfManager: ObservableObject {
             name: currentShelfName,
             isPinned: entry.isPinned,
             in: historyEntries
+        )
+    }
+
+    /// Speaks `message` when VoiceOver is running; drops are otherwise silent.
+    private func announce(_ message: String) {
+        guard NSWorkspace.shared.isVoiceOverEnabled else { return }
+        NSAccessibility.post(
+            element: NSApp as Any,
+            notification: .announcementRequested,
+            userInfo: [
+                .announcement: message,
+                .priority: NSAccessibilityPriorityLevel.high.rawValue
+            ]
         )
     }
 

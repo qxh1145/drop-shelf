@@ -327,4 +327,18 @@ final class ShelfImportAndHistoryTests: XCTestCase {
         XCTAssertEqual(String(format: format, locale: english, 1), "1 item")
         XCTAssertEqual(String(format: format, locale: english, 3), "3 items")
     }
+
+    func testItemAccessibilityValueStatesSelectionAndKind() throws {
+        let file = directory.appendingPathComponent("notes.txt")
+        try Data("x".utf8).write(to: file)
+        let kind = try XCTUnwrap(
+            file.resourceValues(forKeys: [.localizedTypeDescriptionKey]).localizedTypeDescription
+        )
+
+        XCTAssertEqual(ShelfItemView.accessibilityValue(for: file, isSelected: false), kind)
+        XCTAssertEqual(
+            ShelfItemView.accessibilityValue(for: file, isSelected: true),
+            "\(String(localized: "Selected")), \(kind)"
+        )
+    }
 }

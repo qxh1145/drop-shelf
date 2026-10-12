@@ -352,6 +352,7 @@ private struct ShelfItemCard: View {
                 .contentShape(Circle())
                 .pointingHandCursor()
                 .help("Remove \(item.url.lastPathComponent) from Shelf")
+                .accessibilityLabel("Remove \(item.url.lastPathComponent) from Shelf")
             }
             .padding(5)
             .frame(maxWidth: .infinity, alignment: .top)

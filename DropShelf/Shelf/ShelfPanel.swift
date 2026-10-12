@@ -27,6 +27,7 @@ final class ShelfPanel: NSPanel {
         isReleasedWhenClosed = false
         animationBehavior = .none
         contentView = ShelfDropHostingView(manager: manager)
+        setAccessibilityLabel(String(localized: "DropShelf Shelf"))
     }
 
     // Key only after the user clicks the Shelf (it is ordered front without

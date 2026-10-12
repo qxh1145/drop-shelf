@@ -79,6 +79,7 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 - Search (Command-F) filters Shelf items and Recent Shelves
 - Finder Services, Open With / Dock drop, `dropshelf://` links, and Shortcuts actions
 - English and Vietnamese, following the macOS language setting
+- VoiceOver: each item reads its name, kind, and selection, with Open, Quick Look, Show in Finder, and Remove actions
 - Daily update check against GitHub Releases
 - Drag items from the Shelf into Finder or compatible apps
 - Remove individual items
