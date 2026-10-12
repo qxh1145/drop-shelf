@@ -1101,7 +1101,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "JPEG nén có suy giảm chất lượng và không hỗ trợ độ trong suốt. Vùng trong suốt sẽ được đặt trên nền trắng. Không chuyển được file WEBP động."
+            "value": "JPEG nén có suy giảm chất lượng và không hỗ trợ độ trong suốt. Vùng trong suốt sẽ được đặt trên nền trắng. Không chuyển được tệp WEBP động."
           }
         }
       }
@@ -1182,6 +1182,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Thấp"
+          }
+        }
+      }
+    },
+    "MP3 is already lossy, so re-encoding it as AAC adds a second generation of quality loss. Tags and artwork are not copied.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MP3 vốn đã bị nén có suy giảm, nên mã hóa lại sang AAC sẽ giảm chất lượng thêm một lần nữa. Thẻ thông tin và ảnh bìa không được sao chép."
           }
         }
       }
@@ -1521,7 +1531,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Điểm ảnh và độ trong suốt được giữ nguyên, nhưng metadata của WEBP có thể không được sao chép. Không chuyển được file WEBP động."
+            "value": "Điểm ảnh và độ trong suốt được giữ nguyên, nhưng metadata của WEBP có thể không được sao chép. Không chuyển được tệp WEBP động."
           }
         }
       }
@@ -2076,6 +2086,26 @@
         }
       }
     },
+    "The audio could not be converted. %@": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không chuyển được âm thanh. %@"
+          }
+        }
+      }
+    },
+    "The audio will be encoded as AAC at the highest quality setting. This is lossy and much smaller than the source. Tags and artwork are not copied.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Âm thanh sẽ được mã hóa AAC ở mức chất lượng cao nhất. Cách này có suy giảm chất lượng và tệp nhỏ hơn nhiều so với tệp gốc. Thẻ thông tin và ảnh bìa không được sao chép."
+          }
+        }
+      }
+    },
     "The conversion did not produce any files.": {
       "localizations": {
         "vi": {
@@ -2221,7 +2251,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Codec hiện có không thể giữ nguyên trong %@, nên video sẽ được mã hóa lại ở chất lượng cao nhất. Việc này mất thời gian hơn, có suy giảm chất lượng và dung lượng file có thể thay đổi."
+            "value": "Codec hiện có không thể giữ nguyên trong %@, nên video sẽ được mã hóa lại ở chất lượng cao nhất. Việc này mất thời gian hơn, có suy giảm chất lượng và dung lượng tệp có thể thay đổi."
           }
         }
       }
@@ -2256,12 +2286,12 @@
         }
       }
     },
-    "This file is not a supported JPEG, PNG, HEIC, PDF, MOV, or MP4 file.": {
+    "This file type can’t be converted by DropShelf.": {
       "localizations": {
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đây không phải tệp JPEG, PNG, HEIC, PDF, MOV hoặc MP4 được hỗ trợ."
+            "value": "DropShelf không chuyển được loại tệp này."
           }
         }
       }
@@ -2412,6 +2442,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Thông tin phiên bản và ứng dụng."
+          }
+        }
+      }
+    },
+    "WAV is uncompressed, so the file will be much larger. Quality already lost in a compressed source is not restored. Tags and artwork are not copied.": {
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WAV không nén nên tệp sẽ lớn hơn nhiều. Chất lượng đã mất ở tệp gốc nén không được khôi phục. Thẻ thông tin và ảnh bìa không được sao chép."
           }
         }
       }

@@ -18,6 +18,12 @@ The MVP exposes only conversions backed by native macOS frameworks and verified 
 | WEBP | HEIC | PARTIALLY_SUPPORTED | ImageIO | Hidden for the same alpha/HDR reason as PNG → HEIC |
 | Animated WEBP | any | UNSAFE | ImageIO could decode frames | Hidden because animation would be lost |
 | Any | WEBP | REQUIRES_LIBRARY | libwebp | ImageIO has no WEBP encoder |
+| WAV/AIFF/FLAC | M4A (AAC) | SUPPORTED / Native | AVAudioFile, AAC VBR max quality | Medium: lossy; tags and artwork are not copied |
+| MP3 | M4A (AAC) | SUPPORTED / Native | AVAudioFile, AAC VBR max quality | Medium: second lossy generation; tags and artwork are not copied |
+| AIFF/FLAC/MP3/M4A | WAV | SUPPORTED / Native | AVAudioFile, 16-bit PCM for lossy sources, 24-bit otherwise | Low: much larger file; tags and artwork are not copied |
+| More than 2 channels | M4A (AAC) | NOT_SUPPORTED | CoreAudio AAC encoder rejects >2 channels | Hidden; WAV remains available |
+| Any | MP3 | REQUIRES_LIBRARY | LAME | macOS has no MP3 encoder |
+| OGG/OPUS and other audio | any | REQUIRES_EXTERNAL_TOOL | FFmpeg | Not reliably decodable natively |
 | GIF | JPEG/PNG | UNSAFE | ImageIO could decode frames | Hidden because animation would be lost |
 | PSD | JPEG/PNG | UNSAFE | ImageIO can flatten | Hidden because layers, masks, and editing structure would be lost |
 | MOV | MP4 | SUPPORTED / Native | AVFoundation passthrough export; HighestQuality re-encode when codecs (e.g. ProRes) do not fit MP4 | Low for passthrough; Medium when re-encoded (lossy, slower) |
@@ -41,9 +47,6 @@ The MVP exposes only conversions backed by native macOS frameworks and verified 
 | SVG → PNG/PDF | REQUIRES_LIBRARY | Resvg/WebKit-based renderer | Font, filter, script, and external-resource behavior needs sandboxing |
 | EPS/AI → raster/PDF | REQUIRES_EXTERNAL_TOOL | Ghostscript/Illustrator-compatible tool | AI is proprietary; layers and color spaces may be lost |
 | MKV/WEBM/AVI → MP4/MOV | REQUIRES_EXTERNAL_TOOL | FFmpeg | Containers/codecs are not reliably covered by AVFoundation |
-| WAV → M4A/AAC | PARTIALLY_SUPPORTED | AVFoundation/AudioToolbox | Safe once channel layout, sample rate, metadata, and progress UX are defined |
-| MP3/AAC/M4A → WAV | PARTIALLY_SUPPORTED | AVFoundation/AudioToolbox | Large output and metadata loss require warning/progress handling |
-| FLAC and broad audio conversion | REQUIRES_EXTERNAL_TOOL | FFmpeg or libFLAC | Native encode/decode coverage is not uniform across deployment targets |
 | ZIP ↔ TAR.GZ | PARTIALLY_SUPPORTED | Archive framework/bsdtar | Requires secure extraction, symlink/path traversal defenses, and metadata policy |
 | RAR/7Z | REQUIRES_LIBRARY | libarchive/7-Zip | No dependable native writer; license and bundled binary must be reviewed |
 | EPUB ↔ MOBI/AZW3 | REQUIRES_EXTERNAL_TOOL | Calibre | Layout, DRM, fonts, and device-specific semantics prevent a simple safe conversion |
@@ -58,6 +61,7 @@ The MVP exposes only conversions backed by native macOS frameworks and verified 
 - MOV/MP4 options use `AVAssetExportSession.compatibility(ofExportPreset:with:outputFileType:)`: passthrough when the source codecs fit the target container, otherwise a HighestQuality re-encode with a re-encode warning. `supportedFileTypes` is not used because it lists MP4 for ProRes MOV even though passthrough then fails.
 - Every PDF page is rendered sequentially at 144 DPI. Multi-page PDFs produce one collision-safe image per page, and per-page autorelease pools keep peak memory bounded.
 - Image-to-PDF applies the image orientation, uses its valid DPI when available, and creates one raster page without changing the source image.
+- Audio container type is detected with AudioToolbox `kAudioFilePropertyFileFormat`, not the extension. MPEG-4 files with a video track are left to the video converter.
 - Destination encoder availability is queried from ImageIO at runtime.
 - Conversion always writes a unique temporary file, then moves it to a collision-free final name.
 - Existing files and source files are never overwritten.

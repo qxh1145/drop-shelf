@@ -9,16 +9,23 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
     case mov
     case mp4
     case pdf
+    case wav
+    case aiff
+    case mp3
+    case flac
+    case m4a
 
     enum MediaKind: Sendable {
         case image
         case video
+        case audio
         case document
     }
 
     static let imageFormats: [FileFormat] = [.jpeg, .png, .heic, .webp]
     static let videoFormats: [FileFormat] = [.mov, .mp4]
     static let documentFormats: [FileFormat] = [.pdf]
+    static let audioFormats: [FileFormat] = [.wav, .aiff, .mp3, .flac, .m4a]
 
     var id: String { rawValue }
 
@@ -31,6 +38,11 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
         case .mov: return "MOV"
         case .mp4: return "MP4"
         case .pdf: return "PDF"
+        case .wav: return "WAV"
+        case .aiff: return "AIFF"
+        case .mp3: return "MP3"
+        case .flac: return "FLAC"
+        case .m4a: return "M4A"
         }
     }
 
@@ -43,6 +55,11 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
         case .mov: return "mov"
         case .mp4: return "mp4"
         case .pdf: return "pdf"
+        case .wav: return "wav"
+        case .aiff: return "aiff"
+        case .mp3: return "mp3"
+        case .flac: return "flac"
+        case .m4a: return "m4a"
         }
     }
 
@@ -55,6 +72,11 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
         case .mov: return UTType.quickTimeMovie.identifier
         case .mp4: return UTType.mpeg4Movie.identifier
         case .pdf: return UTType.pdf.identifier
+        case .wav: return UTType.wav.identifier
+        case .aiff: return UTType.aiff.identifier
+        case .mp3: return UTType.mp3.identifier
+        case .flac: return "org.xiph.flac"
+        case .m4a: return UTType.mpeg4Audio.identifier
         }
     }
 
@@ -64,6 +86,8 @@ enum FileFormat: String, CaseIterable, Identifiable, Sendable {
             return .image
         case .mov, .mp4:
             return .video
+        case .wav, .aiff, .mp3, .flac, .m4a:
+            return .audio
         case .pdf:
             return .document
         }
@@ -172,6 +196,29 @@ enum ConversionCapabilityMatrix {
             warning: String(localized: "This changes the video container without re-encoding. It is available only when the existing video and audio codecs are compatible with MOV.")
         )
     ]
+
+    static let nativeAudioOptions: [ConversionOption] = [.wav, .aiff, .flac].map {
+        ConversionOption(
+            sourceFormat: $0,
+            targetFormat: .m4a,
+            risk: .medium,
+            warning: String(localized: "The audio will be encoded as AAC at the highest quality setting. This is lossy and much smaller than the source. Tags and artwork are not copied.")
+        )
+    } + [
+        ConversionOption(
+            sourceFormat: .mp3,
+            targetFormat: .m4a,
+            risk: .medium,
+            warning: String(localized: "MP3 is already lossy, so re-encoding it as AAC adds a second generation of quality loss. Tags and artwork are not copied.")
+        )
+    ] + [.aiff, .mp3, .flac, .m4a].map {
+        ConversionOption(
+            sourceFormat: $0,
+            targetFormat: .wav,
+            risk: .low,
+            warning: String(localized: "WAV is uncompressed, so the file will be much larger. Quality already lost in a compressed source is not restored. Tags and artwork are not copied.")
+        )
+    }
 
     static let nativePDFOptions: [ConversionOption] = [
         ConversionOption(

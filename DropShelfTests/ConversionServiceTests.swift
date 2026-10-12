@@ -184,6 +184,52 @@ final class ConversionServiceTests: XCTestCase {
         XCTAssertTrue(options.isEmpty)
     }
 
+    func testEveryAudioSourceConvertsToItsAdvertisedTargets() async throws {
+        let expected: [FileFormat: Set<FileFormat>] = [
+            .wav: [.m4a], .aiff: [.m4a, .wav], .flac: [.m4a, .wav],
+            .mp3: [.m4a, .wav], .m4a: [.wav]
+        ]
+        for sourceFormat in FileFormat.audioFormats {
+            // Content detection, not the extension, must identify the source.
+            let sourceURL = testDirectory.appendingPathComponent("tone-\(sourceFormat.rawValue).bin")
+            try makeAudio(at: sourceURL, format: sourceFormat)
+            let sourceData = try Data(contentsOf: sourceURL)
+
+            let options = await ConversionService.shared.supportedOutputFormats(for: sourceURL)
+            XCTAssertEqual(Set(options.map(\.targetFormat)), expected[sourceFormat], "\(sourceFormat)")
+            XCTAssertTrue(options.allSatisfy { $0.sourceFormat == sourceFormat })
+
+            for option in options {
+                let outputURL = try await ConversionService.shared.convert(
+                    sourceURL,
+                    to: option.targetFormat,
+                    destinationDirectory: testDirectory
+                )
+                XCTAssertEqual(outputURL.pathExtension, option.targetFormat.filenameExtension)
+                let outputOptions = await ConversionService.shared.supportedOutputFormats(for: outputURL)
+                XCTAssertEqual(outputOptions.first?.sourceFormat, option.targetFormat)
+                XCTAssertGreaterThan(try AVAudioFile(forReading: outputURL).length, 0)
+            }
+            XCTAssertEqual(try Data(contentsOf: sourceURL), sourceData)
+        }
+    }
+
+    func testSurroundAudioDoesNotOfferAAC() async throws {
+        let sourceURL = testDirectory.appendingPathComponent("surround.aiff")
+        try makeAudio(at: sourceURL, format: .aiff, channels: 6)
+
+        let options = await ConversionService.shared.supportedOutputFormats(for: sourceURL)
+        XCTAssertEqual(options.map(\.targetFormat), [.wav])
+    }
+
+    func testMP4VideoOffersNoAudioConversion() async throws {
+        let sourceURL = testDirectory.appendingPathComponent("video.mp4")
+        try await makeVideo(at: sourceURL, fileType: .mp4)
+
+        let options = await ConversionService.shared.supportedOutputFormats(for: sourceURL)
+        XCTAssertTrue(options.allSatisfy { $0.targetFormat.mediaKind == .video })
+    }
+
     func testFakeVideoContainerExposesNoConversionOptions() async throws {
         let fakeVideo = testDirectory.appendingPathComponent("fake.mp4")
         try Data("not a video".utf8).write(to: fakeVideo)
@@ -503,6 +549,53 @@ final class ConversionServiceTests: XCTestCase {
     private static let animatedWebP = Data(base64Encoded:
         "UklGRogAAABXRUJQVlA4WAoAAAASAAAADwAADwAAQU5JTQYAAAD/////AABBTk1GKgAAAAAAAAQAAA8AAAcAAGQAAAJWUDhMEQAAAC8PwAEQB1CmljezgIGI6H8AAEFOTUYqAAAAAAAABAAADwAABwAAZAAAAFZQOEwRAAAALw/AAQAH0KZqNLP/gYjofwAA"
     )!
+
+    /// 0.2 s mono 8 kHz MP3 (made with ffmpeg); macOS has no MP3 encoder.
+    private static let tinyMP3 = Data(base64Encoded:
+        "SUQzBAAAAAAAIlRTU0UAAAAOAAADTGF2ZjYzLjEuMTAxAAAAAAAAAAAAAAD/4zjAAAAAAAAAAAAASW5mbwAAAA8AAAAFAAACQACAgICAgICAgICAgICAgICAgICAoKCgoKCgoKCgoKCgoKCgoKCgoKDAwMDAwMDAwMDAwMDAwMDAwMDAwODg4ODg4ODg4ODg4ODg4ODg4ODg//////////////////////////8AAAAATGF2YzYzLjEuAAAAAAAAAAAAAAAAJALAAAAAAAAAAkDg0tHcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/4xjEAAxIkpR5TwAABAkoAve973ve9KUpSlKUve79/ffvEqny3i3ibi5lzVYbEAIBisH3//5T39H+BDnP9ComhzhZxDf8ZUT/4xjECQ7w8pABlFAAKjlCFv8G3g/UD3IAMqIk4B8TAcyOsDvUw98CUAqAqKwihFf/kI9HpEPh8Cv+EgaEoSBqwAAAjMq/////4xjECA64yjmBlxAAgYAMBoAYx+UMAYHMA/QMAKA9wMMCLcwMBzAf4GAcggAGErFxwGASgN03xvj6P90p8cNV///feajM1K7/4xjECA65KqABmTgANf//zOvlEYhDrpfETX/ith9DoofNkaGSCzP/0Y892AcC0ICI2H/8z+cOlGCpX/2BUqwegH9SlKXihQz/4xjECA1gomAZyRgArjGPkiRRpZEi0qCIIkyqFDnihJdQilCAgaPA0HSoKrDX///T///////b1ed5akxBTUU0LjCqqqqqqqo="
+    )!
+
+    /// `channels` is 2 (stereo) or 6 (5.1).
+    private func makeAudio(at url: URL, format: FileFormat, channels: Int = 2) throws {
+        if format == .mp3 {
+            try Self.tinyMP3.write(to: url)
+            return
+        }
+        var settings: [String: Any] = [AVSampleRateKey: 44_100, AVNumberOfChannelsKey: channels]
+        switch format {
+        case .wav, .aiff:
+            settings[AVFormatIDKey] = kAudioFormatLinearPCM
+            settings[AVLinearPCMBitDepthKey] = 16
+            settings[AVLinearPCMIsFloatKey] = false
+            settings[AVLinearPCMIsBigEndianKey] = format == .aiff
+        case .flac:
+            settings[AVFormatIDKey] = kAudioFormatFLAC
+        case .m4a:
+            settings[AVFormatIDKey] = kAudioFormatMPEG4AAC
+        default:
+            XCTFail("makeAudio only accepts audio formats")
+            return
+        }
+
+        // AVAudioFile picks the container from the extension, so write to a
+        // properly named file and move it to `url`.
+        let namedURL = url.deletingLastPathComponent()
+            .appendingPathComponent("\(UUID().uuidString).\(format.filenameExtension)")
+        let layout = try XCTUnwrap(AVAudioChannelLayout(
+            layoutTag: channels == 6 ? kAudioChannelLayoutTag_MPEG_5_1_A : kAudioChannelLayoutTag_Stereo
+        ))
+        let pcm = AVAudioFormat(standardFormatWithSampleRate: 44_100, channelLayout: layout)
+        let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: pcm, frameCapacity: 8_820))
+        buffer.frameLength = 8_820
+        for channel in 0..<channels {
+            let samples = try XCTUnwrap(buffer.floatChannelData?[channel])
+            for frame in 0..<Int(buffer.frameLength) {
+                samples[frame] = Float(sin(Double(frame) * 2 * .pi * 440 / 44_100)) * 0.5
+            }
+        }
+        try AVAudioFile(forWriting: namedURL, settings: settings).write(from: buffer)
+        try FileManager.default.moveItem(at: namedURL, to: url)
+    }
 
     private func makeImage(at url: URL, format: FileFormat, size: Int) throws {
         guard format.mediaKind == .image else {

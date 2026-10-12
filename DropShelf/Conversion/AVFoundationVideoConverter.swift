@@ -99,7 +99,7 @@ struct AVFoundationVideoConverter: Sendable {
         try await export(session)
         try Task.checkCancellation()
 
-        return try moveToAvailableDestination(
+        return try moveConvertedFile(
             temporaryURL: temporaryURL,
             inputURL: inputURL,
             targetFormat: targetFormat,
@@ -177,35 +177,6 @@ struct AVFoundationVideoConverter: Sendable {
         } onCancel: {
             sessionBox.session.cancelExport()
         }
-    }
-
-    private func moveToAvailableDestination(
-        temporaryURL: URL,
-        inputURL: URL,
-        targetFormat: FileFormat,
-        destinationDirectory: URL
-    ) throws -> URL {
-        let fileManager = FileManager.default
-        let rawBaseName = inputURL.deletingPathExtension().lastPathComponent
-        let baseName = rawBaseName.isEmpty ? "Converted File" : rawBaseName
-
-        for index in 1...10_000 {
-            try Task.checkCancellation()
-            let suffix = index == 1 ? "" : " \(index)"
-            let filename = "\(baseName)\(suffix).\(targetFormat.filenameExtension)"
-            let candidate = destinationDirectory.appendingPathComponent(filename)
-
-            do {
-                try fileManager.moveItem(at: temporaryURL, to: candidate)
-                return candidate
-            } catch let error as NSError
-                where error.domain == NSCocoaErrorDomain
-                    && error.code == NSFileWriteFileExistsError {
-                continue
-            }
-        }
-
-        throw ConversionError.tooManyFilenameCollisions
     }
 }
 
@@ -286,7 +257,7 @@ private extension FileFormat {
         switch self {
         case .mov: return .mov
         case .mp4: return .mp4
-        case .jpeg, .png, .heic, .webp, .pdf: return nil
+        case .jpeg, .png, .heic, .webp, .pdf, .wav, .aiff, .mp3, .flac, .m4a: return nil
         }
     }
 

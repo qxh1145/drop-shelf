@@ -17,6 +17,7 @@ final class ConversionService: Sendable {
     private let imageConverter = ImageIOFileConverter()
     private let videoConverter = AVFoundationVideoConverter()
     private let pdfConverter = PDFFileConverter()
+    private let audioConverter = AudioFileConverter()
 
     func supportedOutputFormats(for inputURL: URL) async -> [ConversionOption] {
         let converter = imageConverter
@@ -39,7 +40,9 @@ final class ConversionService: Sendable {
 
         guard imageOptions.isEmpty else { return imageOptions }
         guard !Task.isCancelled else { return [] }
-        return await videoConverter.supportedOptions(for: inputURL)
+        let videoOptions = await videoConverter.supportedOptions(for: inputURL)
+        guard videoOptions.isEmpty, !Task.isCancelled else { return videoOptions }
+        return await audioConverter.supportedOptions(for: inputURL)
     }
 
     func convert(
@@ -63,6 +66,13 @@ final class ConversionService: Sendable {
         to targetFormat: FileFormat,
         destinationDirectory: URL
     ) async throws -> [URL] {
+        if targetFormat.mediaKind == .audio {
+            return [try await audioConverter.convert(
+                inputURL: inputURL,
+                to: targetFormat,
+                destinationDirectory: destinationDirectory
+            )]
+        }
         if targetFormat.mediaKind == .video {
             return [try await videoConverter.convert(
                 inputURL: inputURL,
@@ -185,7 +195,7 @@ struct ImageIOFileConverter: FileConverter {
         }
         try Task.checkCancellation()
 
-        return try moveToAvailableDestination(
+        return try moveConvertedFile(
             temporaryURL: temporaryURL,
             inputURL: inputURL,
             targetFormat: targetFormat,
@@ -303,35 +313,37 @@ struct ImageIOFileConverter: FileConverter {
         }
         return flattenedImage
     }
+}
 
-    private func moveToAvailableDestination(
-        temporaryURL: URL,
-        inputURL: URL,
-        targetFormat: FileFormat,
-        destinationDirectory: URL
-    ) throws -> URL {
-        let fileManager = FileManager.default
-        let rawBaseName = inputURL.deletingPathExtension().lastPathComponent
-        let baseName = rawBaseName.isEmpty ? "Converted File" : rawBaseName
+/// Moves a finished temporary output next to its siblings as
+/// "<source name>.<ext>", adding " 2", " 3", … instead of overwriting.
+func moveConvertedFile(
+    temporaryURL: URL,
+    inputURL: URL,
+    targetFormat: FileFormat,
+    destinationDirectory: URL
+) throws -> URL {
+    let fileManager = FileManager.default
+    let rawBaseName = inputURL.deletingPathExtension().lastPathComponent
+    let baseName = rawBaseName.isEmpty ? "Converted File" : rawBaseName
 
-        for index in 1...10_000 {
-            try Task.checkCancellation()
-            let suffix = index == 1 ? "" : " \(index)"
-            let filename = "\(baseName)\(suffix).\(targetFormat.filenameExtension)"
-            let candidate = destinationDirectory.appendingPathComponent(filename)
+    for index in 1...10_000 {
+        try Task.checkCancellation()
+        let suffix = index == 1 ? "" : " \(index)"
+        let filename = "\(baseName)\(suffix).\(targetFormat.filenameExtension)"
+        let candidate = destinationDirectory.appendingPathComponent(filename)
 
-            do {
-                try fileManager.moveItem(at: temporaryURL, to: candidate)
-                return candidate
-            } catch let error as NSError
-                where error.domain == NSCocoaErrorDomain
-                    && error.code == NSFileWriteFileExistsError {
-                continue
-            }
+        do {
+            try fileManager.moveItem(at: temporaryURL, to: candidate)
+            return candidate
+        } catch let error as NSError
+            where error.domain == NSCocoaErrorDomain
+                && error.code == NSFileWriteFileExistsError {
+            continue
         }
-
-        throw ConversionError.tooManyFilenameCollisions
     }
+
+    throw ConversionError.tooManyFilenameCollisions
 }
 
 enum ConversionError: LocalizedError {
@@ -354,6 +366,7 @@ enum ConversionError: LocalizedError {
     case cannotCreateOutput
     case cannotFlattenTransparency
     case encodingFailed
+    case audioEncodingFailed(String)
     case tooManyFilenameCollisions
 
     var errorDescription: String? {
@@ -363,7 +376,7 @@ enum ConversionError: LocalizedError {
         case .sourceUnreadable:
             return String(localized: "DropShelf does not have permission to read the source file.")
         case .unsupportedSource:
-            return String(localized: "This file is not a supported JPEG, PNG, HEIC, PDF, MOV, or MP4 file.")
+            return String(localized: "This file type can’t be converted by DropShelf.")
         case .multiFrameSourceUnsupported:
             return String(localized: "Animated or multi-frame images are not supported.")
         case let .unsupportedConversion(source, target):
@@ -396,6 +409,8 @@ enum ConversionError: LocalizedError {
             return String(localized: "The image transparency could not be prepared for JPEG.")
         case .encodingFailed:
             return String(localized: "macOS could not encode the converted image. Check disk space and try again.")
+        case let .audioEncodingFailed(message):
+            return String(localized: "The audio could not be converted. \(message)")
         case .tooManyFilenameCollisions:
             return String(localized: "A unique output filename could not be created.")
         }
