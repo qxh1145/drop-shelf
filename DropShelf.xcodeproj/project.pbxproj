@@ -30,6 +30,10 @@
 		010000000000000000000015 /* PDFFileConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000018 /* PDFFileConverter.swift */; };
 		010000000000000000000016 /* ShelfHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000019 /* ShelfHistory.swift */; };
 		010000000000000000000017 /* GlobalHotKeyController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001A /* GlobalHotKeyController.swift */; };
+		010000000000000000000018 /* OnboardingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001B /* OnboardingManager.swift */; };
+		010000000000000000000019 /* OnboardingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001C /* OnboardingWindowController.swift */; };
+		01000000000000000000001A /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001D /* OnboardingView.swift */; };
+		01000000000000000000001B /* OnboardingManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001E /* OnboardingManagerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +73,10 @@
 		020000000000000000000018 /* PDFFileConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFFileConverter.swift; sourceTree = "<group>"; };
 		020000000000000000000019 /* ShelfHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShelfHistory.swift; sourceTree = "<group>"; };
 		02000000000000000000001A /* GlobalHotKeyController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotKeyController.swift; sourceTree = "<group>"; };
+		02000000000000000000001B /* OnboardingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingManager.swift; sourceTree = "<group>"; };
+		02000000000000000000001C /* OnboardingWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingWindowController.swift; sourceTree = "<group>"; };
+		02000000000000000000001D /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		02000000000000000000001E /* OnboardingManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +115,7 @@
 				050000000000000000000003 /* App */,
 				05000000000000000000000B /* Conversion */,
 				050000000000000000000004 /* Mouse */,
+				05000000000000000000000C /* Onboarding */,
 				050000000000000000000005 /* Shelf */,
 				05000000000000000000000A /* Settings */,
 				050000000000000000000006 /* Resources */,
@@ -160,6 +169,7 @@
 			children = (
 				02000000000000000000000A /* ShakeDetectorTests.swift */,
 				020000000000000000000016 /* ConversionServiceTests.swift */,
+				02000000000000000000001E /* OnboardingManagerTests.swift */,
 			);
 			path = DropShelfTests;
 			sourceTree = "<group>";
@@ -200,6 +210,16 @@
 				020000000000000000000018 /* PDFFileConverter.swift */,
 			);
 			path = Conversion;
+			sourceTree = "<group>";
+		};
+		05000000000000000000000C /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				02000000000000000000001B /* OnboardingManager.swift */,
+				02000000000000000000001C /* OnboardingWindowController.swift */,
+				02000000000000000000001D /* OnboardingView.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -313,6 +333,9 @@
 				010000000000000000000014 /* AVFoundationVideoConverter.swift in Sources */,
 				010000000000000000000015 /* PDFFileConverter.swift in Sources */,
 				010000000000000000000017 /* GlobalHotKeyController.swift in Sources */,
+				010000000000000000000018 /* OnboardingManager.swift in Sources */,
+				010000000000000000000019 /* OnboardingWindowController.swift in Sources */,
+				01000000000000000000001A /* OnboardingView.swift in Sources */,
 				010000000000000000000004 /* ShelfItem.swift in Sources */,
 				010000000000000000000016 /* ShelfHistory.swift in Sources */,
 				010000000000000000000005 /* ShelfManager.swift in Sources */,
@@ -329,6 +352,7 @@
 			files = (
 				01000000000000000000000A /* ShakeDetectorTests.swift in Sources */,
 				010000000000000000000013 /* ConversionServiceTests.swift in Sources */,
+				01000000000000000000001B /* OnboardingManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -468,7 +492,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = PD79TCT72F;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -480,7 +504,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qxh1145.DropShelf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -496,7 +520,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = PD79TCT72F;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -508,7 +532,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qxh1145.DropShelf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

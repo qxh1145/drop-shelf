@@ -4,17 +4,20 @@ import AppKit
 final class MenuBarController: NSObject, NSMenuDelegate {
     private var statusItem: NSStatusItem?
     private var openSettingsHandler: (() -> Void)?
+    private var openOnboardingHandler: (() -> Void)?
     private let shelfManager: ShelfManager
     private let pinnedShelvesMenu = NSMenu(title: "Pinned Shelves")
 
     init(
         shelfManager: ShelfManager,
-        openSettingsHandler: @escaping () -> Void
+        openSettingsHandler: @escaping () -> Void,
+        openOnboardingHandler: @escaping () -> Void
     ) {
         let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         self.statusItem = statusItem
         self.shelfManager = shelfManager
         self.openSettingsHandler = openSettingsHandler
+        self.openOnboardingHandler = openOnboardingHandler
         super.init()
 
         if let button = statusItem.button {
@@ -42,6 +45,18 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         pinnedShelvesItem.submenu = pinnedShelvesMenu
         menu.addItem(pinnedShelvesItem)
         menu.addItem(.separator())
+
+        let onboardingItem = NSMenuItem(
+            title: "Getting Started…",
+            action: #selector(openOnboarding),
+            keyEquivalent: ""
+        )
+        onboardingItem.image = NSImage(
+            systemSymbolName: "questionmark.circle",
+            accessibilityDescription: "Getting Started"
+        )
+        onboardingItem.target = self
+        menu.addItem(onboardingItem)
 
         let settingsItem = NSMenuItem(
             title: "Settings…",
@@ -75,10 +90,15 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         NSStatusBar.system.removeStatusItem(statusItem)
         self.statusItem = nil
         openSettingsHandler = nil
+        openOnboardingHandler = nil
     }
 
     @objc private func openSettings() {
         openSettingsHandler?()
+    }
+
+    @objc private func openOnboarding() {
+        openOnboardingHandler?()
     }
 
     private func restorePinnedShelf(entryID: UUID) {

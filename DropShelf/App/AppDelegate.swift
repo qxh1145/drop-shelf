@@ -5,6 +5,7 @@ import Darwin
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBarController: MenuBarController?
     private var settingsWindowController: SettingsWindowController?
+    private var onboardingWindowController: OnboardingWindowController?
     private var previousInstanceTerminator: PreviousInstanceTerminator?
     private var historyHotKeyController: GlobalHotKeyController?
     private var activationHotKeyController: GlobalHotKeyController?
@@ -40,6 +41,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         settingsWindowController?.close()
         settingsWindowController = nil
+
+        onboardingWindowController?.close()
+        onboardingWindowController = nil
 
         menuBarController?.invalidate()
         menuBarController = nil
@@ -91,6 +95,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             shelfManager: .shared
         ) { [weak self] in
             self?.showSettings()
+        } openOnboardingHandler: { [weak self] in
+            self?.showOnboarding()
         }
 
         AppPreferences.shared.appBehaviorDidChange = { [weak self] change in
@@ -106,6 +112,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.historyHotKeyController = historyHotKeyController
 
         registerActivationShortcut()
+
+        if OnboardingManager.shared.shouldPresentOnLaunch {
+            showOnboarding()
+        }
     }
 
     private func apply(_ change: AppBehaviorPreferenceChange) {
@@ -165,6 +175,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         controller.showSettings()
+    }
+
+    private func showOnboarding() {
+        let controller: OnboardingWindowController
+
+        if let onboardingWindowController {
+            controller = onboardingWindowController
+        } else {
+            controller = OnboardingWindowController(
+                manager: .shared,
+                preferences: .shared
+            ) { [weak self] in
+                self?.onboardingWindowController = nil
+            }
+            onboardingWindowController = controller
+        }
+
+        controller.showOnboarding()
     }
 }
 

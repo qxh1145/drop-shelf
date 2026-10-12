@@ -85,6 +85,8 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 - Translucent material-style interface
 - Light and Dark Mode support
 - Native drag-and-drop behavior
+- Three-step first-run onboarding with an interactive shake practice
+- Reopen the guide any time from the menu bar with **Getting Started…**
 
 ---
 
@@ -135,6 +137,10 @@ DropShelf may also request macOS permissions required for mouse monitoring or ot
 Open `DropShelf.app`.
 
 DropShelf is designed to behave like a lightweight utility rather than a traditional document-based macOS app.
+On first launch, a short guide explains the Finder workflow, lets you practice
+the shake gesture, and summarizes the keyboard shortcuts. Closing the guide does not mark it complete; choose **Skip**
+or finish the guide to dismiss it permanently. You can reopen it later from the
+menu bar with **Getting Started…**.
 
 ## 2. Open a Shelf
 
