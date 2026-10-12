@@ -6,6 +6,12 @@ final class ShelfDropHostingView: NSView {
         .urlReadingFileURLsOnly: true
     ]
 
+    private static let promiseQueue: OperationQueue = {
+        let queue = OperationQueue()
+        queue.qualityOfService = .userInitiated
+        return queue
+    }()
+
     private let manager: ShelfManager
     private let hostingView: NSHostingView<ShelfView>
     private var acceptedDragSequenceNumber: Int?
@@ -16,7 +22,11 @@ final class ShelfDropHostingView: NSView {
         self.hostingView = NSHostingView(rootView: ShelfView(manager: manager))
         super.init(frame: .zero)
 
-        registerForDraggedTypes([.fileURL])
+        registerForDraggedTypes(
+            [.fileURL] + NSFilePromiseReceiver.readableDraggedTypes.map {
+                NSPasteboard.PasteboardType($0)
+            }
+        )
 
         hostingView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(hostingView)
@@ -39,17 +49,14 @@ final class ShelfDropHostingView: NSView {
         if isInternalDrag(sender) {
             operation = []
         } else {
-            operation = sender.draggingPasteboard.canReadObject(
-                forClasses: [NSURL.self],
-                options: Self.fileURLReadingOptions
-            ) ? .copy : []
+            operation = dropItemCount(from: sender) > 0 ? .copy : []
         }
 
         acceptedDragSequenceNumber = sender.draggingSequenceNumber
         acceptedDragOperation = operation
         manager.setDropTargetActive(
             !operation.isEmpty,
-            itemCount: operation.isEmpty ? 0 : fileURLs(from: sender).count
+            itemCount: operation.isEmpty ? 0 : dropItemCount(from: sender)
         )
         return operation
     }
@@ -81,9 +88,59 @@ final class ShelfDropHostingView: NSView {
         }
 
         let urls = fileURLs(from: sender)
-        guard !urls.isEmpty else { return false }
-        manager.add(urls: urls)
+        if !urls.isEmpty {
+            manager.add(urls: urls)
+            return true
+        }
+        return receivePromisedFiles(from: sender)
+    }
+
+    private func dropItemCount(from sender: NSDraggingInfo) -> Int {
+        let urlCount = fileURLs(from: sender).count
+        return urlCount > 0 ? urlCount : promiseReceivers(from: sender).count
+    }
+
+    private func promiseReceivers(from sender: NSDraggingInfo) -> [NSFilePromiseReceiver] {
+        sender.draggingPasteboard.readObjects(
+            forClasses: [NSFilePromiseReceiver.self]
+        ) as? [NSFilePromiseReceiver] ?? []
+    }
+
+    // Apps like Photos and Mail drag file promises instead of file URLs; the
+    // file only exists after the source writes it into our directory.
+    private func receivePromisedFiles(from sender: NSDraggingInfo) -> Bool {
+        let receivers = promiseReceivers(from: sender)
+        guard !receivers.isEmpty,
+              let destination = try? Self.makePromiseDestination() else {
+            return false
+        }
+
+        for receiver in receivers {
+            receiver.receivePromisedFiles(
+                atDestination: destination,
+                options: [:],
+                operationQueue: Self.promiseQueue
+            ) { [weak manager] url, error in
+                guard error == nil else { return }
+                DispatchQueue.main.async {
+                    manager?.add(urls: [url])
+                }
+            }
+        }
         return true
+    }
+
+    private static func makePromiseDestination() throws -> URL {
+        // ponytail: received files are never pruned; add cleanup if disk use grows.
+        let directory = try FileManager.default.url(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        .appendingPathComponent("DropShelf/Received/\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory
     }
 
     private func fileURLs(from sender: NSDraggingInfo) -> [URL] {

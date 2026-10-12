@@ -23,7 +23,11 @@ final class ShakeDetector {
 
     static let shared = ShakeDetector()
 
-    nonisolated private static let finderBundleIdentifier = "com.apple.finder"
+    nonisolated private static let fileDragTypes: Set<NSPasteboard.PasteboardType> = Set(
+        [.fileURL] + NSFilePromiseReceiver.readableDraggedTypes.map {
+            NSPasteboard.PasteboardType($0)
+        }
+    )
     nonisolated private static let minimumSampleInterval: TimeInterval = 1.0 / 120.0
 
     private var configuration: Configuration
@@ -35,11 +39,13 @@ final class ShakeDetector {
     private var directionChanges = 0
     private var completedTravel: CGFloat = 0
     private var lastTriggerTime = -TimeInterval.infinity
+    private let dragPasteboard = NSPasteboard(name: .drag)
+    private var dragChangeCountAtMouseDown = 0
+    private var isFileDrag = false
 
     // AppKit owns these opaque tokens; every mutation happens on MainActor.
     // Unsafe nonisolation only permits deterministic cleanup from deinit.
     nonisolated(unsafe) private var globalMonitor: Any?
-    nonisolated(unsafe) private var activationObserver: NSObjectProtocol?
     private var onShake: (() -> Void)?
     private var isStarted = false
 
@@ -50,9 +56,6 @@ final class ShakeDetector {
     deinit {
         if let globalMonitor {
             NSEvent.removeMonitor(globalMonitor)
-        }
-        if let activationObserver {
-            NSWorkspace.shared.notificationCenter.removeObserver(activationObserver)
         }
     }
 
@@ -66,34 +69,7 @@ final class ShakeDetector {
         self.onShake = onShake
         isStarted = true
 
-        let workspace = NSWorkspace.shared
-        activationObserver = workspace.notificationCenter.addObserver(
-            forName: NSWorkspace.didActivateApplicationNotification,
-            object: workspace,
-            queue: .main
-        ) { [weak self] notification in
-            let activatedBundleIdentifier = (
-                notification.userInfo?[NSWorkspace.applicationUserInfoKey]
-                    as? NSRunningApplication
-            )?.bundleIdentifier
-
-            // NotificationCenter's closure is not actor-annotated even with a
-            // main queue. Hop once per app activation, never per mouse event.
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                if let activatedBundleIdentifier {
-                    self.setFinderActive(
-                        activatedBundleIdentifier == Self.finderBundleIdentifier
-                    )
-                } else {
-                    self.reconcileFrontmostApplication()
-                }
-            }
-        }
-
-        // Observe first, then take a snapshot so an activation cannot be missed
-        // between the initial state check and observer registration.
-        reconcileFrontmostApplication()
+        installGlobalMonitorIfNeeded()
     }
 
     func stop() {
@@ -191,23 +167,6 @@ final class ShakeDetector {
         }
     }
 
-    private func reconcileFrontmostApplication() {
-        setFinderActive(
-            NSWorkspace.shared.frontmostApplication?.bundleIdentifier
-                == Self.finderBundleIdentifier
-        )
-    }
-
-    private func setFinderActive(_ isFinderActive: Bool) {
-        guard isStarted else { return }
-
-        if isFinderActive {
-            installGlobalMonitorIfNeeded()
-        } else {
-            removeGlobalMonitor()
-        }
-    }
-
     private func installGlobalMonitorIfNeeded() {
         guard globalMonitor == nil else { return }
 
@@ -219,7 +178,13 @@ final class ShakeDetector {
             switch event.type {
             case .leftMouseDown:
                 self.resetGestureState()
+                self.dragChangeCountAtMouseDown = self.dragPasteboard.changeCount
+                self.isFileDrag = false
             case .leftMouseDragged:
+                // Any app's file drag (Finder, browser downloads, Photos) writes
+                // the drag pasteboard; plain drags (text selection, window
+                // moves) never do, so they cannot trigger the shelf.
+                guard self.updateIsFileDrag() else { return }
                 if self.processOnMain(
                     point: event.locationInWindow,
                     timestamp: event.timestamp
@@ -235,6 +200,16 @@ final class ShakeDetector {
         }
     }
 
+    private func updateIsFileDrag() -> Bool {
+        let changeCount = dragPasteboard.changeCount
+        if !isFileDrag, changeCount != dragChangeCountAtMouseDown {
+            // Inspect each pasteboard write once, not on every drag event.
+            dragChangeCountAtMouseDown = changeCount
+            isFileDrag = !Self.fileDragTypes.isDisjoint(with: dragPasteboard.types ?? [])
+        }
+        return isFileDrag
+    }
+
     private func removeGlobalMonitor() {
         if let globalMonitor {
             NSEvent.removeMonitor(globalMonitor)
@@ -247,12 +222,6 @@ final class ShakeDetector {
     private func stopOnMain() {
         isStarted = false
         removeGlobalMonitor()
-
-        if let activationObserver {
-            NSWorkspace.shared.notificationCenter.removeObserver(activationObserver)
-            self.activationObserver = nil
-        }
-
         onShake = nil
     }
 
