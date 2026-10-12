@@ -206,6 +206,39 @@ final class ShelfManager: ObservableObject {
         openShelvesStore.save(ordered.compactMap(\.openShelfState))
     }
 
+    /// Deletes received files (dropped text, links, images, file promises)
+    /// that no Shelf or Recent Shelf uses and that are at least 72 hours old.
+    /// Run at launch, when no undo can still bring a closed Shelf back.
+    // ponytail: launch only, so a long-running app keeps received files until
+    // the next launch. A periodic prune must also keep what undo can restore.
+    static func pruneReceivedFiles() {
+        // Until the saved Shelves are back, their files look unused.
+        guard openShelvesStore != nil,
+              let root = try? ShelfPasteboardImporter.receivedRoot() else {
+            return
+        }
+
+        var referencedPaths: Set<String> = []
+        for shelf in shelves {
+            referencedPaths.formUnion(shelf.items.map(\.url.path))
+            referencedPaths.formUnion(shelf.sessionURLs.map(\.path))
+        }
+        // Saved paths, not bookmarks: resolving every entry's bookmarks on
+        // each close is slow, and a received file moved out leaves its
+        // folder empty anyway.
+        for entry in active.historyEntries {
+            referencedPaths.formUnion(entry.paths)
+        }
+
+        DispatchQueue.global(qos: .utility).async {
+            ShelfPasteboardImporter.pruneReceivedFolders(
+                in: root,
+                keeping: referencedPaths,
+                minimumAge: ShelfHistoryStore.retentionInterval
+            )
+        }
+    }
+
     /// Coalesces the several changes one action makes into a single save.
     private static func setNeedsSaveOpenShelves() {
         guard openShelvesStore != nil, !isOpenShelvesSaveScheduled else { return }

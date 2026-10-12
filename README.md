@@ -69,6 +69,7 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 - Optional Dock icon
 - Drop multiple files and folders into one place
 - Drop or paste text, web links, and images: they become `.txt`, `.webloc`, and `.png` files
+- Files DropShelf saves for drops (text, links, images, and drags from Mail or Photos) are deleted when no Shelf or Recent Shelf uses them anymore and they are at least 72 hours old
 - Per-item Quick Look, Open, Show in Finder, Copy, Copy Path, and Share
 - Keyboard control: Space, Delete, Return, arrows, Esc, Command-A/C/V/O
 - Recent Shelves follow files that are renamed or moved

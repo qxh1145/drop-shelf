@@ -101,6 +101,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         didStartApplicationServices = true
 
         ShelfManager.restoreOpenShelves()
+        ShelfManager.pruneReceivedFiles()
 
         menuBarController = MenuBarController { [weak self] in
             self?.showSettings()

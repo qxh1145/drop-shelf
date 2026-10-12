@@ -194,17 +194,58 @@ enum ShelfPasteboardImporter {
         }
     }
 
-    static func makeReceivedDirectory() throws -> URL {
-        // ponytail: received files are never pruned; add cleanup if disk use grows.
-        let directory = try FileManager.default.url(
+    /// Holds a folder per drop of content that has no file of its own.
+    static func receivedRoot() throws -> URL {
+        try FileManager.default.url(
             for: .applicationSupportDirectory,
             in: .userDomainMask,
             appropriateFor: nil,
             create: true
         )
-        .appendingPathComponent("DropShelf/Received/\(UUID().uuidString)", isDirectory: true)
+        .appendingPathComponent("DropShelf/Received", isDirectory: true)
+    }
+
+    static func makeReceivedDirectory() throws -> URL {
+        let directory = try receivedRoot()
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
+    }
+
+    /// Deletes the received folders that no path in `referencedPaths` is
+    /// inside and that are at least `minimumAge` old. The age is a grace
+    /// period for drops still arriving and apps still reading a dropped
+    /// file. Returns the deleted folders.
+    @discardableResult
+    static func pruneReceivedFolders(
+        in root: URL,
+        keeping referencedPaths: Set<String>,
+        minimumAge: TimeInterval,
+        now: Date = Date(),
+        fileManager: FileManager = .default
+    ) -> [URL] {
+        // Paths may name the root through a symlink or not.
+        let rootPrefixes = Set([root.standardizedFileURL, root.resolvingSymlinksInPath()].map { $0.path + "/" })
+        let referencedFolders = Set(referencedPaths.compactMap { path -> String? in
+            guard let prefix = rootPrefixes.first(where: path.hasPrefix) else { return nil }
+            return path.dropFirst(prefix.count).split(separator: "/").first.map(String.init)
+        })
+        let keys: [URLResourceKey] = [.isDirectoryKey, .creationDateKey]
+        let folders = (try? fileManager.contentsOfDirectory(
+            at: root,
+            includingPropertiesForKeys: keys
+        )) ?? []
+
+        return folders.filter { folder in
+            guard !referencedFolders.contains(folder.lastPathComponent),
+                  let values = try? folder.resourceValues(forKeys: Set(keys)),
+                  values.isDirectory == true,
+                  let created = values.creationDate,
+                  now.timeIntervalSince(created) >= minimumAge else {
+                return false
+            }
+            return (try? fileManager.removeItem(at: folder)) != nil
+        }
     }
 
     private static func content(from pasteboard: NSPasteboard) -> (Data, String)? {

@@ -553,6 +553,37 @@ final class ShelfImportAndHistoryTests: XCTestCase {
         )
     }
 
+    func testPruneDeletesOnlyOldUnusedReceivedFolders() throws {
+        let root = directory.appendingPathComponent("Received")
+        let old = Date().addingTimeInterval(-4 * 24 * 60 * 60)
+        var folders: [String: URL] = [:]
+        for name in ["unused", "onShelf", "fresh"] {
+            let folder = root.appendingPathComponent(name)
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            try Data("x".utf8).write(to: folder.appendingPathComponent("Text.txt"))
+            folders[name] = folder
+        }
+        for name in ["unused", "onShelf"] {
+            try FileManager.default.setAttributes([.creationDate: old], ofItemAtPath: folders[name]!.path)
+        }
+        let stray = root.appendingPathComponent("stray.txt")
+        try Data().write(to: stray)
+        try FileManager.default.setAttributes([.creationDate: old], ofItemAtPath: stray.path)
+
+        // Referenced through the symlink-free path (/private/var/…).
+        let deleted = ShelfPasteboardImporter.pruneReceivedFolders(
+            in: root,
+            keeping: [folders["onShelf"]!.appendingPathComponent("Text.txt").resolvingSymlinksInPath().path],
+            minimumAge: ShelfHistoryStore.retentionInterval
+        )
+
+        XCTAssertEqual(deleted.map(\.lastPathComponent), ["unused"])
+        XCTAssertFalse(FileManager.default.fileExists(atPath: folders["unused"]!.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: folders["onShelf"]!.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: folders["fresh"]!.path), "Grace period")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: stray.path), "Only folders are pruned")
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "ShelfImportAndHistoryTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
