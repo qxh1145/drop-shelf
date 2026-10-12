@@ -78,6 +78,8 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 - Open the Shelf at the pointer or where you last left it, snap to screen edges, Keep on Screen
 - Search (Command-F) filters Shelf items and Recent Shelves
 - Finder Services, Open With / Dock drop, `dropshelf://` links, and Shortcuts actions
+- English and Vietnamese, following the macOS language setting
+- Daily update check against GitHub Releases
 - Drag items from the Shelf into Finder or compatible apps
 - Remove individual items
 - Clear and close the Shelf
@@ -104,12 +106,9 @@ _Add a short GIF or screen recording here showing: shake mouse → Shelf appears
 
 ### Download a Release
 
-When packaged builds are available:
-
 1. Open the repository's **Releases** page.
-2. Download the latest `.dmg`, `.zip`, or `.app`.
-3. Extract the archive if necessary.
-4. Move:
+2. Download the latest `DropShelf-x.y.z.dmg`.
+3. Open the DMG and drag:
 
 ```text
 DropShelf.app
@@ -121,11 +120,16 @@ to:
 /Applications
 ```
 
-5. Launch DropShelf.
+4. Launch DropShelf.
+
+DropShelf checks GitHub once a day for a newer release and offers its download
+page. Turn this off in **Settings → General**, or check by hand from the menu bar
+with **Check for Updates…**.
 
 ### macOS security warning
 
-Development or unsigned builds may be blocked by Gatekeeper.
+Release builds are signed ad hoc, not with an Apple Developer ID, so Gatekeeper
+blocks the first launch.
 
 If you trust the build, open:
 
@@ -446,6 +450,31 @@ Shortcut:
 ```text
 ⇧⌘K
 ```
+
+---
+
+## Localization
+
+User-facing strings live in `DropShelf/Resources/Localizable.xcstrings`
+(English source, Vietnamese translation). Wrap new strings in SwiftUI literals or
+`String(localized:)`, then add the translation in Xcode's String Catalog editor.
+To preview another language, edit the scheme and set **Run → Options → App
+Language**.
+
+---
+
+## Publishing a release
+
+1. Bump `MARKETING_VERSION` (and `CURRENT_PROJECT_VERSION`) and commit.
+2. Tag the commit with the same version and push the tag:
+
+```bash
+git tag v1.8.0 && git push origin v1.8.0
+```
+
+The **Release** workflow checks that the tag matches `MARKETING_VERSION`, builds
+the app, signs it ad hoc, packages `DropShelf-1.8.0.dmg`, and publishes a GitHub
+release with generated notes. Installed copies see it on their next update check.
 
 ---
 

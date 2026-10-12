@@ -57,8 +57,8 @@ enum ShelfPlacement: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .nearPointer: "Near the pointer"
-        case .lastPosition: "Where I last moved it"
+        case .nearPointer: String(localized: "Near the pointer")
+        case .lastPosition: String(localized: "Where I last moved it")
         }
     }
 }
@@ -83,6 +83,7 @@ final class AppPreferences: ObservableObject {
         static let shelfPlacement = "DropShelf.shelfPlacement"
         static let snapToScreenEdges = "DropShelf.snapToScreenEdges"
         static let lastShelfCenter = "DropShelf.lastShelfCenter"
+        static let checkForUpdatesAutomatically = "DropShelf.checkForUpdatesAutomatically"
     }
 
     @Published private(set) var shakeSensitivity: Double
@@ -94,6 +95,7 @@ final class AppPreferences: ObservableObject {
     @Published private(set) var automaticallyHideAfterTenSeconds: Bool
     @Published private(set) var shelfPlacement: ShelfPlacement
     @Published private(set) var snapToScreenEdges: Bool
+    @Published private(set) var checkForUpdatesAutomatically: Bool
     @Published private(set) var loginItemStatus: SMAppService.Status
     @Published private(set) var loginItemError: String?
 
@@ -156,7 +158,17 @@ final class AppPreferences: ObservableObject {
             ? true
             : defaults.bool(forKey: Keys.snapToScreenEdges)
 
+        checkForUpdatesAutomatically = defaults.object(forKey: Keys.checkForUpdatesAutomatically) == nil
+            ? true
+            : defaults.bool(forKey: Keys.checkForUpdatesAutomatically)
+
         loginItemStatus = .notRegistered
+    }
+
+    func setCheckForUpdatesAutomatically(_ enabled: Bool) {
+        guard enabled != checkForUpdatesAutomatically else { return }
+        checkForUpdatesAutomatically = enabled
+        defaults.set(enabled, forKey: Keys.checkForUpdatesAutomatically)
     }
 
     /// Center of the Shelf the user last dragged, in screen coordinates.
@@ -202,7 +214,7 @@ final class AppPreferences: ObservableObject {
         }
 
         if loginItemStatus == .requiresApproval {
-            return "Approval is required in System Settings → General → Login Items."
+            return String(localized: "Approval is required in System Settings → General → Login Items.")
         }
 
         return nil
@@ -211,11 +223,11 @@ final class AppPreferences: ObservableObject {
     var sensitivityLabel: String {
         switch shakeSensitivity {
         case ..<0.34:
-            return "Low"
+            return String(localized: "Low")
         case 0.67...:
-            return "High"
+            return String(localized: "High")
         default:
-            return "Balanced"
+            return String(localized: "Balanced")
         }
     }
 
@@ -250,7 +262,7 @@ final class AppPreferences: ObservableObject {
     func setActivationShortcutRegistrationSucceeded(_ succeeded: Bool) {
         activationShortcutError = succeeded
             ? nil
-            : "This shortcut is already used by macOS or another app. Choose a different one."
+            : String(localized: "This shortcut is already used by macOS or another app. Choose a different one.")
     }
 
     func setShowInDock(_ enabled: Bool) {

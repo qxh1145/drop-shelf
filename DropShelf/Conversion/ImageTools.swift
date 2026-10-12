@@ -24,11 +24,11 @@ enum ImageToolError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .unsupportedImage:
-            "This image type can’t be edited."
+            String(localized: "This image type can’t be edited.")
         case let .alreadySmaller(maxPixelSize):
-            "The image is already \(maxPixelSize) px or smaller."
+            String(localized: "The image is already \(maxPixelSize) px or smaller.")
         case .cannotWrite:
-            "Couldn’t save next to the original. Check that its folder is writable."
+            String(localized: "Couldn’t save next to the original. Check that its folder is writable.")
         }
     }
 }

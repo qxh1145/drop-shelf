@@ -19,7 +19,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
             backing: .buffered,
             defer: false
         )
-        window.title = "DropShelf Settings"
+        window.title = String(localized: "DropShelf Settings")
         window.isReleasedWhenClosed = false
         window.contentViewController = NSHostingController(
             rootView: SettingsView(preferences: preferences)

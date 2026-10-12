@@ -262,9 +262,9 @@ struct ShelfView: View {
 
     private var emptyStateHint: String {
         if preferences.shakeGestureEnabled {
-            return "Shake the pointer or press \(preferences.activationShortcut.displayName)"
+            return String(localized: "Shake the pointer or press \(preferences.activationShortcut.displayName)")
         }
-        return "Press \(preferences.activationShortcut.displayName) to open"
+        return String(localized: "Press \(preferences.activationShortcut.displayName) to open")
     }
 
     private var dropTargetOverlay: some View {
@@ -287,8 +287,8 @@ struct ShelfView: View {
     private var dropTargetMessage: String {
         let count = manager.pendingDropItemCount
         return count > 0
-            ? "Drop to add \(count) item\(count == 1 ? "" : "s")"
-            : "Drop to add items"
+            ? String(localized: "Drop to add \(count) items")
+            : String(localized: "Drop to add items")
     }
 
     private static let airDropMenuImage: NSImage = {
@@ -370,7 +370,7 @@ private struct ShelfItemCard: View {
 
 private struct ShelfToolbarButton: View {
     let symbol: String
-    let help: String
+    let help: LocalizedStringKey
     var tint: Color = .secondary
     var isDisabled = false
     let action: () -> Void
@@ -479,17 +479,17 @@ private struct ShelfHistoryView: View {
         var groups: [ShelfHistoryGroup] = []
 
         if !pinned.isEmpty {
-            groups.append(ShelfHistoryGroup(title: "Pinned", entries: pinned))
+            groups.append(ShelfHistoryGroup(title: String(localized: "Pinned"), entries: pinned))
         }
 
         let today = unpinned.filter { calendar.isDateInToday($0.createdAt) }
         if !today.isEmpty {
-            groups.append(ShelfHistoryGroup(title: "Today", entries: today))
+            groups.append(ShelfHistoryGroup(title: String(localized: "Today"), entries: today))
         }
 
         let yesterday = unpinned.filter { calendar.isDateInYesterday($0.createdAt) }
         if !yesterday.isEmpty {
-            groups.append(ShelfHistoryGroup(title: "Yesterday", entries: yesterday))
+            groups.append(ShelfHistoryGroup(title: String(localized: "Yesterday"), entries: yesterday))
         }
 
         let earlier = unpinned.filter {
@@ -497,7 +497,7 @@ private struct ShelfHistoryView: View {
                 && !calendar.isDateInYesterday($0.createdAt)
         }
         if !earlier.isEmpty {
-            groups.append(ShelfHistoryGroup(title: "Earlier", entries: earlier))
+            groups.append(ShelfHistoryGroup(title: String(localized: "Earlier"), entries: earlier))
         }
 
         return groups
@@ -569,7 +569,7 @@ private struct ShelfHistoryEntryRow: View {
 
                         Text(
                             entry.name == nil
-                                ? "\(entry.paths.count) item\(entry.paths.count == 1 ? "" : "s") · "
+                                ? ShelfHistoryPresentation.itemCount(entry.paths.count) + " · "
                                     + ShelfHistoryPresentation.fileSummary(for: entry)
                                 : "\(ShelfHistoryPresentation.detailLine(for: entry)) · "
                                     + ShelfHistoryPresentation.fileSummary(for: entry)
@@ -632,7 +632,11 @@ private struct ShelfItemActionsMenu: View {
     private var imageToolsMenu: some View {
         Menu {
             Menu {
-                ForEach([(2048, "Large"), (1024, "Medium"), (512, "Small")], id: \.0) { size, name in
+                ForEach([
+                    (2048, String(localized: "Large")),
+                    (1024, String(localized: "Medium")),
+                    (512, String(localized: "Small"))
+                ], id: \.0) { size, name in
                     Button("\(name) (\(size) px)") {
                         manager.applyImageTool(.resize(maxPixelSize: size), to: item.id)
                     }

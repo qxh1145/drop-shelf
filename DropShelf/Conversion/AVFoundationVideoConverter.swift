@@ -131,19 +131,19 @@ struct AVFoundationVideoConverter: Sendable {
                         continuation.resume(
                             throwing: ConversionError.videoExportFailed(
                                 sessionBox.session.error?.localizedDescription
-                                    ?? "The video codec is not compatible with the selected container."
+                                    ?? String(localized: "The video codec is not compatible with the selected container.")
                             )
                         )
                     case .unknown, .waiting, .exporting:
                         continuation.resume(
                             throwing: ConversionError.videoExportFailed(
-                                "macOS ended the export without producing a video."
+                                String(localized: "macOS ended the export without producing a video.")
                             )
                         )
                     @unknown default:
                         continuation.resume(
                             throwing: ConversionError.videoExportFailed(
-                                "macOS returned an unknown video export status."
+                                String(localized: "macOS returned an unknown video export status.")
                             )
                         )
                     }

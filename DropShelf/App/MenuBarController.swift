@@ -5,8 +5,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private var statusItem: NSStatusItem?
     private var openSettingsHandler: (() -> Void)?
     private var openOnboardingHandler: (() -> Void)?
-    private let pinnedShelvesMenu = NSMenu(title: "Pinned Shelves")
-    private let openShelvesMenu = NSMenu(title: "Open Shelves")
+    private let pinnedShelvesMenu = NSMenu(title: String(localized: "Pinned Shelves"))
+    private let openShelvesMenu = NSMenu(title: String(localized: "Open Shelves"))
 
     init(
         openSettingsHandler: @escaping () -> Void,
@@ -32,40 +32,40 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.delegate = self
 
         let newShelfItem = NSMenuItem(
-            title: "New Shelf",
+            title: String(localized: "New Shelf"),
             action: #selector(openNewShelf),
             keyEquivalent: ""
         )
         newShelfItem.image = NSImage(
             systemSymbolName: "plus.rectangle.on.rectangle",
-            accessibilityDescription: "New Shelf"
+            accessibilityDescription: String(localized: "New Shelf")
         )
         newShelfItem.target = self
         menu.addItem(newShelfItem)
 
-        let openShelvesItem = NSMenuItem(title: "Open Shelves", action: nil, keyEquivalent: "")
+        let openShelvesItem = NSMenuItem(title: String(localized: "Open Shelves"), action: nil, keyEquivalent: "")
         openShelvesItem.image = NSImage(
             systemSymbolName: "tray.2",
-            accessibilityDescription: "Open Shelves"
+            accessibilityDescription: String(localized: "Open Shelves")
         )
         openShelvesItem.submenu = openShelvesMenu
         menu.addItem(openShelvesItem)
 
         let pinnedShelvesItem = NSMenuItem(
-            title: "Pinned Shelves",
+            title: String(localized: "Pinned Shelves"),
             action: nil,
             keyEquivalent: ""
         )
         pinnedShelvesItem.image = NSImage(
             systemSymbolName: "pin.fill",
-            accessibilityDescription: "Pinned Shelves"
+            accessibilityDescription: String(localized: "Pinned Shelves")
         )
         pinnedShelvesItem.submenu = pinnedShelvesMenu
         menu.addItem(pinnedShelvesItem)
         menu.addItem(.separator())
 
         let onboardingItem = NSMenuItem(
-            title: "Getting Started…",
+            title: String(localized: "Getting Started…"),
             action: #selector(openOnboarding),
             keyEquivalent: ""
         )
@@ -76,8 +76,16 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         onboardingItem.target = self
         menu.addItem(onboardingItem)
 
+        let updatesItem = NSMenuItem(
+            title: String(localized: "Check for Updates…"),
+            action: #selector(checkForUpdates),
+            keyEquivalent: ""
+        )
+        updatesItem.target = self
+        menu.addItem(updatesItem)
+
         let settingsItem = NSMenuItem(
-            title: "Settings…",
+            title: String(localized: "Settings…"),
             action: #selector(openSettings),
             keyEquivalent: ","
         )
@@ -86,7 +94,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
-            title: "Quit DropShelf",
+            title: String(localized: "Quit DropShelf"),
             action: #selector(quitApplication),
             keyEquivalent: "q"
         )
@@ -116,6 +124,10 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         openSettingsHandler?()
     }
 
+    @objc private func checkForUpdates() {
+        UpdateChecker.shared.check(userInitiated: true)
+    }
+
     @objc private func openOnboarding() {
         openOnboardingHandler?()
     }
@@ -138,7 +150,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
         let shelves = ShelfManager.shelves.filter { !$0.items.isEmpty }
         guard !shelves.isEmpty else {
-            let emptyItem = NSMenuItem(title: "No open shelves", action: nil, keyEquivalent: "")
+            let emptyItem = NSMenuItem(title: String(localized: "No open shelves"), action: nil, keyEquivalent: "")
             emptyItem.isEnabled = false
             openShelvesMenu.addItem(emptyItem)
             return
@@ -147,7 +159,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         for (index, shelf) in shelves.enumerated() {
             let count = shelf.items.count
             let item = NSMenuItem(
-                title: "\(shelf.currentShelfName ?? "Shelf \(index + 1)") · \(count) item\(count == 1 ? "" : "s")",
+                title: "\(shelf.currentShelfName ?? String(localized: "Shelf \(index + 1)")) · "
+                    + ShelfHistoryPresentation.itemCount(count),
                 action: #selector(showOpenShelf(_:)),
                 keyEquivalent: ""
             )
@@ -168,7 +181,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         let entries = ShelfManager.active.pinnedHistoryEntries
         guard !entries.isEmpty else {
             let emptyItem = NSMenuItem(
-                title: "No pinned shelves",
+                title: String(localized: "No pinned shelves"),
                 action: nil,
                 keyEquivalent: ""
             )
@@ -265,7 +278,7 @@ private final class PinnedShelfMenuItemView: NSView {
             allFileNames
         ].joined(separator: "\n")
         setAccessibilityRole(.button)
-        setAccessibilityLabel("Restore \(ShelfHistoryPresentation.displayName(for: entry))")
+        setAccessibilityLabel(String(localized: "Restore \(ShelfHistoryPresentation.displayName(for: entry))"))
     }
 
     @available(*, unavailable)

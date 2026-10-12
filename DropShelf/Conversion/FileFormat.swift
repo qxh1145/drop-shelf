@@ -113,31 +113,31 @@ enum ConversionCapabilityMatrix {
             sourceFormat: .heic,
             targetFormat: .jpeg,
             risk: .medium,
-            warning: "JPEG uses lossy compression. HDR range and some HEIC metadata may be reduced. For a multi-image HEIF/HEICS file, only its primary image is converted."
+            warning: String(localized: "JPEG uses lossy compression. HDR range and some HEIC metadata may be reduced. For a multi-image HEIF/HEICS file, only its primary image is converted.")
         ),
         ConversionOption(
             sourceFormat: .heic,
             targetFormat: .png,
             risk: .low,
-            warning: "Some HEIC-specific metadata and HDR information may not be preserved. For a multi-image HEIF/HEICS file, only its primary image is converted."
+            warning: String(localized: "Some HEIC-specific metadata and HDR information may not be preserved. For a multi-image HEIF/HEICS file, only its primary image is converted.")
         ),
         ConversionOption(
             sourceFormat: .jpeg,
             targetFormat: .png,
             risk: .low,
-            warning: "Pixel data is preserved, but some JPEG-specific metadata may not be copied."
+            warning: String(localized: "Pixel data is preserved, but some JPEG-specific metadata may not be copied.")
         ),
         ConversionOption(
             sourceFormat: .jpeg,
             targetFormat: .heic,
             risk: .medium,
-            warning: "This re-encodes an already compressed image and may introduce additional quality loss."
+            warning: String(localized: "This re-encodes an already compressed image and may introduce additional quality loss.")
         ),
         ConversionOption(
             sourceFormat: .png,
             targetFormat: .jpeg,
             risk: .medium,
-            warning: "JPEG does not support transparency. Transparent pixels will be placed on a white background."
+            warning: String(localized: "JPEG does not support transparency. Transparent pixels will be placed on a white background.")
         )
     ]
 
@@ -146,13 +146,13 @@ enum ConversionCapabilityMatrix {
             sourceFormat: .mov,
             targetFormat: .mp4,
             risk: .low,
-            warning: "This changes the video container without re-encoding. It is available only when the existing video and audio codecs are compatible with MP4."
+            warning: String(localized: "This changes the video container without re-encoding. It is available only when the existing video and audio codecs are compatible with MP4.")
         ),
         ConversionOption(
             sourceFormat: .mp4,
             targetFormat: .mov,
             risk: .low,
-            warning: "This changes the video container without re-encoding. It is available only when the existing video and audio codecs are compatible with MOV."
+            warning: String(localized: "This changes the video container without re-encoding. It is available only when the existing video and audio codecs are compatible with MOV.")
         )
     ]
 
@@ -161,31 +161,31 @@ enum ConversionCapabilityMatrix {
             sourceFormat: .pdf,
             targetFormat: .png,
             risk: .medium,
-            warning: "Every PDF page will be rasterized at 144 DPI. Text, vectors, links, forms, and annotations will no longer be editable. A multi-page PDF creates one PNG per page."
+            warning: String(localized: "Every PDF page will be rasterized at 144 DPI. Text, vectors, links, forms, and annotations will no longer be editable. A multi-page PDF creates one PNG per page.")
         ),
         ConversionOption(
             sourceFormat: .pdf,
             targetFormat: .jpeg,
             risk: .high,
-            warning: "Every PDF page will be rasterized as a lossy JPEG at 144 DPI. Text, vectors, links, forms, and annotations will no longer be editable. A multi-page PDF creates one JPEG per page."
+            warning: String(localized: "Every PDF page will be rasterized as a lossy JPEG at 144 DPI. Text, vectors, links, forms, and annotations will no longer be editable. A multi-page PDF creates one JPEG per page.")
         ),
         ConversionOption(
             sourceFormat: .jpeg,
             targetFormat: .pdf,
             risk: .low,
-            warning: "The image will remain raster content inside a one-page PDF; this does not create editable or searchable text."
+            warning: String(localized: "The image will remain raster content inside a one-page PDF; this does not create editable or searchable text.")
         ),
         ConversionOption(
             sourceFormat: .png,
             targetFormat: .pdf,
             risk: .low,
-            warning: "The image will remain raster content inside a one-page PDF. Transparent areas will appear on a white page."
+            warning: String(localized: "The image will remain raster content inside a one-page PDF. Transparent areas will appear on a white page.")
         ),
         ConversionOption(
             sourceFormat: .heic,
             targetFormat: .pdf,
             risk: .medium,
-            warning: "The image will remain raster content inside a one-page PDF. HDR and HEIC metadata may be reduced; multi-image HEIF/HEICS uses only its primary image."
+            warning: String(localized: "The image will remain raster content inside a one-page PDF. HDR and HEIC metadata may be reduced; multi-image HEIF/HEICS uses only its primary image.")
         )
     ]
 

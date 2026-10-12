@@ -18,7 +18,7 @@ final class OnboardingWindowController: NSWindowController, NSWindowDelegate {
             backing: .buffered,
             defer: false
         )
-        window.title = "Welcome to DropShelf"
+        window.title = String(localized: "Welcome to DropShelf")
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true

@@ -19,7 +19,9 @@
 		01000000000000000000000A /* ShakeDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000A /* ShakeDetectorTests.swift */; };
 		01000000000000000000000B /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000E /* XCTest.framework */; };
 		01000000000000000000000C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000F /* Assets.xcassets */; };
+		010000000000000000000020 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000023 /* Localizable.xcstrings */; };
 		01000000000000000000000D /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000010 /* MenuBarController.swift */; };
+		01000000000000000000001F /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000022 /* UpdateChecker.swift */; };
 		01000000000000000000001E /* AppIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000021 /* AppIntegration.swift */; };
 		01000000000000000000000E /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000011 /* AppPreferences.swift */; };
 		01000000000000000000000F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000012 /* SettingsView.swift */; };
@@ -65,7 +67,9 @@
 		02000000000000000000000D /* DropShelfTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DropShelfTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		02000000000000000000000E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 		02000000000000000000000F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		020000000000000000000023 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		020000000000000000000010 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		020000000000000000000022 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
 		020000000000000000000021 /* AppIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntegration.swift; sourceTree = "<group>"; };
 		020000000000000000000011 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
 		020000000000000000000012 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -135,6 +139,7 @@
 				020000000000000000000001 /* DropShelfApp.swift */,
 				020000000000000000000002 /* AppDelegate.swift */,
 				020000000000000000000010 /* MenuBarController.swift */,
+				020000000000000000000022 /* UpdateChecker.swift */,
 				020000000000000000000021 /* AppIntegration.swift */,
 				02000000000000000000001A /* GlobalHotKeyController.swift */,
 			);
@@ -167,6 +172,7 @@
 			isa = PBXGroup;
 			children = (
 				02000000000000000000000B /* Info.plist */,
+				020000000000000000000023 /* Localizable.xcstrings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -295,6 +301,7 @@
 			knownRegions = (
 				en,
 				Base,
+				vi,
 			);
 			mainGroup = 050000000000000000000001;
 			productRefGroup = 050000000000000000000009 /* Products */;
@@ -313,6 +320,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				01000000000000000000000C /* Assets.xcassets in Resources */,
+				010000000000000000000020 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,6 +341,7 @@
 				010000000000000000000001 /* DropShelfApp.swift in Sources */,
 				010000000000000000000002 /* AppDelegate.swift in Sources */,
 				01000000000000000000000D /* MenuBarController.swift in Sources */,
+				01000000000000000000001F /* UpdateChecker.swift in Sources */,
 				01000000000000000000001E /* AppIntegration.swift in Sources */,
 				010000000000000000000003 /* ShakeDetector.swift in Sources */,
 				01000000000000000000000E /* AppPreferences.swift in Sources */,
@@ -504,7 +513,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = PD79TCT72F;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -516,7 +525,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qxh1145.DropShelf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -532,7 +541,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = PD79TCT72F;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -544,7 +553,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qxh1145.DropShelf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

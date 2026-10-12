@@ -78,7 +78,7 @@ final class ShelfServicesProvider: NSObject {
     ) {
         let urls = ShelfPasteboardImporter.fileURLs(from: pasteboard)
         guard !urls.isEmpty else {
-            error.pointee = "DropShelf couldn’t read the selection." as NSString
+            error.pointee = String(localized: "DropShelf couldn’t read the selection.") as NSString
             return
         }
         ShelfManager.receive(urls)

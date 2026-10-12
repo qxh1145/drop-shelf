@@ -79,8 +79,11 @@ enum ShelfHistoryPresentation {
         for entry: ShelfHistoryEntry,
         relativeTo now: Date = Date()
     ) -> String {
-        let count = entry.paths.count
-        return "\(dateTitle(for: entry.createdAt, relativeTo: now)) · \(count) item\(count == 1 ? "" : "s")"
+        "\(dateTitle(for: entry.createdAt, relativeTo: now)) · \(itemCount(entry.paths.count))"
+    }
+
+    static func itemCount(_ count: Int) -> String {
+        String(localized: "\(count) items")
     }
 
     static func fileSummary(
@@ -92,7 +95,7 @@ enum ShelfHistoryPresentation {
         }
         let remainingCount = entry.paths.count - visibleNames.count
         let names = visibleNames.joined(separator: ", ")
-        return remainingCount > 0 ? "\(names) +\(remainingCount) more" : names
+        return remainingCount > 0 ? String(localized: "\(names) +\(remainingCount) more") : names
     }
 
     static func dateTitle(
@@ -101,12 +104,12 @@ enum ShelfHistoryPresentation {
     ) -> String {
         let day: String
         if Calendar.current.isDate(date, inSameDayAs: now) {
-            day = "Today"
+            day = String(localized: "Today")
         } else if Calendar.current.isDate(
             date,
             inSameDayAs: Calendar.current.date(byAdding: .day, value: -1, to: now) ?? now
         ) {
-            day = "Yesterday"
+            day = String(localized: "Yesterday")
         } else {
             day = dayFormatter.string(from: date)
         }
@@ -123,7 +126,7 @@ enum ShelfHistoryPresentation {
 
     private static let dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d"
+        formatter.setLocalizedDateFormatFromTemplate("MMMd")
         return formatter
     }()
 }

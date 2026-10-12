@@ -305,4 +305,26 @@ final class ShelfImportAndHistoryTests: XCTestCase {
         panel.updateLayout(itemCount: 1, selectionCount: 0, showingHistory: false, showingSearch: true, animated: false)
         XCTAssertEqual(panel.frame.size, NSSize(width: 310, height: 252))
     }
+
+    func testUpdateVersionComparison() {
+        XCTAssertTrue(UpdateVersion.isNewer("v1.10.0", than: "1.9.3"))
+        XCTAssertTrue(UpdateVersion.isNewer("v2", than: "1.99.99"))
+        XCTAssertFalse(UpdateVersion.isNewer("v1.8.0", than: "1.8.0"))
+        XCTAssertFalse(UpdateVersion.isNewer("v1.8", than: "1.8.0"))
+        XCTAssertFalse(UpdateVersion.isNewer("v1.7.9", than: "1.8.0"))
+        XCTAssertFalse(UpdateVersion.isNewer("v1.8.0-beta", than: "1.8.0"))
+        XCTAssertEqual(UpdateVersion.displayString("v1.8.0"), "1.8.0")
+    }
+
+    func testVietnameseAndEnglishPluralLocalizations() throws {
+        let appBundle = Bundle(for: ShelfManager.self)
+        let vi = try XCTUnwrap(appBundle.path(forResource: "vi", ofType: "lproj").flatMap(Bundle.init(path:)))
+        XCTAssertEqual(vi.localizedString(forKey: "Recent Shelves", value: nil, table: nil), "Kệ gần đây")
+
+        let en = try XCTUnwrap(appBundle.path(forResource: "en", ofType: "lproj").flatMap(Bundle.init(path:)))
+        let format = en.localizedString(forKey: "%lld items", value: nil, table: nil)
+        let english = Locale(identifier: "en")
+        XCTAssertEqual(String(format: format, locale: english, 1), "1 item")
+        XCTAssertEqual(String(format: format, locale: english, 3), "3 items")
+    }
 }

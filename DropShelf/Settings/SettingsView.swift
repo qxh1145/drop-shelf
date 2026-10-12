@@ -134,6 +134,17 @@ struct SettingsView: View {
                 )
             )
 
+            Divider()
+
+            SettingsToggleRow(
+                title: "Check for updates automatically",
+                description: "Ask GitHub once a day whether a newer release exists. No personal data is sent.",
+                isOn: Binding(
+                    get: { preferences.checkForUpdatesAutomatically },
+                    set: { preferences.setCheckForUpdatesAutomatically($0) }
+                )
+            )
+
             if let statusMessage = preferences.loginItemStatusMessage {
                 Text(statusMessage)
                     .font(.caption)
@@ -313,7 +324,7 @@ struct SettingsView: View {
             as? String ?? "1.2.0"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion")
             as? String ?? "8"
-        return "Version \(version) (\(build))"
+        return String(localized: "Version \(version) (\(build))")
     }
 }
 
@@ -328,21 +339,21 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .general: "General"
-        case .activation: "Activation"
-        case .shelf: "Shelf"
-        case .history: "History"
-        case .about: "About"
+        case .general: String(localized: "General")
+        case .activation: String(localized: "Activation")
+        case .shelf: String(localized: "Shelf")
+        case .history: String(localized: "History")
+        case .about: String(localized: "About")
         }
     }
 
     var subtitle: String {
         switch self {
-        case .general: "Choose how DropShelf appears and starts."
-        case .activation: "Configure how you summon a Shelf."
-        case .shelf: "Control Shelf placement, closing, and visibility."
-        case .history: "Understand recent and pinned Shelf retention."
-        case .about: "Version and application information."
+        case .general: String(localized: "Choose how DropShelf appears and starts.")
+        case .activation: String(localized: "Configure how you summon a Shelf.")
+        case .shelf: String(localized: "Control Shelf placement, closing, and visibility.")
+        case .history: String(localized: "Understand recent and pinned Shelf retention.")
+        case .about: String(localized: "Version and application information.")
         }
     }
 
@@ -378,8 +389,8 @@ private struct SettingsCard<Content: View>: View {
 }
 
 private struct SettingsToggleRow: View {
-    let title: String
-    let description: String
+    let title: LocalizedStringKey
+    let description: LocalizedStringKey
     @Binding var isOn: Bool
 
     var body: some View {
@@ -401,8 +412,8 @@ private struct SettingsToggleRow: View {
 
 private struct SettingsInfoRow: View {
     let symbol: String
-    let title: String
-    let description: String
+    let title: LocalizedStringKey
+    let description: LocalizedStringKey
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -452,7 +463,7 @@ private final class ShortcutRecorderButton: NSButton {
         font = .monospacedSystemFont(ofSize: 12, weight: .medium)
         target = self
         action = #selector(toggleRecording)
-        toolTip = "Click, then type a keyboard shortcut"
+        toolTip = String(localized: "Click, then type a keyboard shortcut")
         updateTitle()
     }
 
@@ -507,7 +518,7 @@ private final class ShortcutRecorderButton: NSButton {
             finishRecording()
         } else {
             isRecordingShortcut = true
-            title = "Type shortcut…"
+            title = String(localized: "Type shortcut…")
             window?.makeFirstResponder(self)
         }
     }
@@ -520,7 +531,7 @@ private final class ShortcutRecorderButton: NSButton {
 
         guard let recordedShortcut = ShelfActivationShortcut(event: event) else {
             NSSound.beep()
-            title = "Add a modifier…"
+            title = String(localized: "Add a modifier…")
             return
         }
 
@@ -539,6 +550,6 @@ private final class ShortcutRecorderButton: NSButton {
 
     private func updateTitle() {
         title = shortcut.displayName
-        setAccessibilityLabel("Open Shelf shortcut: \(shortcut.displayName)")
+        setAccessibilityLabel(String(localized: "Open Shelf shortcut: \(shortcut.displayName)"))
     }
 }

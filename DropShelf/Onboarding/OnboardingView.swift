@@ -124,7 +124,7 @@ struct OnboardingView: View {
                     symbol: "keyboard",
                     title: "Open Shelf",
                     detail: preferences.activationShortcutError == nil
-                        ? preferences.activationShortcut.displayName
+                        ? LocalizedStringKey(preferences.activationShortcut.displayName)
                         : "Unavailable — change in Settings"
                 )
                 ReadyRow(
@@ -192,9 +192,9 @@ private extension OnboardingView {
 
         var title: String {
             switch self {
-            case .welcome: "Welcome"
-            case .practice: "Practice"
-            case .ready: "Ready"
+            case .welcome: String(localized: "Welcome")
+            case .practice: String(localized: "Practice")
+            case .ready: String(localized: "Ready")
             }
         }
 
@@ -211,15 +211,15 @@ private extension OnboardingView {
 private struct OnboardingPage<Content: View>: View {
     let symbol: String
     var symbolColor: Color = .accentColor
-    let title: String
-    let subtitle: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
     @ViewBuilder let content: Content
 
     init(
         symbol: String,
         symbolColor: Color = .accentColor,
-        title: String,
-        subtitle: String,
+        title: LocalizedStringKey,
+        subtitle: LocalizedStringKey,
         @ViewBuilder content: () -> Content
     ) {
         self.symbol = symbol
@@ -257,8 +257,8 @@ private struct OnboardingPage<Content: View>: View {
 
 private struct FeatureCard: View {
     let symbol: String
-    let title: String
-    let detail: String
+    let title: LocalizedStringKey
+    let detail: LocalizedStringKey
 
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
@@ -354,8 +354,8 @@ private struct ShakePracticeView: View {
 
 private struct ReadyRow: View {
     let symbol: String
-    let title: String
-    let detail: String
+    let title: LocalizedStringKey
+    let detail: LocalizedStringKey
 
     var body: some View {
         HStack(spacing: 12) {

@@ -122,6 +122,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         registerActivationShortcut()
 
+        UpdateChecker.shared.checkAutomaticallyIfNeeded()
+
         if OnboardingManager.shared.shouldPresentOnLaunch {
             showOnboarding()
         }

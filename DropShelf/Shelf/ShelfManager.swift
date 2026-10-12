@@ -291,15 +291,15 @@ final class ShelfManager: ObservableObject {
         cancelAutoHide()
 
         let alert = NSAlert()
-        alert.messageText = currentShelfName == nil ? "Name this Shelf" : "Rename this Shelf"
-        alert.informativeText = "This name will appear in Recent Shelves and the menu bar when pinned."
-        alert.addButton(withTitle: "Save")
-        alert.addButton(withTitle: "Cancel")
+        alert.messageText = currentShelfName == nil ? String(localized: "Name this Shelf") : String(localized: "Rename this Shelf")
+        alert.informativeText = String(localized: "This name will appear in Recent Shelves and the menu bar when pinned.")
+        alert.addButton(withTitle: String(localized: "Save"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
 
         let nameField = NSTextField(
             frame: NSRect(x: 0, y: 0, width: 280, height: 24)
         )
-        nameField.placeholderString = "e.g. Design review"
+        nameField.placeholderString = String(localized: "e.g. Design review")
         nameField.stringValue = currentShelfName ?? ""
         alert.accessoryView = nameField
 
@@ -677,8 +677,8 @@ final class ShelfManager: ObservableObject {
             if !failures.isEmpty {
                 self.showAlert(
                     title: failures.count == 1
-                        ? "Couldn’t process image"
-                        : "Couldn’t process \(failures.count) images",
+                        ? String(localized: "Couldn’t process image")
+                        : String(localized: "Couldn’t process \(failures.count) images"),
                     message: failures.joined(separator: "\n")
                 )
             }
@@ -693,17 +693,16 @@ final class ShelfManager: ObservableObject {
         cancelAutoHide()
 
         let alert = NSAlert()
-        alert.addButton(withTitle: "Rename")
-        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: String(localized: "Rename"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
         let nameField = NSTextField(frame: NSRect(x: 0, y: 0, width: 280, height: 24))
         if targets.count == 1 {
-            alert.messageText = "Rename “\(first.url.lastPathComponent)”"
-            alert.informativeText = "The file is renamed in place on disk."
+            alert.messageText = String(localized: "Rename “\(first.url.lastPathComponent)”")
+            alert.informativeText = String(localized: "The file is renamed in place on disk.")
             nameField.stringValue = first.url.lastPathComponent
         } else {
-            alert.messageText = "Rename \(targets.count) Items"
-            alert.informativeText = "Files are renamed in place, numbered in Shelf order: "
-                + "“Name 1”, “Name 2”, … Extensions are kept."
+            alert.messageText = String(localized: "Rename \(targets.count) Items")
+            alert.informativeText = String(localized: "Files are renamed in place, numbered in Shelf order: “Name 1”, “Name 2”, … Extensions are kept.")
             nameField.stringValue = first.url.deletingPathExtension().lastPathComponent
         }
         alert.accessoryView = nameField
@@ -712,7 +711,7 @@ final class ShelfManager: ObservableObject {
         alert.window.initialFirstResponder = nameField
         if alert.runModal() == .alertFirstButtonReturn,
            let message = renameItems(targets, to: nameField.stringValue) {
-            showAlert(title: "Couldn’t rename", message: message)
+            showAlert(title: String(localized: "Couldn’t rename"), message: message)
         }
         scheduleAutoHideIfNeeded()
     }
@@ -736,7 +735,7 @@ final class ShelfManager: ObservableObject {
             where newURL != item.url
                 && fileManager.fileExists(atPath: newURL.path)
                 && !ShelfRenamePlanner.isSameFile(item.url, newURL) {
-            return "“\(newURL.lastPathComponent)” already exists in that folder."
+            return String(localized: "“\(newURL.lastPathComponent)” already exists in that folder.")
         }
 
         var completed: [(from: URL, to: URL)] = []
@@ -793,19 +792,19 @@ final class ShelfManager: ObservableObject {
             let alert = NSAlert()
             alert.alertStyle = .warning
             alert.messageText = targets.count == 1
-                ? "Convert to \(option.targetFormat.displayName)?"
-                : "Convert \(targets.count) items to \(option.targetFormat.displayName)?"
+                ? String(localized: "Convert to \(option.targetFormat.displayName)?")
+                : String(localized: "Convert \(targets.count) items to \(option.targetFormat.displayName)?")
             alert.informativeText = warning
-            alert.addButton(withTitle: "Continue")
-            alert.addButton(withTitle: "Cancel")
+            alert.addButton(withTitle: String(localized: "Continue"))
+            alert.addButton(withTitle: String(localized: "Cancel"))
 
             NSApp.activate(ignoringOtherApps: true)
             guard alert.runModal() == .alertFirstButtonReturn else { return }
         }
 
         let folderPanel = NSOpenPanel()
-        folderPanel.title = "Choose Destination Folder"
-        folderPanel.prompt = "Choose"
+        folderPanel.title = String(localized: "Choose Destination Folder")
+        folderPanel.prompt = String(localized: "Choose")
         folderPanel.canChooseFiles = false
         folderPanel.canChooseDirectories = true
         folderPanel.allowsMultipleSelection = false
@@ -872,8 +871,8 @@ final class ShelfManager: ObservableObject {
             if !failures.isEmpty {
                 self.showAlert(
                     title: failures.count == 1
-                        ? "Couldn’t convert file"
-                        : "Couldn’t convert \(failures.count) files",
+                        ? String(localized: "Couldn’t convert file")
+                        : String(localized: "Couldn’t convert \(failures.count) files"),
                     message: failures.joined(separator: "\n")
                 )
             }
@@ -888,8 +887,8 @@ final class ShelfManager: ObservableObject {
         guard let service = NSSharingService(named: .sendViaAirDrop),
               service.canPerform(withItems: urls) else {
             showAlert(
-                title: "AirDrop is unavailable",
-                message: "macOS could not start AirDrop for the files currently in the Shelf."
+                title: String(localized: "AirDrop is unavailable"),
+                message: String(localized: "macOS could not start AirDrop for the files currently in the Shelf.")
             )
             return
         }
@@ -906,9 +905,9 @@ final class ShelfManager: ObservableObject {
         let sourceURLs = bulkActionItems.map(\.url)
         let savePanel = NSSavePanel()
         savePanel.title = usesSelectionForBulkActions
-            ? "Zip Selected Shelf Items"
-            : "Zip All Shelf Items"
-        savePanel.prompt = "Create ZIP"
+            ? String(localized: "Zip Selected Shelf Items")
+            : String(localized: "Zip All Shelf Items")
+        savePanel.prompt = String(localized: "Create ZIP")
         savePanel.nameFieldStringValue = "DropShelf.zip"
         savePanel.allowedContentTypes = [.zip]
         savePanel.canCreateDirectories = true
@@ -926,8 +925,8 @@ final class ShelfManager: ObservableObject {
 
         guard !Self.destination(destinationURL, overlaps: sourceURLs) else {
             showAlert(
-                title: "Choose another location",
-                message: "The ZIP cannot replace an item in the Shelf or be created inside a folder that is being zipped."
+                title: String(localized: "Choose another location"),
+                message: String(localized: "The ZIP cannot replace an item in the Shelf or be created inside a folder that is being zipped.")
             )
             return
         }
@@ -954,7 +953,7 @@ final class ShelfManager: ObservableObject {
                     NSWorkspace.shared.activateFileViewerSelecting([archiveURL])
                 case let .failure(message):
                     self.showAlert(
-                        title: "Couldn’t create ZIP",
+                        title: String(localized: "Couldn’t create ZIP"),
                         message: message
                     )
                 }
@@ -1012,7 +1011,7 @@ final class ShelfManager: ObservableObject {
         } else if let firstOutputURL = outputURLs?.first {
             conversionStates[itemID] = .success(firstOutputURL)
         } else if outputURLs != nil {
-            conversionStates[itemID] = .failed("The conversion did not produce any files.")
+            conversionStates[itemID] = .failed(String(localized: "The conversion did not produce any files."))
         } else {
             conversionStates[itemID] = .idle
         }
@@ -1183,7 +1182,7 @@ final class ShelfManager: ObservableObject {
         alert.alertStyle = .warning
         alert.messageText = title
         alert.informativeText = message
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: String(localized: "OK"))
         alert.runModal()
     }
 }
@@ -1237,7 +1236,7 @@ enum ZipArchiver {
             let details = String(data: errorData, encoding: .utf8)?
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             let message = details.flatMap { $0.isEmpty ? nil : $0 }
-                ?? "The archive tool exited with status \(process.terminationStatus)."
+                ?? String(localized: "The archive tool exited with status \(process.terminationStatus).")
             throw ZipArchiveError.creationFailed(
                 message
             )
@@ -1282,12 +1281,12 @@ private enum ZipArchiveError: LocalizedError {
 enum ShelfRenamePlanner {
     static func validationError(for name: String) -> String? {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty { return "Enter a name." }
+        if trimmed.isEmpty { return String(localized: "Enter a name.") }
         if trimmed.contains("/") || trimmed.contains(":") {
-            return "Names can’t contain “/” or “:”."
+            return String(localized: "Names can’t contain “/” or “:”.")
         }
-        if trimmed.hasPrefix(".") { return "Names can’t start with a period." }
-        if trimmed.count > 200 { return "That name is too long." }
+        if trimmed.hasPrefix(".") { return String(localized: "Names can’t start with a period.") }
+        if trimmed.count > 200 { return String(localized: "That name is too long.") }
         return nil
     }
 

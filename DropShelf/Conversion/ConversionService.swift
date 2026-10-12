@@ -359,45 +359,45 @@ enum ConversionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .sourceMissing:
-            return "The source file no longer exists."
+            return String(localized: "The source file no longer exists.")
         case .sourceUnreadable:
-            return "DropShelf does not have permission to read the source file."
+            return String(localized: "DropShelf does not have permission to read the source file.")
         case .unsupportedSource:
-            return "This file is not a supported JPEG, PNG, HEIC, PDF, MOV, or MP4 file."
+            return String(localized: "This file is not a supported JPEG, PNG, HEIC, PDF, MOV, or MP4 file.")
         case .multiFrameSourceUnsupported:
-            return "Animated or multi-frame images are not supported."
+            return String(localized: "Animated or multi-frame images are not supported.")
         case let .unsupportedConversion(source, target):
-            return "Converting \(source.displayName) to \(target.displayName) is not supported."
+            return String(localized: "Converting \(source.displayName) to \(target.displayName) is not supported.")
         case .unsupportedVideoSource:
-            return "This is not a supported MOV or MP4 video, or it does not contain a video track."
+            return String(localized: "This is not a supported MOV or MP4 video, or it does not contain a video track.")
         case .unsupportedVideoTarget:
-            return "The selected output is not a supported video format."
+            return String(localized: "The selected output is not a supported video format.")
         case .cannotCreateVideoExportSession:
-            return "macOS could not prepare this video for conversion. Its codecs may be unsupported."
+            return String(localized: "macOS could not prepare this video for conversion. Its codecs may be unsupported.")
         case let .videoExportFailed(message):
-            return "The video could not be converted. \(message)"
+            return String(localized: "The video could not be converted. \(message)")
         case .encryptedPDFUnsupported:
-            return "Password-protected PDFs must be unlocked before conversion."
+            return String(localized: "Password-protected PDFs must be unlocked before conversion.")
         case .corruptedOrUnreadablePDF:
-            return "The PDF could not be read. It may be damaged or contain an invalid page."
+            return String(localized: "The PDF could not be read. It may be damaged or contain an invalid page.")
         case .unsupportedPDFTarget:
-            return "PDF pages can currently be converted only to PNG or JPEG."
+            return String(localized: "PDF pages can currently be converted only to PNG or JPEG.")
         case .cannotCreatePDF:
-            return "macOS could not create a valid PDF from this image."
+            return String(localized: "macOS could not create a valid PDF from this image.")
         case .multipleOutputFiles:
-            return "This conversion produced multiple files. Use the multi-file conversion result."
+            return String(localized: "This conversion produced multiple files. Use the multi-file conversion result.")
         case .corruptedOrUnreadableSource:
-            return "The image could not be decoded. It may be damaged or use an unsupported codec."
+            return String(localized: "The image could not be decoded. It may be damaged or use an unsupported codec.")
         case .destinationIsNotDirectory:
-            return "The selected destination is not a folder."
+            return String(localized: "The selected destination is not a folder.")
         case .cannotCreateOutput:
-            return "The output file could not be created. Check folder permissions and free disk space."
+            return String(localized: "The output file could not be created. Check folder permissions and free disk space.")
         case .cannotFlattenTransparency:
-            return "The image transparency could not be prepared for JPEG."
+            return String(localized: "The image transparency could not be prepared for JPEG.")
         case .encodingFailed:
-            return "macOS could not encode the converted image. Check disk space and try again."
+            return String(localized: "macOS could not encode the converted image. Check disk space and try again.")
         case .tooManyFilenameCollisions:
-            return "A unique output filename could not be created."
+            return String(localized: "A unique output filename could not be created.")
         }
     }
 }
