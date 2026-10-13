@@ -38,3 +38,27 @@ struct ShelfItem: Identifiable, Hashable, Codable {
         return (ShelfItem(id: id, url: resolved, bookmark: isStale ? nil : bookmark), false)
     }
 }
+
+enum ShelfFileSize {
+    /// Total bytes of the files, counting everything inside folders.
+    static func bytes(of urls: [URL], fileManager: FileManager = .default) -> Int64 {
+        let keys: Set<URLResourceKey> = [.fileSizeKey, .isDirectoryKey]
+        var total: Int64 = 0
+        for url in urls {
+            guard let values = try? url.resourceValues(forKeys: keys) else { continue }
+            guard values.isDirectory == true else {
+                total += Int64(values.fileSize ?? 0)
+                continue
+            }
+            let contents = fileManager.enumerator(at: url, includingPropertiesForKeys: Array(keys))
+            while let file = contents?.nextObject() as? URL {
+                total += Int64((try? file.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0)
+            }
+        }
+        return total
+    }
+
+    static func string(_ bytes: Int64) -> String {
+        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    }
+}

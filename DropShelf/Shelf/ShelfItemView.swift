@@ -240,7 +240,7 @@ private struct ShelfItemLabel: View {
                 .help(
                     isMissing
                         ? String(localized: "“\(item.url.lastPathComponent)” was deleted or moved to the Trash.")
-                        : item.url.lastPathComponent
+                        : item.url.lastPathComponent + fileSizeLine
                 )
         }
         .padding(.horizontal, 7)
@@ -267,6 +267,16 @@ private struct ShelfItemLabel: View {
         .scaleEffect(isHovered ? 1.015 : 1)
         .animation(.easeOut(duration: 0.16), value: isHovered)
         .animation(.easeOut(duration: 0.16), value: isSelected)
+    }
+
+    /// Files only; a folder's size would mean walking it on every render.
+    private var fileSizeLine: String {
+        guard let values = try? item.url.resourceValues(forKeys: [.fileSizeKey, .isDirectoryKey]),
+              values.isDirectory != true,
+              let size = values.fileSize else {
+            return ""
+        }
+        return "\n" + ShelfFileSize.string(Int64(size))
     }
 
     private var cardBackground: Color {

@@ -5,6 +5,8 @@ struct ShelfView: View {
     @ObservedObject var manager: ShelfManager
     @ObservedObject private var preferences = AppPreferences.shared
     @State private var hasAppeared = false
+    /// Bytes of the visible items and of the selection, measured off the main thread.
+    @State private var sizes: (visible: Int64, selected: Int64)?
     
     var body: some View {
         VStack(spacing: 9) {
@@ -77,11 +79,22 @@ struct ShelfView: View {
         .animation(.easeOut(duration: 0.16), value: manager.selectedItemIDs.count)
         .animation(.easeOut(duration: 0.14), value: manager.isReceivingDrop)
         .animation(.easeOut(duration: 0.16), value: manager.isSearching)
+        .task(id: sizeKey) {
+            let visible = manager.visibleItems.map(\.url)
+            let selected = manager.actionItems().map(\.url)
+            sizes = await Task.detached(priority: .utility) {
+                (ShelfFileSize.bytes(of: visible), ShelfFileSize.bytes(of: selected))
+            }.value
+        }
     }
     
     private var gridColumns: [GridItem] {
         let count = max(1, min(manager.visibleItems.count, ShelfPanel.maximumColumns))
         return Array(repeating: GridItem(.fixed(98), spacing: 10), count: count)
+    }
+
+    private var sizeKey: [String] {
+        manager.visibleItems.map(\.url.path) + manager.selectedItemIDs.map(\.uuidString).sorted()
     }
 
     private var dragHandle: some View {
@@ -145,6 +158,14 @@ struct ShelfView: View {
             }
             
             Menu {
+                if !manager.visibleItems.isEmpty, !manager.isShowingHistory {
+                    Text(
+                        ShelfHistoryPresentation.itemCount(manager.visibleItems.count)
+                            + (sizes.map { " · " + ShelfFileSize.string($0.visible) } ?? "")
+                    )
+                    Divider()
+                }
+
                 Button {
                     ShelfManager.openNewShelf()
                 } label: {
@@ -239,7 +260,8 @@ struct ShelfView: View {
         HStack(spacing: 7) {
             Image(systemName: "checkmark.circle.fill")
                 .foregroundStyle(Color.accentColor)
-            Text("\(manager.selectedItemIDs.count) items selected")
+            (Text("\(manager.selectedItemIDs.count) items selected")
+                + Text(sizes.map { " · " + ShelfFileSize.string($0.selected) } ?? ""))
                 .font(.system(size: 11, weight: .medium))
             Spacer()
             Button("Clear") {

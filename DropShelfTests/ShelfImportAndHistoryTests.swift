@@ -593,6 +593,19 @@ final class ShelfImportAndHistoryTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: stray.path), "Only folders are pruned")
     }
 
+    func testFileSizeCountsFolderContents() throws {
+        let folder = directory.appendingPathComponent("Folder/Sub")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        try Data(count: 1_000).write(to: folder.appendingPathComponent("a.bin"))
+        let file = directory.appendingPathComponent("b.bin")
+        try Data(count: 500).write(to: file)
+
+        XCTAssertEqual(
+            ShelfFileSize.bytes(of: [directory.appendingPathComponent("Folder"), file]),
+            1_500
+        )
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "ShelfImportAndHistoryTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
