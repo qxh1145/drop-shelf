@@ -31,8 +31,9 @@ struct ShelfView: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 10) {
+                // Vertical, so a plain mouse wheel scrolls a full Shelf.
+                ScrollView(.vertical, showsIndicators: true) {
+                    LazyVGrid(columns: gridColumns, spacing: 10) {
                         ForEach(manager.visibleItems) { item in
                             ShelfItemCard(item: item, manager: manager)
                                 .transition(
@@ -78,6 +79,11 @@ struct ShelfView: View {
         .animation(.easeOut(duration: 0.16), value: manager.isSearching)
     }
     
+    private var gridColumns: [GridItem] {
+        let count = max(1, min(manager.visibleItems.count, ShelfPanel.maximumColumns))
+        return Array(repeating: GridItem(.fixed(98), spacing: 10), count: count)
+    }
+
     private var dragHandle: some View {
         WindowDragHandle()
             .frame(width: 60, height: 12)

@@ -7,6 +7,8 @@ final class ShelfPanel: NSPanel {
     private static let maximumShelfWidth: CGFloat = 640
     private static let itemWidth: CGFloat = 98
     private static let itemSpacing: CGFloat = 10
+    static let maximumColumns = 6
+    private static let rowHeight: CGFloat = 130
     private weak var shelfManager: ShelfManager?
 
     init(manager: ShelfManager) {
@@ -46,7 +48,9 @@ final class ShelfPanel: NSPanel {
         if showingHistory {
             targetSize = NSSize(width: 470, height: 340)
         } else {
-            let visibleItemCount = max(1, min(itemCount, 6))
+            let visibleItemCount = max(1, min(itemCount, Self.maximumColumns))
+            // A second row shows more at once; past that the grid scrolls.
+            let extraRows = itemCount > Self.maximumColumns ? 1 : 0
             let contentWidth = CGFloat(visibleItemCount) * Self.itemWidth
                 + CGFloat(max(0, visibleItemCount - 1)) * Self.itemSpacing
                 + 36
@@ -56,7 +60,7 @@ final class ShelfPanel: NSPanel {
                     Self.maximumShelfWidth
                 ),
                 height: itemCount > 0
-                    ? (selectionCount > 1 ? 252 : 218)
+                    ? (selectionCount > 1 ? 252 : 218) + CGFloat(extraRows) * Self.rowHeight
                     : 204
             )
         }

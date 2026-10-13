@@ -306,6 +306,15 @@ final class ShelfImportAndHistoryTests: XCTestCase {
         XCTAssertEqual(panel.frame.size, NSSize(width: 310, height: 252))
     }
 
+    @MainActor
+    func testShelfPanelAddsSecondRowPastSixItems() {
+        let panel = ShelfPanel(manager: makeIsolatedManager())
+        panel.updateLayout(itemCount: 6, selectionCount: 0, showingHistory: false, animated: false)
+        XCTAssertEqual(panel.frame.size.height, 218)
+        panel.updateLayout(itemCount: 30, selectionCount: 0, showingHistory: false, animated: false)
+        XCTAssertEqual(panel.frame.size.height, 348)
+    }
+
     func testUpdateVersionComparison() {
         XCTAssertTrue(UpdateVersion.isNewer("v1.10.0", than: "1.9.3"))
         XCTAssertTrue(UpdateVersion.isNewer("v2", than: "1.99.99"))
